@@ -1,0 +1,146 @@
+.defect-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 5000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px);
+}
+
+.defect-modal {
+    background-color: #0B0B0C;
+    border: 1px solid #1A1A1B;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+}
+
+.defect-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #1A1A1B;
+}
+
+.defect-header h2 {
+    margin: 0 0 6px 0;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.defect-header p {
+    margin: 0;
+}
+
+.defect-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group label {
+    display: block;
+    color: #888888;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.severity-toggles {
+    display: flex;
+    gap: 8px;
+}
+
+.severity-btn {
+    flex: 1;
+    background-color: #121213;
+    border: 1px solid #222222;
+    color: #AAAAAA;
+    padding: 10px 0;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.severity-btn.active {
+    color: #000;
+}
+
+.severity-btn.active.low { background-color: #4CAF50; border-color: #4CAF50; }
+.severity-btn.active.medium { background-color: #FFC107; border-color: #FFC107; }
+.severity-btn.active.high { background-color: #FF9800; border-color: #FF9800; }
+.severity-btn.active.critical { background-color: #F44336; border-color: #F44336; color: #FFF; }
+
+.defect-textarea {
+    width: 100%;
+    background-color: #121213;
+    border: 1px solid #222222;
+    border-radius: 6px;
+    padding: 14px;
+    color: #FFF;
+    font-family: inherit;
+    font-size: 14px;
+    min-height: 100px;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.defect-textarea:focus {
+    border-color: #D4AF37;
+}
+
+.defect-footer {
+    padding: 20px 24px;
+    border-top: 1px solid #1A1A1B;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.status-indicator {
+    color: #D4AF37;
+    font-size: 12px;
+    text-align: center;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-cancel, .btn-submit {
+    flex: 1;
+    padding: 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-cancel {
+    background-color: #1A1A1B;
+    color: #AAAAAA;
+}
+
+.btn-submit {
+    background-color: #D4AF37;
+    color: #000;
+}
+
+.btn-submit:disabled {
+    background-color: #554411;
+    color: #887755;
+}

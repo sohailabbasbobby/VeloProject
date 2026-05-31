@@ -1,0 +1,203 @@
+/* VELO TENANT ERP AESTHETIC - DEEP OBSIDIAN & GOLD */
+
+.velo-tenant-panel {
+    background-color: #0B0B0C;
+    border: 1px solid #1A1A1B;
+    border-radius: 8px;
+    padding: 30px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #E0E0E0;
+    max-width: 650px;
+    margin: 40px auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.velo-tenant-panel-header h2 {
+    color: #FFFFFF;
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+}
+
+.velo-tenant-panel-header p {
+    color: #888888;
+    font-size: 14px;
+    margin: 0 0 30px 0;
+}
+
+.velo-tenant-config-block {
+    background-color: #121213;
+    padding: 24px;
+    border-radius: 6px;
+    border: 1px solid #222222;
+    margin-bottom: 30px;
+}
+
+/* Toggle Switch Styles */
+.velo-toggle-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #222222;
+}
+
+.velo-toggle-text h4 {
+    margin: 0 0 4px 0;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.velo-toggle-text p {
+    margin: 0;
+    color: #777777;
+    font-size: 13px;
+}
+
+.velo-switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+}
+
+.velo-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.velo-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333333;
+    transition: .3s;
+}
+
+.velo-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+}
+
+input:checked + .velo-slider {
+    background-color: #D4AF37; /* Champagne Gold Active State */
+}
+
+input:checked + .velo-slider:before {
+    transform: translateX(22px);
+}
+
+.velo-slider.round {
+    border-radius: 24px;
+}
+
+.velo-slider.round:before {
+    border-radius: 50%;
+}
+
+/* Input Fields */
+.velo-form-group label {
+    display: block;
+    font-size: 12px;
+    color: #A0A0A0;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.velo-input-mask {
+    width: 100%;
+    background-color: #0B0B0C;
+    border: 1px solid #333333;
+    color: #FFFFFF;
+    padding: 14px;
+    border-radius: 4px;
+    font-size: 15px;
+    letter-spacing: 1px;
+    font-family: monospace;
+    outline: none;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.velo-input-mask:focus {
+    border-color: #D4AF37;
+}
+
+.velo-disabled-group {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.velo-input-hint {
+    display: block;
+    margin-top: 8px;
+    color: #666666;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* Footer & Actions */
+.velo-tenant-panel-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #1A1A1B;
+    padding-top: 24px;
+}
+
+.velo-tenant-status-text {
+    color: #4CAF50; /* Success Green */
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    animation: fadeInOut 3s forwards;
+}
+
+.velo-tenant-action-btn {
+    background-color: #FFFFFF;
+    color: #0B0B0C;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-left: auto;
+}
+
+.velo-tenant-action-btn:hover {
+    background-color: #F0F0F0;
+}
+
+.velo-tenant-action-btn:disabled {
+    background-color: #333333;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+.velo-tenant-action-btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}

@@ -1,0 +1,67 @@
+.erp-layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+.erp-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-obsidian);
+  position: relative;
+}
+
+.erp-header {
+  height: 80px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--spacing-xl);
+  background-color: var(--color-obsidian);
+}
+
+.view-title {
+  font-size: 20px;
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
+}
+
+.rbac-toggle {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-onyx);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  border: 1px dashed var(--color-danger);
+}
+
+.role-select {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: none;
+  font-family: var(--font-family-main);
+  outline: none;
+  cursor: pointer;
+}
+
+.text-sm { font-size: 12px; }
+.mr-2 { margin-right: 8px; }
+
+.erp-canvas {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.placeholder-view {
+  padding: var(--spacing-xl);
+  color: var(--color-text-muted);
+}

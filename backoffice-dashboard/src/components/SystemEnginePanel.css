@@ -1,0 +1,150 @@
+/* VELO SYSTEM ENGINE AESTHETICS */
+
+.velo-engine-panel {
+    background-color: #0B0B0C;
+    border: 1px solid #1A1A1B;
+    border-radius: 8px;
+    padding: 30px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #E0E0E0;
+    max-width: 800px;
+    margin: 40px auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.velo-engine-header h2 {
+    color: #D4AF37; /* Champagne Gold */
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+    letter-spacing: 0.5px;
+}
+
+.velo-engine-header p {
+    color: #888888;
+    font-size: 14px;
+    margin: 0 0 30px 0;
+}
+
+.velo-engine-content {
+    background-color: #121213;
+    padding: 10px 30px;
+    border-radius: 6px;
+    border: 1px solid #222222;
+    margin-bottom: 30px;
+}
+
+.velo-engine-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 0;
+}
+
+.velo-divider-horizontal {
+    height: 1px;
+    background-color: #1A1A1B;
+    width: 100%;
+}
+
+.velo-engine-info {
+    max-width: 400px;
+}
+
+.velo-engine-info h3 {
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0 0 6px 0;
+}
+
+.velo-engine-info p {
+    color: #666666;
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.velo-engine-input-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #0B0B0C;
+    border: 1px solid #333333;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 180px;
+}
+
+.velo-engine-input {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    color: #FFFFFF;
+    padding: 12px;
+    font-size: 15px;
+    text-align: right;
+    outline: none;
+    width: 100%;
+    font-family: monospace;
+}
+
+.velo-engine-input:focus {
+    background-color: #0A0A0A;
+}
+
+.velo-engine-input-wrapper:focus-within {
+    border-color: #D4AF37;
+}
+
+.velo-input-suffix {
+    padding: 12px 14px 12px 0;
+    color: #777777;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.velo-engine-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #1A1A1B;
+    padding-top: 24px;
+}
+
+.velo-engine-status-text {
+    color: #D4AF37;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    animation: fadeInOut 4s forwards;
+}
+
+.velo-engine-action-btn {
+    background-color: #D4AF37;
+    color: #0B0B0C;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-left: auto;
+}
+
+.velo-engine-action-btn:hover:not(:disabled) {
+    background-color: #E8C34B;
+}
+
+.velo-engine-action-btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.velo-engine-action-btn:disabled {
+    background-color: #554411;
+    color: #887755;
+    cursor: not-allowed;
+}

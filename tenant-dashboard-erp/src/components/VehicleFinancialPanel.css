@@ -1,0 +1,199 @@
+.financial-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+}
+
+.panel-header-nav {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.btn-back {
+    background-color: #121213;
+    border: 1px solid #222222;
+    color: #AAAAAA;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.btn-back:hover { background-color: #1A1A1B; color: #FFF; }
+
+.header-titles h2 { margin: 0 0 4px 0; font-size: 24px; }
+.header-titles p { margin: 0; }
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 20px;
+}
+
+.metric-card {
+    background-color: #0B0B0C;
+    border: 1px solid #1A1A1B;
+    border-radius: 8px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-card h3 {
+    margin: 0 0 15px 0;
+    color: #888888;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.metric-value {
+    font-size: 36px;
+    font-weight: 700;
+    font-family: monospace;
+    margin-bottom: 10px;
+}
+
+.gross-card { border-top: 3px solid #D4AF37; }
+.outlays-card { border-top: 3px solid #F44336; }
+.yield-card { border-top: 3px solid #4CAF50; background-color: #0a140d; }
+
+.metric-trend {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.outlay-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: auto;
+    border-top: 1px solid #1A1A1B;
+    padding-top: 15px;
+}
+
+.outlay-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #AAAAAA;
+}
+
+.outlay-row span:last-child {
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.ledger-preview {
+    background-color: #0B0B0C;
+    border: 1px solid #1A1A1B;
+    border-radius: 8px;
+    padding: 24px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.ledger-title {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #FFF;
+}
+
+.ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ledger-table th {
+    text-align: left;
+    color: #888888;
+    font-size: 12px;
+    text-transform: uppercase;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #222222;
+}
+
+.ledger-table td {
+    padding: 15px 0;
+    border-bottom: 1px solid #151515;
+    font-size: 14px;
+    color: #CCCCCC;
+}
+
+.badge-booking, .badge-general, .badge-fixed {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.badge-booking { background-color: #4A3A1A; color: #FF9800; }
+.badge-general { background-color: #1A3320; color: #4CAF50; }
+.badge-fixed { background-color: #4A1A1A; color: #F44336; }
+
+.badge-receipt {
+    background: none;
+    border: none;
+    color: #D4AF37;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.badge-receipt:hover { text-decoration: underline; }
+
+.receipt-lightbox {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px);
+}
+
+.lightbox-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.lightbox-close {
+    background-color: #1A1A1B;
+    border: 1px solid #333;
+    color: #FFF;
+    padding: 10px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 1px;
+}
+
+.mock-receipt-graphic {
+    background-color: #FAFAFA;
+    width: 300px;
+    height: 450px;
+    border-radius: 4px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+}
+
+.mock-receipt-graphic .text-gold { color: #8C7323 !important; }
+
+.receipt-lines {
+    width: 100%;
+    height: 1px;
+    border-bottom: 2px dashed #CCC;
+    margin-top: 20px;
+}

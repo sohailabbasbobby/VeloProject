@@ -1,0 +1,108 @@
+.onboarding-canvas {
+  position: absolute;
+  inset: 0;
+  background-color: var(--brand-bg);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-xl);
+  transition: background-color 1s ease;
+}
+
+.onboarding-canvas.auth-success {
+  background: radial-gradient(circle at center, var(--brand-surface) 0%, var(--brand-bg) 100%);
+}
+
+.branding-engine-placeholder {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.tenant-logo {
+  width: 140px;
+  height: 40px;
+  border: 1px dashed var(--brand-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--brand-primary);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.tenant-logo::after {
+  content: 'TENANT LOGO';
+}
+
+.auth-content {
+  text-align: center;
+  width: 100%;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: var(--brand-primary);
+  border-radius: 50%;
+  margin: 0 auto var(--spacing-xl);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.auth-text {
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.success-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--brand-surface);
+  border: 2px solid var(--brand-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--brand-primary);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); /* Adjust shadow in a real app based on primary */
+}
+
+.welcome-greeting {
+  font-size: 28px;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-primary);
+  font-weight: 400;
+}
+
+.welcome-greeting span {
+  font-weight: 600;
+}
+
+.tenant-name {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  letter-spacing: 1px;
+}

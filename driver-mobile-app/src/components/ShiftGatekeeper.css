@@ -1,0 +1,119 @@
+.gatekeeper-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-obsidian);
+  z-index: 200; /* Ensure it locks the app view */
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.logo-zone {
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.logo-placeholder {
+  width: 140px;
+  height: 40px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+  border: 1px dashed var(--color-gold);
+  position: relative;
+}
+
+.logo-placeholder::after {
+  content: 'VELO LOGO AREA';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 10px;
+  color: var(--color-gold);
+  letter-spacing: 2px;
+}
+
+.driver-header {
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.portrait-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--color-onyx);
+  border: 2px solid var(--color-gold);
+}
+
+.driver-info h2 {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.text-sm {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.checklist-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+}
+
+.photo-capture-block {
+  margin-top: auto;
+  margin-bottom: var(--spacing-xl);
+  height: 120px;
+  border-radius: var(--border-radius-md);
+  border: 2px dashed rgba(255,255,255,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-align: center;
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: rgba(26, 26, 27, 0.5); /* onyx semi */
+}
+
+.photo-capture-block:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+.photo-capture-block.captured {
+  border: 2px solid var(--color-success);
+  background-color: rgba(74, 222, 128, 0.1);
+}
+
+.photo-thumbnail {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-onyx);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.base-margin-slider {
+  margin-top: auto;
+  padding-bottom: var(--spacing-md);
+}

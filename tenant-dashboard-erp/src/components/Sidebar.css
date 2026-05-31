@@ -1,0 +1,68 @@
+.erp-sidebar {
+  width: var(--sidebar-width);
+  height: 100%;
+  background-color: var(--color-onyx);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-logo {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-xl);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.logo-placeholder {
+  color: var(--color-gold);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 4px;
+}
+
+.sidebar-nav {
+  padding: var(--spacing-lg) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-main);
+  font-size: 15px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.nav-tab:hover {
+  background-color: rgba(255,255,255,0.02);
+  color: var(--color-text-primary);
+}
+
+.nav-tab.active {
+  background-color: rgba(212, 175, 55, 0.05);
+  border-left-color: var(--color-gold);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: var(--spacing-lg) 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.settings-btn {
+  width: 100%;
+}

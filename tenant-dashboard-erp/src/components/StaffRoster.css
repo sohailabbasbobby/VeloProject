@@ -1,0 +1,145 @@
+.staff-roster {
+  padding: var(--spacing-xl);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.roster-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.roster-header h2 {
+  font-size: 24px;
+}
+
+.roster-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
+  gap: var(--spacing-lg);
+  flex: 1;
+}
+
+.fleet-column h3, .personnel-column h3, .calendar-column h3 {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+  text-transform: uppercase;
+}
+
+.fleet-slot {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  background-color: var(--color-obsidian);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.car-profile {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.car-icon {
+  font-size: 32px;
+}
+
+.car-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.car-tag, .car-reg {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.drop-zone {
+  width: 150px;
+  height: 60px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+}
+
+.drop-zone.empty {
+  border: 2px dashed rgba(255,255,255,0.2);
+  color: var(--color-text-secondary);
+}
+
+.drop-zone.occupied {
+  border: 1px solid transparent;
+}
+
+.avatar-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background-color: var(--color-onyx);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: grab;
+}
+
+.avatar-chip .avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--color-obsidian);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.status-online { border-color: var(--color-emerald); color: var(--color-text-primary); }
+.status-break { border-color: var(--color-gold); color: var(--color-text-primary); }
+.status-offline { border-color: var(--color-text-muted); color: var(--color-text-muted); opacity: 0.6; }
+
+.personnel-bench {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  background-color: var(--color-obsidian);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+}
+
+.shift {
+  background-color: rgba(212, 175, 55, 0.1);
+  color: var(--color-gold);
+  border: 1px solid var(--color-gold);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.shift.empty {
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,0.2);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}

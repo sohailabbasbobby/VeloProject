@@ -1,0 +1,96 @@
+.corporate-trips {
+  padding: var(--spacing-xl);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.trips-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: var(--spacing-md);
+}
+
+.trips-tabs button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  padding: var(--spacing-md);
+  font-family: var(--font-family-main);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.trips-tabs button.active {
+  color: var(--color-gold);
+  border-bottom: 2px solid var(--color-gold);
+  font-weight: 600;
+}
+
+.trips-content {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+}
+
+/* Active Transfers Tab */
+.active-transfers {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mock-map-canvas {
+  flex: 1;
+  background-color: #0c0c0e;
+  position: relative;
+  overflow: hidden;
+}
+
+.tracking-marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 32px;
+  transform: translate(-50%, -50%);
+}
+
+.driver-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: var(--color-onyx);
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.driver-card .avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgba(212, 175, 55, 0.1);
+  color: var(--color-gold);
+  border: 1px solid var(--color-gold);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.driver-info {
+  flex: 1;
+}
+
+.eta-meter {
+  text-align: right;
+}
+
+.eta-meter h3 {
+  font-size: 24px;
+}
+
+.cursor-pointer { cursor: pointer; }
+.ml-2 { margin-left: 8px; }

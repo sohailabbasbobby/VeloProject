@@ -1,0 +1,130 @@
+.expense-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 6000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px);
+}
+
+.expense-modal {
+    background-color: #0B0B0C;
+    border: 1px solid #D4AF37;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+}
+
+.expense-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #1A1A1B;
+}
+
+.expense-header h2 { margin: 0 0 6px 0; font-size: 20px; font-weight: 500; }
+.expense-header p { margin: 0; }
+
+.expense-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.type-toggles {
+    display: flex;
+    gap: 8px;
+}
+
+.type-toggles button {
+    flex: 1;
+    background-color: #121213;
+    border: 1px solid #222222;
+    color: #AAAAAA;
+    padding: 10px 0;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.type-toggles button.active {
+    background-color: #D4AF37;
+    color: #000;
+    border-color: #D4AF37;
+}
+
+.type-toggles .custom-btn {
+    background-color: #1A1A1B;
+    border-style: dashed;
+}
+
+.custom-input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.cancel-custom {
+    background-color: #1A1A1B;
+    border: 1px solid #222;
+    color: #AAA;
+    border-radius: 6px;
+    width: 40px;
+    cursor: pointer;
+}
+
+.expense-input {
+    width: 100%;
+    background-color: #121213;
+    border: 1px solid #222222;
+    border-radius: 6px;
+    padding: 14px;
+    color: #FFF;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.expense-input:focus { border-color: #D4AF37; }
+.amount-input { font-size: 20px; font-weight: bold; color: #D4AF37; }
+
+.expense-footer {
+    padding: 20px 24px;
+    border-top: 1px solid #1A1A1B;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn-skip { background-color: #1A1A1B; color: #AAAAAA; flex: 1; padding: 14px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; }
+.btn-submit { background-color: #D4AF37; color: #000; flex: 1; padding: 14px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; }
+
+.btn-upload {
+    width: 100%;
+    background-color: transparent;
+    border: 1px dashed #D4AF37;
+    color: #D4AF37;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.receipt-attached {
+    width: 100%;
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #4CAF50;
+    box-sizing: border-box;
+}

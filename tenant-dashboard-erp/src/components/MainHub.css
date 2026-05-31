@@ -1,0 +1,145 @@
+.main-hub {
+  padding: var(--spacing-xl);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  overflow-y: auto;
+}
+
+.main-hub.map-fullscreen {
+  padding: 0;
+  overflow: hidden;
+}
+
+.financial-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+}
+
+.fin-card h4 {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+}
+
+.fin-card .metric {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.hub-content-split {
+  display: flex;
+  gap: var(--spacing-xl);
+  flex: 1;
+}
+
+.main-hub.map-fullscreen .hub-content-split {
+  margin: 0;
+  gap: 0;
+}
+
+.alerts-column {
+  flex: 1;
+}
+
+.alerts-column h3 {
+  font-size: 16px;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.alert-box {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  border-left: 3px solid var(--color-danger);
+  padding: var(--spacing-md);
+}
+
+.alert-box .icon {
+  font-size: 20px;
+}
+
+.alert-text {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.radar-widget {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.radar-widget.expanded {
+  flex: none;
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  border-radius: 0;
+  border: none;
+  cursor: default;
+}
+
+.radar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  z-index: 10;
+}
+
+.radar-header h3 {
+  font-size: 16px;
+}
+
+.radar-map-mock {
+  flex: 1;
+  background-color: #0c0c0e;
+  border-radius: var(--border-radius-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.radar-widget.expanded .radar-map-mock {
+  border-radius: 0;
+}
+
+.radar-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(212, 175, 55, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 175, 55, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.target {
+  position: absolute;
+  font-size: 20px;
+}
+
+.t1 { top: 30%; left: 40%; }
+.t2 { top: 60%; left: 70%; animation-delay: 0.5s; }
+.t3 { top: 80%; left: 20%; animation-delay: 1s; }
+
+.radar-overlay-hint {
+  position: absolute;
+  bottom: var(--spacing-md);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0,0,0,0.6);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}

@@ -1,0 +1,81 @@
+.home-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background-color: var(--brand-bg);
+}
+
+.map-layer {
+  position: absolute;
+  inset: 0;
+  background-color: #0c0c0e; /* Slightly different from bg for map feel */
+  background-image: 
+    radial-gradient(rgba(212, 175, 55, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.user-dot {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background-color: var(--color-text-primary);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+.trip-line {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: 20%;
+  height: 20%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.vehicle-marker {
+  position: absolute;
+  top: 40%;
+  left: 70%;
+  width: 32px;
+  height: 32px;
+  background-color: var(--brand-surface);
+  border: 2px solid var(--brand-primary);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  transform: translate(-50%, -50%);
+}
+
+.top-bar {
+  position: absolute;
+  top: var(--spacing-xl);
+  right: var(--spacing-md);
+  z-index: 20;
+}
+
+.profile-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.profile-trigger .monogram {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--brand-surface);
+  color: var(--brand-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 16px;
+  border: 1px solid rgba(212,175,55,0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
