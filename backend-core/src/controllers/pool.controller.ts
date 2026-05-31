@@ -32,7 +32,7 @@ export const postJob = async (req: Request, res: Response) => {
         const ratePerMinute = engineSettings.marketplacePerMinutePence / 100;
 
         // Note: For now, we simulate estimated duration (minutes) as distance * 2.5 min/mile if mapsService doesn't provide it natively in this mock.
-        const estimatedMinutes = metrics.estimatedMinutes || (metrics.distanceMiles * 2.5);
+        const estimatedMinutes = metrics.estimatedDurationMinutes || (metrics.distanceMiles * 2.5);
 
         const dynamicFloor = baseFare + (metrics.distanceMiles * ratePerMile) + (estimatedMinutes * ratePerMinute);
 

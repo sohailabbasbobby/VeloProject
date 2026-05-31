@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------
+  # VELO POSTGRESQL + POSTGIS (SPATIAL DATABASE)
+  # ---------------------------------------------------------
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: velo_postgres_prod
+    restart: always
+    environment:
+      # Securely mapped from high-level runtime secrets
+      POSTGRES_DB: ${DB_NAME:-velo_network}
+      POSTGRES_USER: ${DB_USER:-velo_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_placeholder_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      # Persistent volume mapping to protect cryptographic and geographic records
+      - velo_db_data:/var/lib/postgresql/data
+      # Map schema initializers
+      - ./backend-core/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - velo_secure_net
+
+  # ---------------------------------------------------------
+  # VELO BACKEND CORE API
+  # ---------------------------------------------------------
+  backend-core:
+    build:
+      context: ./backend-core
+      dockerfile: Dockerfile
+    container_name: velo_backend_prod
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+      # Master Database Connection String
+      - DATABASE_URL=postgres://${DB_USER:-velo_admin}:${DB_PASSWORD:-secure_placeholder_password}@db:5432/${DB_NAME:-velo_network}
+      # High-Level Runtime Variables and Security Keys
+      - JWT_SECRET=${JWT_SECRET:-super_secret_jwt_placeholder}
+      - X_ADMIN_KEY=${X_ADMIN_KEY:-master_admin_placeholder_key}
+    depends_on:
+      - db
+    networks:
+      - velo_secure_net
+
+networks:
+  # Isolated virtual network for inter-container secure communication
+  velo_secure_net:
+    driver: bridge
+
+volumes:
+  # Persistent volume definition for the PostGIS data layer
+  velo_db_data:
