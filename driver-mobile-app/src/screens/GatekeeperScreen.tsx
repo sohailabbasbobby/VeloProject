@@ -1,90 +1,112 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import ReactNativeBiometrics, { BiometryTypes } from 'react-native-biometrics';
-import { useDriverStore } from '../store/useDriverStore';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { COLOURS } from '../constants/theme';
+import { VeloSwipeTrack } from '../components/VeloSwipeTrack';
 
-const rnBiometrics = new ReactNativeBiometrics();
+interface GatekeeperScreenProps {
+  driverProfile: { name: string };
+  compliance: { pristine: boolean; cabin: boolean; tyres: boolean; fuel: boolean };
+  setCompliance: (c: any) => void;
+  hasCameraPayload: boolean;
+  setHasCameraPayload: (v: boolean) => void;
+  odometerValue: string;
+  setOdometerValue: (v: string) => void;
+  isUnlocked: boolean;
+  onGoOnline: () => void;
+}
 
-export default function GatekeeperScreen({ navigation }: any) {
-  const { compliance, toggleCompliance, hasCameraPayload, odometerValue, setOdometerValue } = useDriverStore();
-  
-  const isGatekeeperUnlocked = compliance.pristine && compliance.cabin && compliance.tyres && compliance.fuel && hasCameraPayload && odometerValue.trim().length > 0;
+export function GatekeeperScreen({
+  driverProfile, compliance, setCompliance,
+  hasCameraPayload, setHasCameraPayload,
+  odometerValue, setOdometerValue,
+  isUnlocked, onGoOnline,
+}: GatekeeperScreenProps) {
 
-  const handleUnlock = async () => {
-    ReactNativeHapticFeedback.trigger('impactHeavy', { enableVibrateFallback: true });
-    
-    try {
-      const { available, biometryType } = await rnBiometrics.isSensorAvailable();
-      
-      if (available && biometryType === BiometryTypes.FaceID) {
-        const { success } = await rnBiometrics.simplePrompt({ promptMessage: 'Authenticate to Unlock Terminal' });
-        if (success) {
-          ReactNativeHapticFeedback.trigger('notificationSuccess', { enableVibrateFallback: true });
-          navigation.replace('RadarPool');
-        } else {
-          ReactNativeHapticFeedback.trigger('notificationError', { enableVibrateFallback: true });
-        }
-      } else {
-        // Fallback for no biometrics
-        navigation.replace('RadarPool');
-      }
-    } catch (error) {
-      console.error(error);
-      navigation.replace('RadarPool');
-    }
-  };
+  const checks = [
+    { id: 'pristine', text: 'Pristine exterior body' },
+    { id: 'cabin',    text: 'Cabin vacuumed & prepped' },
+    { id: 'tyres',    text: 'Tyre pressure verified' },
+    { id: 'fuel',     text: 'Fuel/Battery > 75%' },
+  ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.gatekeeperContainer}>
-        <Text style={styles.headerTitle}>VELO GATEKEEPER</Text>
-        <Text style={styles.subHeader}>Pre-Shift Compliance Verification</Text>
-
-        <View style={styles.checklist}>
-          {Object.keys(compliance).map((key) => (
-            <TouchableOpacity 
-              key={key} 
-              style={styles.checkItem} 
-              onPress={() => {
-                ReactNativeHapticFeedback.trigger('selection', { enableVibrateFallback: true });
-                toggleCompliance(key as any);
-              }}
-            >
-              <View style={[styles.checkBox, compliance[key as keyof typeof compliance] && styles.checkBoxActive]}>
-                {compliance[key as keyof typeof compliance] && <Text style={styles.checkMark}>✓</Text>}
-              </View>
-              <Text style={styles.checkLabel}>{key.toUpperCase()} COMPLIANCE</Text>
-            </TouchableOpacity>
-          ))}
+    <View style={styles.fullTakeoverContainer}>
+      {/* Driver header */}
+      <View style={styles.gatekeeperHeader}>
+        <View style={styles.avatarPlaceholder} />
+        <View style={{ marginLeft: 14, flex: 1 }}>
+          <Text style={styles.chauffeurName}>{driverProfile.name}</Text>
+          <Text style={styles.carMeta}>MERCEDES-BENZ S-CLASS{'\n'}BLACK - REG: LN26 XAA</Text>
         </View>
-
-        <TouchableOpacity 
-          style={[styles.unlockButton, isGatekeeperUnlocked && styles.unlockButtonActive]} 
-          disabled={!isGatekeeperUnlocked}
-          onPress={handleUnlock}
-        >
-          <Text style={styles.unlockButtonText}>
-            {isGatekeeperUnlocked ? 'UNLOCK TERMINAL' : 'AWAITING COMPLIANCE'}
-          </Text>
+        <TouchableOpacity style={{ padding: 8, backgroundColor: COLOURS.gold, borderRadius: 8 }} onPress={onGoOnline}>
+          <Text style={{ color: '#000', fontSize: 10, fontWeight: '900' }}>DEV SKIP</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+        {/* Compliance checklist */}
+        {checks.map(item => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.complianceRowCard}
+            onPress={() => setCompliance({ ...compliance, [item.id]: !compliance[item.id as keyof typeof compliance] })}
+          >
+            <View style={[styles.checkboxToggle, compliance[item.id as keyof typeof compliance] && styles.checkboxChecked]}>
+              {compliance[item.id as keyof typeof compliance] && <Text style={styles.checkIcon}>✓</Text>}
+            </View>
+            <Text style={styles.complianceCardText}>{item.text}</Text>
+          </TouchableOpacity>
+        ))}
+
+        {/* Odometer */}
+        <View style={styles.odometerInputWrapper}>
+          <Text style={styles.odometerLabel}>CURRENT VEHICLE ODOMETER MILEAGE</Text>
+          <TextInput
+            style={styles.odometerTextInput}
+            placeholder="Enter mileage..."
+            placeholderTextColor="#3C3C3E"
+            keyboardType="numeric"
+            value={odometerValue}
+            onChangeText={setOdometerValue}
+          />
+        </View>
+
+        {/* Camera capture */}
+        <TouchableOpacity style={styles.cameraWindowTarget} onPress={() => setHasCameraPayload(!hasCameraPayload)}>
+          {hasCameraPayload
+            ? <Text style={styles.cameraPayloadSuccessText}>✓ CABIN CAPTURED SUCCESSFUL</Text>
+            : <Text style={styles.cameraPlaceholderText}>📷   TAP TO CAPTURE REAR CABIN PRESENTATION</Text>
+          }
+        </TouchableOpacity>
+      </ScrollView>
+
+      <VeloSwipeTrack
+        text="SLIDE RIGHT TO GO ONLINE >>>"
+        trackColor="#131F17"
+        thumbColor={COLOURS.green}
+        textColor={COLOURS.green}
+        disabled={!isUnlocked}
+        onComplete={onGoOnline}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  gatekeeperContainer: { flex: 1, padding: 20, justifyContent: 'center' },
-  headerTitle: { color: '#D4AF37', fontSize: 28, fontWeight: 'bold', textAlign: 'center' },
-  subHeader: { color: '#888', fontSize: 16, textAlign: 'center', marginBottom: 40 },
-  checklist: { marginBottom: 40 },
-  checkItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  checkBox: { width: 24, height: 24, borderWidth: 2, borderColor: '#D4AF37', marginRight: 15, justifyContent: 'center', alignItems: 'center' },
-  checkBoxActive: { backgroundColor: '#D4AF37' },
-  checkMark: { color: '#000', fontWeight: 'bold' },
-  checkLabel: { color: '#FFF', fontSize: 16, letterSpacing: 1 },
-  unlockButton: { height: 56, backgroundColor: '#333', justifyContent: 'center', alignItems: 'center', borderRadius: 28 },
-  unlockButtonActive: { backgroundColor: '#D4AF37' },
-  unlockButtonText: { color: '#000', fontWeight: 'bold', fontSize: 16, letterSpacing: 2 }
+  fullTakeoverContainer: { flex: 1, backgroundColor: COLOURS.bg, padding: 20 },
+  gatekeeperHeader:      { flexDirection: 'row', alignItems: 'center', paddingBottom: 22, marginBottom: 22 },
+  avatarPlaceholder:     { width: 50, height: 50, borderRadius: 25, backgroundColor: '#141416' },
+  chauffeurName:         { color: '#FFFFFF', fontSize: 18, fontWeight: '800', letterSpacing: 1.5 },
+  carMeta:               { color: COLOURS.textDark, fontSize: 11, marginTop: 4, fontWeight: '700', letterSpacing: 0.5, lineHeight: 14 },
+  complianceRowCard:     { flexDirection: 'row', alignItems: 'center', backgroundColor: COLOURS.surface, padding: 18, borderRadius: 12, marginBottom: 10 },
+  complianceCardText:    { color: '#EAEAEA', fontSize: 13, fontWeight: '700', marginLeft: 14, flex: 1 },
+  checkboxToggle:        { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: '#3A3A3C', justifyContent: 'center', alignItems: 'center' },
+  checkboxChecked:       { borderColor: COLOURS.gold },
+  checkIcon:             { color: COLOURS.gold, fontSize: 13, fontWeight: 'bold' },
+  odometerInputWrapper:  { backgroundColor: COLOURS.surface, padding: 16, borderRadius: 12, marginBottom: 10 },
+  odometerLabel:         { color: COLOURS.gold, fontSize: 10, fontWeight: '800', letterSpacing: 1, marginBottom: 8 },
+  odometerTextInput:     { backgroundColor: COLOURS.bg, height: 44, borderRadius: 8, borderColor: '#1C1C1E', borderWidth: 1, color: '#FFFFFF', paddingHorizontal: 14, fontSize: 14, fontWeight: '700' },
+  cameraWindowTarget:    { height: 60, borderRadius: 12, backgroundColor: COLOURS.surface, justifyContent: 'center', alignItems: 'center', marginTop: 5, marginBottom: 25 },
+  cameraPlaceholderText: { color: COLOURS.gold, fontSize: 11, fontWeight: '800', letterSpacing: 1 },
+  cameraPayloadSuccessText: { color: COLOURS.gold, fontSize: 11, fontWeight: '900', letterSpacing: 1 },
 });

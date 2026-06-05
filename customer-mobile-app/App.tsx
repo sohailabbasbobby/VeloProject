@@ -12,10 +12,12 @@ import {
   ActivityIndicator
 } from 'react-native';
 
+import { HomeScreen } from './src/screens/HomeScreen';
+
 // --- Firebase Web SDK for React Native Auth & Sync ---
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, collection, onSnapshot, query, connectFirestoreEmulator, doc, setDoc } from 'firebase/firestore';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, initializeAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, initializeFirestore, collection, onSnapshot, query, connectFirestoreEmulator, doc, setDoc } from 'firebase/firestore';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
 
 const firebaseConfig = {
@@ -24,15 +26,32 @@ const firebaseConfig = {
   projectId: "velo-platform-2026-x1",
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const functions = getFunctions(app);
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import { getReactNativePersistence } from 'firebase/auth';
 
-// Connect to Local Emulators
-connectAuthEmulator(auth, "http://127.0.0.1:9099");
-connectFirestoreEmulator(db, '127.0.0.1', 8080);
-connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+let app;
+let auth;
+let db;
+let functions;
+
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig);
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+  });
+  db = initializeFirestore(app, { experimentalForceLongPolling: true });
+  functions = getFunctions(app);
+
+  // Connect to Local Emulators
+  connectAuthEmulator(auth, "http://127.0.0.1:9099");
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+} else {
+  app = getApp();
+  auth = getAuth(app);
+  db = getFirestore(app);
+  functions = getFunctions(app);
+}
 
 const API_BASE_URL = 'http://127.0.0.1:5001/velo-platform-2026-x1/us-central1/api/v1';
 
@@ -81,6 +100,15 @@ const App = () => {
   // AUTHENTICATION LISTENER
   // ----------------------------------------------------
   useEffect(() => {
+    // --- DEVELOPMENT BYPASS MODE ---
+    setUser({ uid: 'dev-test-123', email: 'dev@velo.com' });
+    setJwtToken('MOCK_JWT_TOKEN');
+    setUserRole('customer_personal');
+    setActiveTenantId('default_tenant');
+    setSelectedRole('PERSONAL'); // Bypass Role Selection screen directly to Home
+    setIsAuthLoading(false);
+
+    /* Original Auth Logic (Commented out for bypass):
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
@@ -105,6 +133,7 @@ const App = () => {
       setIsAuthLoading(false);
     });
     return unsubscribe;
+    */
   }, []);
 
   // ----------------------------------------------------
@@ -497,48 +526,27 @@ const App = () => {
       <StatusBar barStyle="light-content" backgroundColor="#070708" />
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: tenantBrand.primary }]}>VELO {selectedRole}</Text>
-        <TouchableOpacity onPress={() => setSelectedRole(null)}><Text style={styles.switchRoleText}>Exit</Text></TouchableOpacity>
       </View>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={styles.flowContainer}>
-          {selectedRole === 'PERSONAL' && flowState === 'QUOTE' && (
-            <>
-              <Text style={styles.sectionHeader}>{tenantBrand.slogan}</Text>
-              <View style={styles.inputCard}>
-                <TextInput style={styles.inputField} placeholder="Pickup Location" placeholderTextColor="#8A8A8E" value={pickup} onChangeText={setPickup} />
-                <View style={styles.inputDivider} />
-                <TextInput style={styles.inputField} placeholder="Dropoff Destination" placeholderTextColor="#8A8A8E" value={dropoff} onChangeText={setDropoff} />
-              </View>
-              <TouchableOpacity style={[styles.primaryActionBtn, { backgroundColor: tenantBrand.primary }]} onPress={getQuoteFromAPI}>
-                {isSubmitting ? <ActivityIndicator color="#070708" /> : <Text style={styles.primaryActionText}>Get Fixed Price Quote</Text>}
-              </TouchableOpacity>
-              {quotePrice && (
-                <View style={[styles.quoteResultCard, { borderColor: tenantBrand.primary }]}>
-                  <Text style={[styles.quoteValue, { color: tenantBrand.primary }]}>£{quotePrice}.00</Text>
-                  <TouchableOpacity style={[styles.primaryActionBtn, { marginTop: 20, backgroundColor: tenantBrand.accent }]} onPress={() => setFlowState('PAYMENT')}><Text style={[styles.primaryActionText, { color: '#fff' }]}>Proceed to Payment</Text></TouchableOpacity>
+      {selectedRole === 'PERSONAL' ? (
+        <HomeScreen />
+      ) : (
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={styles.flowContainer}>
+            {selectedRole === 'ADMIN' && (
+              <View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <TouchableOpacity onPress={() => setAdminTab('MANIFEST')}><Text style={{ color: adminTab === 'MANIFEST' ? tenantBrand.primary : '#8A8A8E', fontWeight: 'bold' }}>MANIFEST</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => setAdminTab('AUDIT')}><Text style={{ color: adminTab === 'AUDIT' ? tenantBrand.primary : '#8A8A8E', fontWeight: 'bold' }}>AUDIT LOGS</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => setAdminTab('BRANDING')}><Text style={{ color: adminTab === 'BRANDING' ? tenantBrand.primary : '#8A8A8E', fontWeight: 'bold' }}>BRANDING</Text></TouchableOpacity>
                 </View>
-              )}
-            </>
-          )}
-          {selectedRole === 'PERSONAL' && flowState === 'PAYMENT' && (
-             <TouchableOpacity style={[styles.primaryActionBtn, { marginTop: 30, backgroundColor: tenantBrand.primary }]} onPress={dispatchBookingToAPI}>
-             {isSubmitting ? <ActivityIndicator color="#070708" /> : <Text style={styles.primaryActionText}>Pay & Request Ride (JWT Secured)</Text>}
-           </TouchableOpacity>
-          )}
-          {selectedRole === 'ADMIN' && (
-            <View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
-                <TouchableOpacity onPress={() => setAdminTab('MANIFEST')}><Text style={{ color: adminTab === 'MANIFEST' ? tenantBrand.primary : '#8A8A8E', fontWeight: 'bold' }}>MANIFEST</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setAdminTab('AUDIT')}><Text style={{ color: adminTab === 'AUDIT' ? tenantBrand.primary : '#8A8A8E', fontWeight: 'bold' }}>AUDIT LOGS</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setAdminTab('BRANDING')}><Text style={{ color: adminTab === 'BRANDING' ? tenantBrand.primary : '#8A8A8E', fontWeight: 'bold' }}>BRANDING</Text></TouchableOpacity>
+                {adminTab === 'MANIFEST' && renderAdminManifest()}
+                {adminTab === 'AUDIT' && renderAdminAudit()}
+                {adminTab === 'BRANDING' && renderAdminBranding()}
               </View>
-              {adminTab === 'MANIFEST' && renderAdminManifest()}
-              {adminTab === 'AUDIT' && renderAdminAudit()}
-              {adminTab === 'BRANDING' && renderAdminBranding()}
-            </View>
-          )}
-        </View>
-      </ScrollView>
+            )}
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };

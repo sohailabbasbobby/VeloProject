@@ -1,91 +1,78 @@
 import React, { useRef } from 'react';
-import { View, Text, StyleSheet, PanResponder, Animated, Dimensions } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-
-const { width } = Dimensions.get('window');
+import { Animated, PanResponder, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { COLOURS, SWIPE_RANGE, SLIDER_WIDTH, THUMB_SIZE } from '../constants/theme';
 
 interface VeloSwipeTrackProps {
   text: string;
-  trackColor?: string;
-  thumbColor?: string;
-  textColor?: string;
+  trackColor: string;
+  thumbColor: string;
+  textColor: string;
   onComplete: () => void;
+  onSwipeStart?: () => void;
+  onSwipeEnd?: () => void;
+  disabled?: boolean;
 }
 
-export default function VeloSwipeTrack({ 
-  text, 
-  trackColor = '#1F1314', 
-  thumbColor = '#D4AF37', 
-  textColor = '#D4AF37', 
-  onComplete 
-}: VeloSwipeTrackProps) {
-  const pan = useRef(new Animated.ValueXY()).current;
-  const trackWidth = width - 40;
-  const thumbWidth = 60;
-  const maxSwipe = trackWidth - thumbWidth;
+export function VeloSwipeTrack({ text, trackColor, thumbColor, textColor, onComplete, onSwipeStart, onSwipeEnd, disabled = false }: VeloSwipeTrackProps) {
+  const pan = useRef(new Animated.Value(0)).current;
+
+  // Track latest disabled state so PanResponder closure always has correct value
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => !disabledRef.current,
+      onMoveShouldSetPanResponder: () => !disabledRef.current,
+      onMoveShouldSetPanResponderCapture: () => !disabledRef.current,
+      onPanResponderGrant: () => {
+        if (onSwipeStart) onSwipeStart();
+      },
       onPanResponderMove: (_, gestureState) => {
-        let newX = gestureState.dx;
-        if (newX < 0) newX = 0;
-        if (newX > maxSwipe) newX = maxSwipe;
-        pan.setValue({ x: newX, y: 0 });
+        if (gestureState.dx < 0) pan.setValue(0);
+        else if (gestureState.dx > SWIPE_RANGE) pan.setValue(SWIPE_RANGE);
+        else pan.setValue(gestureState.dx);
       },
       onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dx >= maxSwipe - 20) {
-          Animated.spring(pan, { toValue: { x: maxSwipe, y: 0 }, useNativeDriver: false }).start();
-          ReactNativeHapticFeedback.trigger('notificationSuccess', { enableVibrateFallback: true });
-          onComplete();
+        if (onSwipeEnd) onSwipeEnd();
+        if (gestureState.dx >= SWIPE_RANGE * 0.8) {
+          Animated.timing(pan, { toValue: SWIPE_RANGE, duration: 120, useNativeDriver: false }).start(() => {
+            onComplete();
+            Animated.timing(pan, { toValue: 0, duration: 0, useNativeDriver: false }).start();
+          });
         } else {
-          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
+          Animated.spring(pan, { toValue: 0, friction: 5, useNativeDriver: false }).start();
         }
-      }
+      },
+      onPanResponderTerminate: () => {
+        if (onSwipeEnd) onSwipeEnd();
+        Animated.spring(pan, { toValue: 0, friction: 5, useNativeDriver: false }).start();
+      },
+      onPanResponderTerminationRequest: () => false,
     })
   ).current;
 
   return (
-    <View style={[styles.swipeTrack, { backgroundColor: trackColor }]}>
-      <Text style={[styles.swipeText, { color: textColor }]}>{text}</Text>
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => { if (!disabled) onComplete(); }}
+      disabled={disabled}
+      style={[styles.sliderContainer, { backgroundColor: trackColor, borderColor: thumbColor, opacity: disabled ? 0.3 : 1 }]}
+    >
       <Animated.View
-        style={[styles.swipeThumb, { backgroundColor: thumbColor, transform: [{ translateX: pan.x }] }]}
         {...panResponder.panHandlers}
+        style={[styles.sliderThumb, { backgroundColor: thumbColor, transform: [{ translateX: pan }] }]}
       >
-        <Text style={styles.thumbArrows}>»</Text>
+        <Text style={styles.thumbArrow}>❯</Text>
       </Animated.View>
-    </View>
+      <Text style={[styles.sliderLabelText, { color: textColor }]}>{text}</Text>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  swipeTrack: {
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  swipeText: {
-    fontFamily: 'Courier',
-    fontSize: 16,
-    fontWeight: 'bold',
-    letterSpacing: 2,
-  },
-  swipeThumb: {
-    height: 50,
-    width: 60,
-    borderRadius: 25,
-    position: 'absolute',
-    left: 3,
-    top: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  thumbArrows: {
-    color: '#000',
-    fontSize: 24,
-    fontWeight: 'bold',
-  }
+  sliderContainer: { width: '100%', height: 54, borderRadius: 12, borderWidth: 1.5, flexDirection: 'row', alignItems: 'center', padding: 4, position: 'relative', overflow: 'hidden' },
+  sliderThumb:     { width: THUMB_SIZE, height: THUMB_SIZE, borderRadius: 8, justifyContent: 'center', alignItems: 'center', zIndex: 5 },
+  thumbArrow:      { color: COLOURS.bg, fontWeight: '900', fontSize: 16 },
+  sliderLabelText: { position: 'absolute', left: 0, right: 0, textAlign: 'center', fontSize: 11, fontWeight: '800', letterSpacing: 1.5, zIndex: 1 },
 });

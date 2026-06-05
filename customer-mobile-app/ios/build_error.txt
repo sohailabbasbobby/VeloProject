@@ -1,0 +1,508 @@
+    cd /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods
+    
+    Using response file: /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/React-Core.build/Objects-normal/arm64/af3fcb34312c57c0f52879cdce924b91-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x objective-c++ -ivfsstatcache /Users/Bobby/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F73-6cfe768891a92b912361537c460fe42b.sdkstatcache -target arm64-apple-ios13.4-simulator -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/Bobby/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Wno-implicit-atomic-properties -Werror\=deprecated-objc-isa-usage -Wno-objc-interface-ivars -Werror\=objc-root-class -Wno-arc-repeated-use-of-weak -Wimplicit-retain-self -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wduplicate-method-match -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-selector -Wno-strict-selector-match -Wundeclared-selector -Wdeprecated-implementations -Wno-c++11-extensions -Wno-implicit-fallthrough -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -fstrict-aliasing -Wprotocol -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Index.noindex/DataStore -Wno-comma -Wno-shorten-64-to-32 @/Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/React-Core.build/Objects-normal/arm64/af3fcb34312c57c0f52879cdce924b91-common-args.resp -DFOLLY_NO_CONFIG -DFOLLY_MOBILE\=1 -DFOLLY_USE_LIBCPP\=1 -DFOLLY_CFG_NO_COROUTINES\=1 -DFOLLY_HAVE_CLOCK_GETTIME\=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -DUSE_HERMES\=1 -include /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Target\ Support\ Files/React-Core/React-Core-prefix.pch -MMD -MT dependencies -MF /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/React-Core.build/Objects-normal/arm64/RCTCxxInspectorWebSocketAdapter.d --serialize-diagnostics /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/React-Core.build/Objects-normal/arm64/RCTCxxInspectorWebSocketAdapter.dia -c /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native/React/Inspector/RCTCxxInspectorWebSocketAdapter.mm -o /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/React-Core.build/Objects-normal/arm64/RCTCxxInspectorWebSocketAdapter.o -index-unit-output-path /Pods.build/Debug-iphonesimulator/React-Core.build/Objects-normal/arm64/RCTCxxInspectorWebSocketAdapter.o
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native/React/Inspector/RCTCxxInspectorWebSocketAdapter.mm:53:31: warning: 'send:' is deprecated: Please use `sendString:error:` or `sendData:error:` instead. [-Wdeprecated-declarations]
+   53 |       [strongSelf->_webSocket send:messageStr];
+      |                               ^
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native/React/Inspector/RCTCxxInspectorWebSocketAdapter.mm:16:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Private/SocketRocket/SRWebSocket.h:271:50: note: 'send:' has been explicitly marked deprecated here
+  271 | - (void)send:(nullable id)message __attribute__((deprecated("Please use `sendString:error:` or `sendData:error:` instead.")));
+      |                                                  ^
+1 warning generated.
+
+CompileC /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/React-Core.build/Objects-normal/arm64/RCTCxxInspectorPackagerConnectionDelegate.o /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native/React/Inspector/RCTCxxInspectorPackagerConnectionDelegate.mm normal arm64 objective-c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'React-Core' from project 'Pods')
+    cd /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods
+--
+  151 |    * @return
+      |      ~~~~~~~^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-graphics/react/renderer/graphics/Transform.h:148:13: warning: parameter 'progress' not found in the function declaration [-Wdocumentation]
+  148 |    * @param progress
+      |             ^~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:32:12: error: cannot find interface declaration for 'RNMapsMarkerView'
+   32 | @interface RNMapsMarkerView () <RCTRNMapsMarkerViewProtocol>
+      |            ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:35:17: warning: cannot find interface declaration for 'RNMapsMarkerView'
+   35 | @implementation RNMapsMarkerView {
+      |                 ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:45:6: error: 'RNMapsMarkerView' cannot use 'super' because it is a root class
+   45 |     [super prepareForRecycle];
+      |      ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:58:5: error: no matching function for call to 'RCTRNMapsMarkerHandleCommand'
+   58 |     RCTRNMapsMarkerHandleCommand(self, commandName, args);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:24:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/../generated/RNMapsSpecs/RCTComponentViewHelpers.h:461:24: note: candidate function not viable: no known conversion from 'RNMapsMarkerView *const __strong' to 'id<RCTRNMapsMarkerViewProtocol>  _Nonnull __strong' for 1st argument
+  461 | RCT_EXTERN inline void RCTRNMapsMarkerHandleCommand(
+      |                        ^
+  462 |   id<RCTRNMapsMarkerViewProtocol> componentView,
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:102:5: error: use of undeclared identifier '_props'
+  102 |     _props = defaultProps;
+      |     ^~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:108:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  108 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:21:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:108:26: error: expected unqualified-id
+  108 |         if (_eventEmitter) {
+      |                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:125:90: error: use of undeclared identifier '_eventEmitter'; did you mean 'eventEmitter'?
+  125 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                                                                                          ^~~~~~~~~~~~~
+      |                                                                                          eventEmitter
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:125:18: note: 'eventEmitter' declared here
+  125 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                  ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:125:90: error: variable 'eventEmitter' declared with deduced type 'auto' cannot appear in its own initializer
+  125 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                                                                                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:130:31: warning: ISO C++ requires field designators to be specified in declaration order; field 'position' will be initialized after field 'coordinate' [-Wreorder-init-list]
+  130 |                 .coordinate = coordinate,
+      |                 ~~~~~~~~~~~~~~^~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:129:29: note: previous initialization for field 'position' is here
+  129 |                 .position = point,
+      |                             ^~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:137:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  137 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:21:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:137:26: error: expected unqualified-id
+  137 |         if (_eventEmitter) {
+      |                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:154:90: error: use of undeclared identifier '_eventEmitter'; did you mean 'eventEmitter'?
+  154 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                                                                                          ^~~~~~~~~~~~~
+      |                                                                                          eventEmitter
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:154:18: note: 'eventEmitter' declared here
+  154 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                  ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:154:90: error: variable 'eventEmitter' declared with deduced type 'auto' cannot appear in its own initializer
+  154 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                                                                                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:159:31: warning: ISO C++ requires field designators to be specified in declaration order; field 'position' will be initialized after field 'coordinate' [-Wreorder-init-list]
+  159 |                 .coordinate = coordinate,
+      |                 ~~~~~~~~~~~~~~^~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:158:29: note: previous initialization for field 'position' is here
+  158 |                 .position = point,
+      |                             ^~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:166:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  166 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:21:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:166:26: error: expected unqualified-id
+  166 |         if (_eventEmitter) {
+      |                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:176:90: error: use of undeclared identifier '_eventEmitter'; did you mean 'eventEmitter'?
+  176 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                                                                                          ^~~~~~~~~~~~~
+      |                                                                                          eventEmitter
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:176:18: note: 'eventEmitter' declared here
+  176 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                  ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:176:90: error: variable 'eventEmitter' declared with deduced type 'auto' cannot appear in its own initializer
+  176 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                                                                                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:185:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  185 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:21:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:185:26: error: expected unqualified-id
+  185 |         if (_eventEmitter) {
+      |                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:194:90: error: use of undeclared identifier '_eventEmitter'; did you mean 'eventEmitter'?
+  194 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                                                                                          ^~~~~~~~~~~~~
+      |                                                                                          eventEmitter
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMarkerView.mm:194:18: note: 'eventEmitter' declared here
+  194 |             auto eventEmitter = std::static_pointer_cast<RNMapsMarkerEventEmitter const>(_eventEmitter);
+      |                  ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+14 warnings and 20 errors generated.
+
+CompileC /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/react-native-maps.build/Objects-normal/arm64/RNMapsMapView.o /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm normal arm64 objective-c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'react-native-maps' from project 'Pods')
+    cd /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods
+    
+--
+  151 |    * @return
+      |      ~~~~~~~^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-graphics/react/renderer/graphics/Transform.h:148:13: warning: parameter 'progress' not found in the function declaration [-Wdocumentation]
+  148 |    * @param progress
+      |             ^~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:36:12: error: cannot find interface declaration for 'RNMapsMapView'
+   36 | @interface RNMapsMapView () <RCTRNMapsMapViewViewProtocol>
+      |            ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:39:17: warning: cannot find interface declaration for 'RNMapsMapView'
+   39 | @implementation RNMapsMapView {
+      |                 ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:51:6: error: 'RNMapsMapView' cannot use 'super' because it is a root class
+   51 |     [super prepareForRecycle];
+      |      ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:55:10: error: property 'contentView' not found on object of type 'RNMapsMapView *'
+   55 |     self.contentView = nil;
+      |          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:116:5: error: no matching function for call to 'RCTRNMapsMapViewHandleCommand'
+  116 |     RCTRNMapsMapViewHandleCommand(self, commandName, args);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:28:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/../generated/RNMapsSpecs/RCTComponentViewHelpers.h:246:24: note: candidate function not viable: no known conversion from 'RNMapsMapView *const __strong' to 'id<RCTRNMapsMapViewViewProtocol>  _Nonnull __strong' for 1st argument
+  246 | RCT_EXTERN inline void RCTRNMapsMapViewHandleCommand(
+      |                        ^
+  247 |   id<RCTRNMapsMapViewViewProtocol> componentView,
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:129:5: error: use of undeclared identifier '_props'
+  129 |     _props = defaultProps;
+      |     ^~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:133:10: error: property 'contentView' not found on object of type 'RNMapsMapView *'
+  133 |     self.contentView = _view;
+      |          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:136:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  136 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:25:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:136:26: error: expected unqualified-id
+  136 |         if (_eventEmitter) {
+      |                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:153:98: error: use of undeclared identifier '_eventEmitter'
+  153 |             auto mapViewEventEmitter = std::static_pointer_cast<RNMapsMapViewEventEmitter const>(_eventEmitter);
+      |                                                                                                  ^~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:156:29: warning: ISO C++ requires field designators to be specified in declaration order; field 'action' will be initialized after field 'position' [-Wreorder-init-list]
+  156 |                 .position = position,
+      |                 ~~~~~~~~~~~~^~~~~~~~
+--
+  157 |                 .coordinate = coordinate
+      |                 ~~~~~~~~~~~~~~^~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:156:29: note: previous initialization for field 'position' is here
+  156 |                 .position = position,
+      |                             ^~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:164:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  164 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:25:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:164:26: error: expected unqualified-id
+  164 |         if (_eventEmitter) {
+      |                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:181:98: error: use of undeclared identifier '_eventEmitter'
+  181 |             auto mapViewEventEmitter = std::static_pointer_cast<RNMapsMapViewEventEmitter const>(_eventEmitter);
+      |                                                                                                  ^~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:184:29: warning: ISO C++ requires field designators to be specified in declaration order; field 'action' will be initialized after field 'position' [-Wreorder-init-list]
+  184 |                 .position = position,
+      |                 ~~~~~~~~~~~~^~~~~~~~
+--
+  185 |                 .coordinate = coordinate
+      |                 ~~~~~~~~~~~~~~^~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:184:29: note: previous initialization for field 'position' is here
+  184 |                 .position = position,
+      |                             ^~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:193:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  193 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:25:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:193:26: error: expected unqualified-id
+  193 |         if (_eventEmitter) {
+      |                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:195:98: error: use of undeclared identifier '_eventEmitter'
+  195 |             auto mapViewEventEmitter = std::static_pointer_cast<RNMapsMapViewEventEmitter const>(_eventEmitter);
+      |                                                                                                  ^~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:201:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  201 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:25:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirMaps/RNMapsMapView.mm:201:26: error: expected unqualified-id
+  201 |         if (_eventEmitter) {
+      |                          ^
+
+CompileC /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/react-native-maps.build/Objects-normal/arm64/RNMapsGooglePolygonView.o /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm normal arm64 objective-c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'react-native-maps' from project 'Pods')
+    cd /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods
+--
+  151 |    * @return
+      |      ~~~~~~~^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-graphics/react/renderer/graphics/Transform.h:148:13: warning: parameter 'progress' not found in the function declaration [-Wdocumentation]
+  148 |    * @param progress
+      |             ^~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:57:12: error: cannot find interface declaration for 'RNMapsGooglePolygonView'
+   57 | @interface RNMapsGooglePolygonView () <RCTRNMapsGooglePolygonViewProtocol>
+      |            ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:60:17: warning: cannot find interface declaration for 'RNMapsGooglePolygonView'
+   60 | @implementation RNMapsGooglePolygonView {
+      |                 ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:89:15: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+   89 |           if (_eventEmitter) {
+      |               ^~~~~~~~~~~~~
+      |               EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:22:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:89:28: error: expected unqualified-id
+   89 |           if (_eventEmitter) {
+      |                            ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:106:106: error: use of undeclared identifier '_eventEmitter'
+  106 |               auto mapViewEventEmitter = std::static_pointer_cast<RNMapsGooglePolygonEventEmitter const>(_eventEmitter);
+      |                                                                                                          ^~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:110:33: warning: ISO C++ requires field designators to be specified in declaration order; field 'position' will be initialized after field 'coordinate' [-Wreorder-init-list]
+  110 |                   .coordinate = coordinate
+      |                   ~~~~~~~~~~~~~~^~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:109:31: note: previous initialization for field 'position' is here
+  109 |                   .position = position,
+      |                               ^~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:120:15: error: 'RNMapsGooglePolygonView' cannot use 'super' because it is a root class
+  120 |   if (self = [super initWithFrame:frame]) {
+      |               ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:122:5: error: use of undeclared identifier '_props'
+  122 |     _props = defaultProps;
+      |     ^~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:134:6: error: 'RNMapsGooglePolygonView' cannot use 'super' because it is a root class
+  134 |     [super prepareForRecycle];
+      |      ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:136:5: error: use of undeclared identifier '_props'
+  136 |     _props = defaultProps;
+      |     ^~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:143:88: error: use of undeclared identifier '_props'; did you mean 'props'?
+  143 |   const auto &oldViewProps = *std::static_pointer_cast<RNMapsGooglePolygonProps const>(_props);
+      |                                                                                        ^~~~~~
+      |                                                                                        props
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:141:44: note: 'props' declared here
+  141 | - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
+      |                                            ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:213:4: error: 'RNMapsGooglePolygonView' cannot use 'super' because it is a root class
+  213 |   [super updateProps:props oldProps:oldProps];
+      |    ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:216:6: error: 'RNMapsGooglePolygonView' cannot use 'super' because it is a root class
+  216 |     [super didMoveToSuperview];
+      |      ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:217:35: error: property 'superview' not found on object of type 'RNMapsGooglePolygonView *'
+  217 |     NSLog(@"SuperView ? %@", self.superview);
+      |                                   ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:60:17: error: class 'RNMapsGooglePolygonView' defined without specifying a base class [-Werror,-Wobjc-root-class]
+   60 | @implementation RNMapsGooglePolygonView {
+      |                 ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:60:40: note: add a super class to fix this problem
+   60 | @implementation RNMapsGooglePolygonView {
+      |                                        ^
+      |                                         : NSObject 
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGooglePolygonView.mm:223:36: error: property 'class' not found on object of type 'RNMapsGooglePolygonView'
+  223 |     return RNMapsGooglePolygonView.class;
+      |                                    ^
+
+CompileC /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/react-native-maps.build/Objects-normal/arm64/RNMapsGoogleMapView.o /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm normal arm64 objective-c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'react-native-maps' from project 'Pods')
+    cd /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods
+--
+  151 |    * @return
+      |      ~~~~~~~^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-graphics/react/renderer/graphics/Transform.h:148:13: warning: parameter 'progress' not found in the function declaration [-Wdocumentation]
+  148 |    * @param progress
+      |             ^~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:43:12: error: cannot find interface declaration for 'RNMapsGoogleMapView'
+   43 | @interface RNMapsGoogleMapView () <RCTRNMapsGoogleMapViewViewProtocol>
+      |            ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:46:17: warning: cannot find interface declaration for 'RNMapsGoogleMapView'
+   46 | @implementation RNMapsGoogleMapView {
+      |                 ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:118:5: error: no matching function for call to 'RCTRNMapsGoogleMapViewHandleCommand'
+  118 |     RCTRNMapsGoogleMapViewHandleCommand(self, commandName, args);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:26:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/../generated/RNMapsSpecs/RCTComponentViewHelpers.h:26:24: note: candidate function not viable: no known conversion from 'RNMapsGoogleMapView *const __strong' to 'id<RCTRNMapsGoogleMapViewViewProtocol>  _Nonnull __strong' for 1st argument
+   26 | RCT_EXTERN inline void RCTRNMapsGoogleMapViewHandleCommand(
+      |                        ^
+   27 |   id<RCTRNMapsGoogleMapViewViewProtocol> componentView,
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:145:10: error: property 'contentView' not found on object of type 'RNMapsGoogleMapView *'
+  145 |     self.contentView = _view;
+      |          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:148:15: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  148 |           if (_eventEmitter) {
+      |               ^~~~~~~~~~~~~
+      |               EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:23:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:148:28: error: expected unqualified-id
+  148 |           if (_eventEmitter) {
+      |                            ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:165:106: error: use of undeclared identifier '_eventEmitter'
+  165 |               auto mapViewEventEmitter = std::static_pointer_cast<RNMapsGoogleMapViewEventEmitter const>(_eventEmitter);
+      |                                                                                                          ^~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:168:31: warning: ISO C++ requires field designators to be specified in declaration order; field 'action' will be initialized after field 'position' [-Wreorder-init-list]
+  168 |                   .position = position,
+      |                   ~~~~~~~~~~~~^~~~~~~~
+--
+  169 |                   .coordinate = coordinate
+      |                   ~~~~~~~~~~~~~~^~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:168:31: note: previous initialization for field 'position' is here
+  168 |                   .position = position,
+      |                               ^~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:176:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  176 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:23:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:176:26: error: expected unqualified-id
+  176 |         if (_eventEmitter) {
+      |                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:193:104: error: use of undeclared identifier '_eventEmitter'
+  193 |             auto mapViewEventEmitter = std::static_pointer_cast<RNMapsGoogleMapViewEventEmitter const>(_eventEmitter);
+      |                                                                                                        ^~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:196:29: warning: ISO C++ requires field designators to be specified in declaration order; field 'action' will be initialized after field 'position' [-Wreorder-init-list]
+  196 |                 .position = position,
+      |                 ~~~~~~~~~~~~^~~~~~~~
+--
+  197 |                 .coordinate = coordinate
+      |                 ~~~~~~~~~~~~~~^~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:196:29: note: previous initialization for field 'position' is here
+  196 |                 .position = position,
+      |                             ^~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:205:15: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  205 |           if (_eventEmitter) {
+      |               ^~~~~~~~~~~~~
+      |               EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:23:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:205:28: error: expected unqualified-id
+  205 |           if (_eventEmitter) {
+      |                            ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:206:106: error: use of undeclared identifier '_eventEmitter'
+  206 |               auto mapViewEventEmitter = std::static_pointer_cast<RNMapsGoogleMapViewEventEmitter const>(_eventEmitter);
+      |                                                                                                          ^~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:213:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  213 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:23:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:213:26: error: expected unqualified-id
+  213 |         if (_eventEmitter) {
+      |                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:215:104: error: use of undeclared identifier '_eventEmitter'
+  215 |             auto mapViewEventEmitter = std::static_pointer_cast<RNMapsGoogleMapViewEventEmitter const>(_eventEmitter);
+      |                                                                                                        ^~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:227:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  227 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:23:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:227:26: error: expected unqualified-id
+  227 |         if (_eventEmitter) {
+      |                          ^
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:228:104: error: use of undeclared identifier '_eventEmitter'
+  228 |             auto mapViewEventEmitter = std::static_pointer_cast<RNMapsGoogleMapViewEventEmitter const>(_eventEmitter);
+      |                                                                                                        ^~~~~~~~~~~~~
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:243:13: error: unknown type name '_eventEmitter'; did you mean 'EventEmitter'?
+  243 |         if (_eventEmitter) {
+      |             ^~~~~~~~~~~~~
+      |             EventEmitter
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/RNMapsGoogleMapView.mm:23:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/AirGoogleMaps/../generated/RNMapsSpecs/ComponentDescriptors.h:13:
+--
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/BaseViewEventEmitter.h:16:
+In file included from /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/components/view/TouchEventEmitter.h:12:
+/Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods/Headers/Public/React-Fabric/react/renderer/core/EventEmitter.h:32:7: note: 'EventEmitter' declared here
+   32 | class EventEmitter {
+      |       ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+
+CompileC /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/react-native-maps.build/Objects-normal/arm64/Props.o /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/node_modules/react-native-maps/ios/generated/RNMapsSpecs/Props.cpp normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'react-native-maps' from project 'Pods')
+    cd /Users/Bobby/Documents/Velo/VeloProject/customer-mobile-app/ios/Pods
+    
+    Using response file: /Users/Bobby/Library/Developer/Xcode/DerivedData/VeloCustomerApp-girvvvohtsmxrbcvbvkuuqlylnqr/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/react-native-maps.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp

@@ -1,323 +1,339 @@
-import React, { useState, useEffect } from 'react';
-import {
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  TextInput,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-  Switch
-} from 'react-native';
+/**
+ * VELO DRIVER APP — Root Entry Point
+ *
+ * App Stages:
+ *  STAGE1           → Pre-Shift Compliance Gatekeeper (GatekeeperScreen)
+ *  STAGE2_IDLE      → Online & Listening / Radar Pool
+ *  STAGE2_TAKEOVER  → Incoming Dispatch (DispatchScreen)
+ *  STAGE3           → Active Ride Execution (ActiveRideScreen)
+ *  LANDSCAPE_PAGING → Fullscreen Digital Paging Board
+ *
+ * All state lives here and is passed down as props.
+ * Components: SidebarDrawer, VeloSwipeTrack
+ * Screens:    GatekeeperScreen, DispatchScreen, ActiveRideScreen
+ * Theme:      src/constants/theme.ts
+ */
 
-// --- Firebase Web SDK ---
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, collection, onSnapshot, query, where, connectFirestoreEmulator, doc } from 'firebase/firestore';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Animated, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const firebaseConfig = {
-  apiKey: "MOCK-API-KEY-FOR-TESTING",
-  authDomain: "velo-platform-2026-x1.firebaseapp.com",
-  projectId: "velo-platform-2026-x1",
-};
+import { COLOURS } from './src/constants/theme';
+import { SidebarDrawer } from './src/components/SidebarDrawer';
+import { VeloSwipeTrack } from './src/components/VeloSwipeTrack';
+import { DriverMap, DriverMapStage } from './src/components/DriverMap';
+import { MapErrorBoundary } from './src/components/MapErrorBoundary';
+import { GatekeeperScreen } from './src/screens/GatekeeperScreen';
+import { DispatchScreen } from './src/screens/DispatchScreen';
+import { ActiveRideScreen } from './src/screens/ActiveRideScreen';
+import { PostTripScreen } from './src/screens/PostTripScreen';
+import { AnimatedStatusDot } from './src/components/AnimatedStatusDot';
+import { BottomStatusSheet } from './src/components/BottomStatusSheet';
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+type AppStage = 'STAGE1' | 'STAGE2_IDLE' | 'STAGE2_TAKEOVER' | 'STAGE3' | 'STAGE4_POST_TRIP' | 'LANDSCAPE_PAGING';
+type SidebarTab = 'NONE' | 'PROFILE' | 'HISTORY' | 'EARNINGS' | 'VEHICLE' | 'SETTINGS';
 
-connectAuthEmulator(auth, "http://127.0.0.1:9099");
-connectFirestoreEmulator(db, '127.0.0.1', 8080);
+export default function App() {
+  // ── Navigation ──────────────────────────────────────────────────────────────
+  const [currentStage, setCurrentStage] = useState<AppStage>('STAGE1');
+  const [isSidebarOpen, setIsSidebarOpen]   = useState(false);
+  const [sidebarActiveTab, setSidebarActiveTab] = useState<SidebarTab>('NONE');
 
-const API_BASE_URL = 'http://127.0.0.1:5001/velo-platform-2026-x1/us-central1/api/v1';
-const TENANT_ID = 'TENANT_123';
-
-const App = () => {
-  // Branding State
-  const [tenantBrand, setTenantBrand] = useState({
-    primary: '#D4AF37',
-    accent: '#007AFF',
-    slogan: 'SECURE AUTHENTICATION GATEWAY',
-    logoUrl: ''
+  // ── Driver & Payroll ────────────────────────────────────────────────────────
+  const [tenantPayrollType, setTenantPayrollType] = useState<'PERCENTAGE_SPLIT' | 'FIXED_WAGE'>('PERCENTAGE_SPLIT');
+  const [isAdminApprovalPending, setIsAdminApprovalPending] = useState(false);
+  const [driverProfile, setDriverProfile] = useState({
+    name: 'JOHN DOE',
+    phone: '+44 7700 900077',
+    address: 'Suite 42, Executive Quarters, Manchester M1',
   });
 
-  // Session State
-  const [user, setUser] = useState<any>(null);
-  const [jwtToken, setJwtToken] = useState<string>('');
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  // ── Multi-Tenant Dispatch Engine ────────────────────────────────────────────
+  const [pendingDispatches, setPendingDispatches] = useState<{ id: string, tenantName: string, payout: string, pickup: string, time: string }[]>([
+    { id: 'job-1', tenantName: 'ELITE LIMOS', payout: '£80.00', pickup: 'MANCHESTER PICCADILLY', time: '20:30 BST' }
+  ]);
 
-  // Auth UI
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // ── Compliance Gatekeeper ───────────────────────────────────────────────────
+  const [compliance, setCompliance] = useState({ pristine: false, cabin: false, tyres: false, fuel: false });
+  const [hasCameraPayload, setHasCameraPayload] = useState(false);
+  const [odometerValue, setOdometerValue] = useState('');
+  const isGatekeeperUnlocked = compliance.pristine && compliance.cabin && compliance.tyres && compliance.fuel && hasCameraPayload && odometerValue.trim().length > 0;
 
-  // App UI State
-  const [appState, setAppState] = useState<'COMPLIANCE' | 'OFFLINE' | 'AVAILABLE'>('COMPLIANCE');
+  // ── Active Trip ─────────────────────────────────────────────────────────────
+  const [tripPhase, setTripPhase] = useState<1 | 2 | 3>(1);
+  const [countdownSeconds, setCountdownSeconds] = useState(900);
 
-  // Compliance Tunnel State
-  const [extCheck, setExtCheck] = useState(false);
-  const [cabinCheck, setCabinCheck] = useState(false);
-  const [tyreCheck, setTyreCheck] = useState(false);
+  // ── Expenses ────────────────────────────────────────────────────────────────
+  const [customTripExpenseName, setCustomTripExpenseName]     = useState('');
+  const [customTripExpenseAmount, setCustomTripExpenseAmount] = useState('');
+  const [tripExpenses, setTripExpenses] = useState<{ [key: string]: Array<{ name: string; amount: string; timestamp: string }> }>({});
 
-  // Incoming Dispatch State
-  const [incomingDispatch, setIncomingDispatch] = useState<any>(null);
-
-  // ----------------------------------------------------
-  // AUTHENTICATION LISTENER
-  // ----------------------------------------------------
+  // ── Animations ──────────────────────────────────────────────────────────────
+  const pulseAnim = useRef(new Animated.Value(0.4)).current;
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        const tokenResult = await currentUser.getIdTokenResult(true);
-        if (tokenResult.claims.User_Role !== 'driver') {
-          Alert.alert("Unauthorized", "Your account is not provisioned for Driver access.");
-          signOut(auth);
-          return;
-        }
-        setJwtToken(tokenResult.token);
-        setUser(currentUser);
-      } else {
-        setUser(null);
-        setJwtToken('');
-        setAppState('COMPLIANCE');
-      }
-      setIsAuthLoading(false);
-    });
-    return unsubscribe;
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1,   duration: 1100, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 0.4, duration: 1100, useNativeDriver: true }),
+      ])
+    ).start();
   }, []);
 
-  // ----------------------------------------------------
-  // DISPATCH LISTENER (FIRESTORE)
-  // ----------------------------------------------------
+  // ── Grace period countdown ───────────────────────────────────────────────────
   useEffect(() => {
-    let unsubscribe: any = () => {};
-    if (appState === 'AVAILABLE') {
-      const q = query(collection(db, "Bookings"), where("status", "==", "PAID_PENDING_DISPATCH"));
-      unsubscribe = onSnapshot(q, (snapshot) => {
-        let newBooking = null;
-        snapshot.forEach((doc) => {
-          newBooking = { id: doc.id, ...doc.data() };
-        });
-        if (newBooking) {
-          setIncomingDispatch(newBooking);
-        } else {
-          setIncomingDispatch(null);
-        }
-      });
-    } else {
-      setIncomingDispatch(null);
+    let interval: NodeJS.Timeout;
+    if (currentStage === 'STAGE3' && tripPhase === 2 && countdownSeconds > 0) {
+      interval = setInterval(() => setCountdownSeconds(prev => prev - 1), 1000);
     }
-    return () => unsubscribe();
-  }, [appState]);
+    return () => clearInterval(interval);
+  }, [currentStage, tripPhase, countdownSeconds]);
 
-  const handleAuth = async (isSignUp: boolean) => {
-    setIsSubmitting(true);
-    try {
-      if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
-        Alert.alert('Success', 'Driver profile created. Custom claims syncing...');
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
-    } catch (error: any) {
-      Alert.alert('Authentication Failed', error.message);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const formatTimerString = (totalSeconds: number) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const secureFetch = async (endpoint: string, method = 'POST', body: any = null) => {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${jwtToken}`
-      },
-      body: body ? JSON.stringify(body) : undefined
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Server error');
-    return data;
+  // ── Handlers ─────────────────────────────────────────────────────────────────
+  const requestAdminCancellationPrivilege = () => {
+    Alert.alert(
+      'Request Fleet Cancellation Override',
+      'Are you sure you want to request an emergency cancellation from the admin desk?',
+      [
+        { text: 'Dismiss Request', style: 'cancel' },
+        {
+          text: 'Transmit Request',
+          style: 'destructive',
+          onPress: () => {
+            setIsAdminApprovalPending(true);
+            setTimeout(() => {
+              Alert.alert('Privilege Override Granted',
+                'Back office has approved the cancellation ticket remotely. Manifest voided successfully.',
+                [{ text: 'Return to Radar Pool', onPress: () => { setIsAdminApprovalPending(false); setTripPhase(1); setCurrentStage('STAGE2_IDLE'); } }]
+              );
+            }, 3000);
+          },
+        },
+      ]
+    );
   };
 
-  const submitComplianceLog = async () => {
-    if (!extCheck || !cabinCheck || !tyreCheck) {
-      Alert.alert('Compliance Incomplete', 'You must verify all pre-shift checks.');
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      await secureFetch('/driver/compliance', 'POST', {
-        exteriorPassed: extCheck,
-        cabinPassed: cabinCheck,
-        tyresPassed: tyreCheck
-      });
-      setAppState('OFFLINE');
-    } catch (err: any) {
-      Alert.alert('Compliance Error', err.message);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleAddTripExpense = (tripId: string, name: string, amount?: string) => {
+    const finalName   = name   || customTripExpenseName;
+    const finalAmount = amount || customTripExpenseAmount;
+    if (!finalName || !finalAmount) return;
+    const list = tripExpenses[tripId] || [];
+    setTripExpenses({ ...tripExpenses, [tripId]: [...list, { name: finalName, amount: finalAmount.startsWith('£') ? finalAmount : '£' + finalAmount, timestamp: '03 Jun 2026, 22:00' }] });
+    setCustomTripExpenseName('');
+    setCustomTripExpenseAmount('');
   };
 
-  const toggleGoOnline = async () => {
-    if (appState === 'AVAILABLE') {
-      setAppState('OFFLINE'); // Going offline doesn't need strict API guard for UI mockup
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await secureFetch('/driver/status', 'POST', { targetStatus: 'AVAILABLE' });
-      setAppState('AVAILABLE');
-    } catch (err: any) {
-      Alert.alert('Access Denied', err.message);
-      // Snap UI back to offline
-      setAppState('OFFLINE');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleTripPhaseComplete = () => {
+    if (tripPhase === 1) { setTripPhase(2); }
+    else if (tripPhase === 2) { setTripPhase(3); }
+    else { setCurrentStage('STAGE4_POST_TRIP'); }
   };
 
-  const acceptDispatch = async (bookingId: string) => {
-    setIsSubmitting(true);
-    try {
-      await secureFetch('/driver/accept', 'POST', { bookingId });
-      setIncomingDispatch(null);
-      Alert.alert('Success', 'Ride accepted successfully!');
-    } catch (err: any) {
-      Alert.alert('Error', err.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (isAuthLoading) {
-    return <SafeAreaView style={styles.container}><ActivityIndicator size="large" color={tenantBrand.primary} /></SafeAreaView>;
-  }
-
-  if (!user) {
+  // ── Landscape Paging Board ───────────────────────────────────────────────────
+  if (currentStage === 'LANDSCAPE_PAGING') {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#070708" />
-        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24 }}>
-          <Text style={[styles.titleText, { color: tenantBrand.primary }]}>VELO DRIVER</Text>
-          <Text style={[styles.subtitleText, { color: tenantBrand.accent }]}>{tenantBrand.slogan}</Text>
-          
-          <View style={[styles.card, { marginTop: 40 }]}>
-            <TextInput style={styles.input} placeholder="Driver Email (e.g. driver@velo.com)" placeholderTextColor="#8A8A8E" autoCapitalize="none" value={email} onChangeText={setEmail} />
-            <View style={styles.divider} />
-            <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#8A8A8E" secureTextEntry value={password} onChangeText={setPassword} />
-          </View>
-          
-          <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: tenantBrand.primary }]} onPress={() => handleAuth(false)}>
-            {isSubmitting ? <ActivityIndicator color="#000" /> : <Text style={styles.btnText}>Login</Text>}
-          </TouchableOpacity>
-          <TouchableOpacity style={{ marginTop: 20 }} onPress={() => handleAuth(true)}>
-            <Text style={{ color: '#8A8A8E', textAlign: 'center' }}>Register Driver Account</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+      <TouchableOpacity activeOpacity={1} style={styles.landscapeContainer} onPress={() => setCurrentStage('STAGE3')}>
+        <StatusBar hidden />
+        <Text style={styles.landscapePagingText}>MR. JOHN</Text>
+      </TouchableOpacity>
     );
   }
 
+  // ── Main Render ──────────────────────────────────────────────────────────────
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#070708" />
-      <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: tenantBrand.primary }]}>VELO DRIVER</Text>
-        <TouchableOpacity onPress={() => signOut(auth)}><Text style={{ color: '#FF3B30', fontWeight: 'bold' }}>Sign Out</Text></TouchableOpacity>
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor={COLOURS.bg} />
+      <View style={styles.mainWrapper}>
 
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
-        {appState === 'COMPLIANCE' && (
-          <View>
-            <Text style={styles.sectionHeader}>PRE-SHIFT COMPLIANCE TUNNEL</Text>
-            <Text style={{ color: '#8A8A8E', marginBottom: 20 }}>You must verify the condition of your vehicle before accessing the dispatch network.</Text>
-            
-            <View style={styles.card}>
-              <View style={styles.switchRow}>
-                <Text style={styles.switchText}>Exterior is pristine & damage-free</Text>
-                <Switch value={extCheck} onValueChange={setExtCheck} trackColor={{ true: '#34C759', false: '#2A2A2D' }} />
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.switchRow}>
-                <Text style={styles.switchText}>Cabin is clean, vacuumed & fresh</Text>
-                <Switch value={cabinCheck} onValueChange={setCabinCheck} trackColor={{ true: '#34C759', false: '#2A2A2D' }} />
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.switchRow}>
-                <Text style={styles.switchText}>Tyres, fluids & fuel/charge adequate</Text>
-                <Switch value={tyreCheck} onValueChange={setTyreCheck} trackColor={{ true: '#34C759', false: '#2A2A2D' }} />
-              </View>
+        {/* Admin cancellation lockout overlay */}
+        {isAdminApprovalPending && (
+          <View style={styles.adminLockoutOverlaySurface}>
+            <View style={styles.lockoutCardContainer}>
+              <Text style={styles.lockoutPulsingText}>⏳   TRANSMITTING EMERGENCY OVERRIDE TICKET</Text>
+              <Text style={styles.lockoutSubText}>Awaiting secure cancellation privilege approval from back-office tenant controllers...</Text>
+              <TouchableOpacity style={styles.cancelRequestBtn} onPress={() => setIsAdminApprovalPending(false)}>
+                <Text style={{ color: '#A5A5A7', fontWeight: '800', fontSize: 11 }}>WITHDRAW CANCELLATION TICKET</Text>
+              </TouchableOpacity>
             </View>
-
-            <TouchableOpacity style={[styles.btnPrimary, { marginTop: 30, backgroundColor: tenantBrand.primary }]} onPress={submitComplianceLog}>
-              {isSubmitting ? <ActivityIndicator color="#000" /> : <Text style={styles.btnText}>Submit Compliance Log</Text>}
-            </TouchableOpacity>
           </View>
         )}
 
-        {(appState === 'OFFLINE' || appState === 'AVAILABLE') && (
-          <View style={{ flex: 1 }}>
-            <View style={[styles.card, { alignItems: 'center', paddingVertical: 30, borderColor: appState === 'AVAILABLE' ? tenantBrand.primary : '#2A2A2D' }]}>
-              <Text style={{ color: appState === 'AVAILABLE' ? tenantBrand.primary : '#8A8A8E', fontSize: 24, fontWeight: '800', letterSpacing: 2 }}>
-                {appState === 'AVAILABLE' ? 'ONLINE & LISTENING' : 'OFFLINE'}
-              </Text>
-              
-              <TouchableOpacity style={[styles.goOnlineBtn, { backgroundColor: appState === 'AVAILABLE' ? '#FF3B30' : tenantBrand.primary }]} onPress={toggleGoOnline}>
-                {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontSize: 18, fontWeight: '900' }}>{appState === 'AVAILABLE' ? 'GO OFFLINE' : 'GO ONLINE'}</Text>}
+
+        {/* Sidebar Drawer */}
+        {isSidebarOpen && (
+          <SidebarDrawer
+            driverProfile={driverProfile}
+            setDriverProfile={setDriverProfile}
+            tenantPayrollType={tenantPayrollType}
+            setTenantPayrollType={setTenantPayrollType}
+            activeTab={sidebarActiveTab}
+            setActiveTab={setSidebarActiveTab}
+            odometerValue={odometerValue}
+            tripExpenses={tripExpenses}
+            customTripExpenseName={customTripExpenseName}
+            setCustomTripExpenseName={setCustomTripExpenseName}
+            customTripExpenseAmount={customTripExpenseAmount}
+            setCustomTripExpenseAmount={setCustomTripExpenseAmount}
+            onAddTripExpense={handleAddTripExpense}
+            onClose={() => { setIsSidebarOpen(false); setSidebarActiveTab('NONE'); }}
+            onGoOffline={() => { setIsSidebarOpen(false); setSidebarActiveTab('NONE'); setCurrentStage('STAGE1'); }}
+          />
+        )}
+
+        {/* STAGE 1 — Compliance Gatekeeper */}
+        {currentStage === 'STAGE1' && (
+          <GatekeeperScreen
+            driverProfile={driverProfile}
+            compliance={compliance}
+            setCompliance={setCompliance}
+            hasCameraPayload={hasCameraPayload}
+            setHasCameraPayload={setHasCameraPayload}
+            odometerValue={odometerValue}
+            setOdometerValue={setOdometerValue}
+            isUnlocked={isGatekeeperUnlocked}
+            onGoOnline={() => setCurrentStage('STAGE2_IDLE')}
+          />
+        )}
+
+        {/* STAGES 2 & 3 — Map Workspace */}
+        {currentStage !== 'STAGE1' && (
+          <View style={styles.workspaceCanvas}>
+
+            {/* Live dark map — rendered FIRST so it sits behind all overlays */}
+            <DriverMap
+              stage={
+                currentStage === 'STAGE2_TAKEOVER' ? 'DISPATCHED'
+                : currentStage === 'STAGE3' ? 'ACTIVE'
+                : 'IDLE'
+              }
+            />
+
+            {/* Top status bar — floats above the map */}
+            <View style={styles.topFloatingStatusBar}>
+              <TouchableOpacity onPress={() => setIsSidebarOpen(true)} style={styles.burgerButton}>
+                <Text style={styles.hamburgerLines}>☰</Text>
+              </TouchableOpacity>
+              <View style={styles.statusPill}>
+                <AnimatedStatusDot status={currentStage === 'STAGE2_IDLE' ? 'ONLINE' : currentStage === 'STAGE2_TAKEOVER' ? 'ONLINE' : 'TRIP'} />
+              </View>
+            </View>
+
+            {/* Right FABs */}
+            <View style={styles.fabContainer}>
+              <TouchableOpacity style={styles.fabBtn}>
+                <View style={styles.chatIconBubble} />
+                <View style={styles.chatIconTail} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.fabBtn}>
+                <View style={styles.locationIconPin} />
+                <View style={styles.locationIconNeedle} />
               </TouchableOpacity>
             </View>
 
-            {appState === 'AVAILABLE' && !incomingDispatch && (
-              <View style={[styles.card, { marginTop: 20, padding: 30, alignItems: 'center', backgroundColor: '#0A150D' }]}>
-                <Text style={{ color: tenantBrand.primary, fontSize: 16, fontWeight: 'bold' }}>📡 Radar Active</Text>
-                <Text style={{ color: '#8A8A8E', marginTop: 10, textAlign: 'center' }}>Awaiting executive dispatch requests based on your location.</Text>
-              </View>
+            {/* STAGE 2 IDLE — Radar / On Break slider */}
+            {currentStage === 'STAGE2_IDLE' && (
+              <>
+                <BottomStatusSheet
+                  statusText="ONLINE — SEARCHING TRIPS"
+                  dotStatus="ONLINE"
+                  sliderText="SLIDE RIGHT TO GO ON BREAK"
+                  onSlideComplete={() => { /* Handle Break */ }}
+                />
+                
+                {/* Dev triggers */}
+                <View style={styles.devTriggerContainer}>
+                  <TouchableOpacity style={styles.devTriggerButton} onPress={() => {
+                    setPendingDispatches([{ id: 'job-' + Date.now(), tenantName: 'ELITE LIMOS', payout: '£80.00', pickup: 'MANCHESTER PICCADILLY', time: '20:30 BST' }]);
+                    setCurrentStage('STAGE2_TAKEOVER');
+                  }}>
+                    <Text style={styles.devTriggerText}>[ Sim Single Trip ]</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity style={[styles.devTriggerButton, { marginLeft: 10 }]} onPress={() => {
+                    setPendingDispatches([
+                      { id: 'job-1' + Date.now(), tenantName: 'ELITE LIMOS', payout: '£80.00', pickup: 'MANCHESTER PICCADILLY', time: '20:30 BST' },
+                      { id: 'job-2' + Date.now(), tenantName: 'BLACKLANE UK', payout: '£120.00', pickup: 'MANCHESTER AIRPORT T2', time: '17:30 BST' }
+                    ]);
+                    setCurrentStage('STAGE2_TAKEOVER');
+                  }}>
+                    <Text style={styles.devTriggerText}>[ Sim Conflict ]</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
             )}
 
-            {appState === 'AVAILABLE' && incomingDispatch && (
-              <View style={[styles.card, { marginTop: 20, padding: 20, backgroundColor: '#1A0B05', borderColor: '#FF9F0A' }]}>
-                <Text style={{ color: '#FF9F0A', fontSize: 20, fontWeight: '900', textAlign: 'center', letterSpacing: 2, marginBottom: 10 }}>⚠️ INCOMING DISPATCH</Text>
-                <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>Pickup: {incomingDispatch.itinerary?.pickup}</Text>
-                <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700', marginTop: 5 }}>Dropoff: {incomingDispatch.itinerary?.dropoff}</Text>
-                
-                {/* STRICT NET-FIRST DISPLAY MODEL */}
-                <Text style={{ color: '#8A8A8E', fontSize: 12, fontWeight: '700', marginTop: 25, textAlign: 'center', letterSpacing: 1 }}>TOTAL EARNINGS FOR THIS TRIP</Text>
-                <Text style={{ color: tenantBrand.primary, fontSize: 32, fontWeight: '900', marginTop: 5, textAlign: 'center' }}>£{incomingDispatch.grossNetBreakdown?.netDriverPayout?.toFixed(2)}</Text>
-                
-                <TouchableOpacity 
-                  style={[styles.btnPrimary, { backgroundColor: tenantBrand.primary, marginTop: 20 }]}
-                  onPress={() => acceptDispatch(incomingDispatch.id)}>
-                  {isSubmitting ? <ActivityIndicator color="#000" /> : <Text style={{ color: '#000', fontSize: 18, fontWeight: '900' }}>ACCEPT RIDE</Text>}
-                </TouchableOpacity>
-              </View>
+            {/* STAGE 2 TAKEOVER — Incoming dispatch */}
+            {currentStage === 'STAGE2_TAKEOVER' && (
+              <DispatchScreen
+                dispatches={pendingDispatches}
+                payrollType={tenantPayrollType}
+                onAccept={(jobId) => { setCountdownSeconds(900); setCurrentStage('STAGE3'); setTripPhase(1); }}
+                onDecline={requestAdminCancellationPrivilege}
+              />
             )}
+
+            {/* STAGE 3 — Active Ride */}
+            {currentStage === 'STAGE3' && (
+              <ActiveRideScreen
+                tripPhase={tripPhase}
+                countdownSeconds={countdownSeconds}
+                formatTimerString={formatTimerString}
+                onPhaseComplete={handleTripPhaseComplete}
+                onRequestCancellation={requestAdminCancellationPrivilege}
+                onLaunchPagingBoard={() => setCurrentStage('LANDSCAPE_PAGING')}
+              />
+            )}
+
+            {/* STAGE 4 — Post Trip Summary */}
+            {currentStage === 'STAGE4_POST_TRIP' && (
+              <PostTripScreen 
+                onComplete={() => {
+                  setTripPhase(1);
+                  setCurrentStage('STAGE2_IDLE');
+                }}
+              />
+            )}
+
           </View>
         )}
-      </ScrollView>
+
+      </View>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070708', justifyContent: 'center' },
-  titleText: { fontSize: 48, fontWeight: '900', letterSpacing: 8, textAlign: 'center' },
-  subtitleText: { fontSize: 12, fontWeight: '600', letterSpacing: 4, textAlign: 'center', marginTop: 8 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#1A1A1D' },
-  headerTitle: { fontSize: 16, fontWeight: '800', letterSpacing: 2 },
-  sectionHeader: { color: '#FFFFFF', fontSize: 12, fontWeight: '700', letterSpacing: 3, marginBottom: 15 },
-  card: { backgroundColor: '#131315', borderRadius: 12, borderWidth: 1, borderColor: '#2A2A2D', overflow: 'hidden' },
-  input: { color: '#FFFFFF', fontSize: 16, padding: 16 },
-  divider: { height: 1, backgroundColor: '#2A2A2D' },
-  btnPrimary: { padding: 18, borderRadius: 8, alignItems: 'center', marginTop: 20 },
-  btnText: { color: '#070708', fontSize: 16, fontWeight: '700' },
-  switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16 },
-  switchText: { color: '#FFFFFF', fontSize: 15, flex: 1, marginRight: 10 },
-  goOnlineBtn: { marginTop: 30, paddingVertical: 20, paddingHorizontal: 40, borderRadius: 40 }
-});
+  safeArea:    { flex: 1, backgroundColor: COLOURS.bg },
+  mainWrapper: { flex: 1, backgroundColor: COLOURS.bg },
 
-export default App;
+  // Admin lockout
+  adminLockoutOverlaySurface: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(7,7,8,0.96)', zIndex: 999, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  lockoutCardContainer:       { backgroundColor: COLOURS.surface, padding: 24, borderRadius: 16, borderWidth: 1, borderColor: COLOURS.red, width: '100%', alignItems: 'center' },
+  lockoutPulsingText:         { color: COLOURS.red, fontSize: 13, fontWeight: '900', letterSpacing: 0.5, textAlign: 'center', marginBottom: 12 },
+  lockoutSubText:             { color: COLOURS.textMuted, fontSize: 12, fontWeight: '600', textAlign: 'center', lineHeight: 18, marginBottom: 20 },
+  cancelRequestBtn:           { paddingVertical: 10, paddingHorizontal: 16, backgroundColor: COLOURS.bg, borderRadius: 8, borderWidth: 0.5, borderColor: '#222' },
+
+  // Map workspace
+  workspaceCanvas:        { flex: 1, position: 'relative', backgroundColor: '#070708' },
+  topFloatingStatusBar:   { position: 'absolute', top: 15, left: 15, right: 15, height: 60, backgroundColor: 'rgba(7,7,8,0.88)', paddingTop: 10, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, zIndex: 10, justifyContent: 'space-between' },
+  burgerButton:           { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: COLOURS.gold, alignItems: 'center', justifyContent: 'center' },
+  hamburgerLines:         { color: COLOURS.gold, fontSize: 24 },
+  statusPill:             { width: 44, height: 44, backgroundColor: '#0E0E10', borderRadius: 22, borderWidth: 1.5, borderColor: COLOURS.gold, alignItems: 'center', justifyContent: 'center' },
+  fabContainer:           { position: 'absolute', right: 16, top: '40%', alignItems: 'center', zIndex: 10 },
+  fabBtn:                 { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(12,12,15,0.9)', borderWidth: 1.5, borderColor: COLOURS.gold, alignItems: 'center', justifyContent: 'center', marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.5, shadowRadius: 4 },
+  chatIconBubble:         { width: 20, height: 14, borderRadius: 6, borderWidth: 1.5, borderColor: COLOURS.gold },
+  chatIconTail:           { position: 'absolute', bottom: 10, left: 12, width: 0, height: 0, borderTopWidth: 6, borderRightWidth: 6, borderTopColor: 'transparent', borderRightColor: COLOURS.gold },
+  locationIconPin:        { width: 14, height: 14, borderRadius: 7, borderWidth: 1.5, borderColor: COLOURS.gold },
+  locationIconNeedle:     { width: 1.5, height: 6, backgroundColor: COLOURS.gold, marginTop: 1 },
+  devTriggerContainer:    { position: 'absolute', top: 90, alignSelf: 'center', flexDirection: 'row', zIndex: 10 },
+  devTriggerButton:       { padding: 8, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 6, borderWidth: 1, borderColor: COLOURS.blue },
+  devTriggerText:         { color: COLOURS.blue, fontSize: 10, fontWeight: '700' },
+
+  // Landscape paging
+  landscapeContainer:  { flex: 1, backgroundColor: COLOURS.bg, width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' },
+  landscapePagingText: { color: '#FFFFFF', fontSize: 68, fontWeight: '900', letterSpacing: 6 },
+});
