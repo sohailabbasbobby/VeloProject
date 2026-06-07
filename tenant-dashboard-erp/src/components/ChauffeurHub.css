@@ -1,0 +1,313 @@
+.chauffeur-hub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  color: var(--color-text-primary);
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
+
+/* Metrics Row */
+.ch-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+}
+
+.ch-metric-card {
+  background-color: var(--color-onyx);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ch-metric-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.ch-metric-title {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.ch-metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ch-metric-sub {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.ch-metric-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  position: relative;
+}
+
+.ch-metric-icon-wrapper.danger {
+  border-color: rgba(255, 59, 48, 0.3);
+}
+
+/* Alert Banner */
+.ch-alert-banner {
+  background-color: rgba(255, 59, 48, 0.1);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ch-alert-text {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  color: #ffcccc;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.ch-alert-btn {
+  background: transparent;
+  color: var(--color-gold);
+  border: 1px solid var(--color-gold);
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Tabs */
+.ch-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.ch-tab {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-secondary);
+  padding: 8px 16px;
+  border-radius: var(--border-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ch-tab.active {
+  background-color: var(--color-gold);
+  color: var(--color-obsidian);
+  border-color: var(--color-gold);
+  font-weight: 600;
+}
+
+.ch-badge {
+  background-color: var(--color-danger);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+/* Grid */
+.ch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.ch-card {
+  background-color: var(--color-onyx);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--border-radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 360px;
+}
+
+.ch-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.ch-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--border-radius-sm);
+  object-fit: cover;
+  background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ch-id-rating {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.ch-id {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.ch-stars {
+  color: var(--color-gold);
+  font-size: 10px;
+  display: flex;
+  gap: 2px;
+}
+
+.ch-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.ch-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  margin-bottom: 8px;
+}
+
+.ch-status-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.ch-status-tag.danger {
+  background-color: rgba(255, 59, 48, 0.2);
+  color: #ffcccc;
+  border: 1px solid rgba(255, 59, 48, 0.3);
+}
+
+.ch-status-tag.warning {
+  background-color: rgba(212, 175, 55, 0.1);
+  color: var(--color-gold);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.ch-status-tag.neutral {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ch-compliance-dot {
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ch-compliance-dot.danger { color: var(--color-text-secondary); }
+.ch-compliance-dot.danger::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background-color: var(--color-danger); }
+
+.ch-compliance-dot.success { color: var(--color-text-secondary); }
+.ch-compliance-dot.success::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background-color: var(--color-gold); }
+
+.ch-compliance-dot.pending { color: var(--color-text-muted); }
+.ch-compliance-dot.pending::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background-color: var(--color-text-muted); }
+
+
+.ch-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.ch-action-btn {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: var(--color-text-secondary);
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ch-action-btn.primary {
+  background-color: rgba(212, 175, 55, 0.15);
+  color: var(--color-gold);
+}
+
+/* Onboard Card */
+.ch-card-onboard {
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  cursor: pointer;
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+.ch-card-onboard:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.ch-onboard-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ch-onboard-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.ch-onboard-sub {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}

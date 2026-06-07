@@ -1,4 +1,4 @@
-.corporate-analytics {
+.corporate-crm {
   padding: var(--spacing-xl);
   height: 100%;
   display: flex;
@@ -7,8 +7,63 @@
   overflow-y: auto;
 }
 
-.corp-header h2 {
-  font-size: 24px;
+.crm-header h1 {
+  margin-bottom: var(--spacing-xs);
+}
+
+.crm-layout {
+  display: flex;
+  gap: var(--spacing-xl);
+  flex: 1;
+}
+
+.client-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-box {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-obsidian);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--color-text-primary);
+  border-radius: var(--border-radius-sm);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.client-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  overflow-y: auto;
+}
+
+.client-item {
+  display: flex;
+  padding: var(--spacing-md);
+  background-color: var(--color-obsidian);
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.client-item:hover {
+  background-color: rgba(255,255,255,0.02);
+}
+
+.client-item.selected {
+  border-color: var(--color-gold);
+  background-color: rgba(212, 175, 55, 0.05);
+}
+
+.client-analytics {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
 }
 
 .metric-cards {
@@ -66,7 +121,6 @@
   padding-bottom: var(--spacing-sm);
 }
 
-/* Mock Bar Chart CSS */
 .mock-bar-chart {
   flex: 1;
   display: flex;
@@ -98,7 +152,6 @@
   color: var(--color-text-secondary);
 }
 
-/* Mock Pie Chart CSS */
 .mock-pie-container {
   display: flex;
   align-items: center;
@@ -142,3 +195,5 @@
 .dot-gold { background-color: var(--color-gold); }
 .dot-blue { background-color: var(--color-electric-blue); }
 .dot-red { background-color: var(--color-danger); }
+.w-100 { width: 100%; }
+.mt-4 { margin-top: var(--spacing-md); }

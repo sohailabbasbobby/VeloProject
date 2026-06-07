@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CreditCard } from 'lucide-react';
 import './CorporateBookingModal.css';
 
 const CorporateBookingModal = ({ onClose }) => {
@@ -49,8 +50,8 @@ const CorporateBookingModal = ({ onClose }) => {
             </div>
           </div>
           
-          <div className="billing-notice mt-4">
-            <span className="icon">💳</span>
+          <div className="billing-notice mt-4" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CreditCard size={18} />
             <span>This ride will be billed directly to the corporate account line of credit.</span>
           </div>
 

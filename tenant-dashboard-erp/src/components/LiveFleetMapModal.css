@@ -1,0 +1,180 @@
+.map-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-modal-container {
+  width: 95vw;
+  height: 90vh;
+  background-color: #070708;
+  border: 1px solid var(--color-gold);
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+
+.map-modal-header {
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  background: linear-gradient(180deg, #1A1A1A 0%, #070708 100%);
+}
+
+.map-modal-header h2 {
+  color: var(--color-gold);
+  font-family: 'SF Pro Display', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.btn-close-map {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btn-close-map:hover {
+  color: var(--color-gold);
+}
+
+.map-modal-body {
+  flex: 1;
+  position: relative;
+  background-color: #0d0d12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.map-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--color-gold);
+  font-family: 'SF Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.map-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(212, 175, 55, 0.2);
+  border-top-color: var(--color-gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.mock-map-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, #111 0%, #070708 100%);
+}
+
+.map-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.map-pin-container {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.map-pin-container:hover {
+  z-index: 20;
+}
+
+.map-pin-pulse {
+  position: absolute;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: mapPulse 2s infinite;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+@keyframes mapPulse {
+  0% { transform: scale(0.5); opacity: 0.8; }
+  100% { transform: scale(3); opacity: 0; }
+}
+
+.map-pin-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+  transition: transform 0.2s;
+}
+
+.map-pin-container:hover .map-pin-btn {
+  transform: scale(1.2) translateY(-4px);
+}
+
+.map-pin-label {
+  background-color: rgba(0,0,0,0.8);
+  border: 1px solid rgba(212,175,55,0.4);
+  border-radius: 4px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: 'SF Pro Display', sans-serif;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  margin-bottom: 8px; /* space between label and pin */
+  pointer-events: auto; /* make it clickable always */
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.map-pin-container:hover .map-pin-label {
+  border-color: var(--color-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212,175,55,0.3);
+}
+
+.pin-vehicle {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.pin-vehicle:hover { color: var(--color-gold); text-decoration: underline; }
+
+.pin-driver {
+  color: #888;
+  font-size: 11px;
+}
+.pin-driver:hover { color: #fff; text-decoration: underline; }
