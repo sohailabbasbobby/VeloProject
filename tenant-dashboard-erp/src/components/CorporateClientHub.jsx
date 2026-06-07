@@ -3,7 +3,7 @@ import { Filter, Search, Mail, Plus, AlertTriangle, ShieldCheck, Shield, Buildin
 import CorporateProfileModal from './CorporateProfileModal';
 import './CorporateClientHub.css';
 import './UniversalGrid.css';
-import { MOCK_CORPORATE } from '../data/mockDatabase';
+import { MOCK_CORP_CLIENTS as MOCK_CORPORATE } from '../data/mockDatabase';
 
 
 const CorporateClientHub = () => {
