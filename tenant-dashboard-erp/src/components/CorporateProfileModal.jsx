@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Building2, Wallet, Contact, ShieldCheck, FileText, Copy, Shield, User } from 'lucide-react';
+import { X, Building2, Wallet, Contact, ShieldCheck, FileText, Copy, Shield, User, Camera } from 'lucide-react';
+import corporateLogo from '../assets/corporate-logo-placeholder.png';
 import './CorporateProfileModal.css';
 import './UniversalModal.css';
 
@@ -25,6 +26,21 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
               <button className="u-modal-btn-edit" onClick={() => setIsEditing(true)}>EDIT ACCOUNT</button>
             )}
             <button className="u-modal-btn-close" onClick={onClose}><X size={20} /></button>
+          </div>
+        </div>
+
+        <div className="cpm-hero">
+          <div className="cpm-hero-logo-container">
+            <img src={corporateLogo} alt="Corporate Logo" className="cpm-hero-logo" />
+            {isEditing && (
+              <button className="cpm-hero-upload-btn">
+                <Camera size={16} />
+              </button>
+            )}
+          </div>
+          <div className="cpm-hero-info">
+            <h1 className="cpm-hero-title">{isNew ? "New Corporate Client" : "Aetheris Global Holdings"}</h1>
+            <p className="cpm-hero-subtitle">Hedge Fund / Private Equity • EXECUTIVE ELITE</p>
           </div>
         </div>
 

@@ -66,6 +66,77 @@
   cursor: pointer;
 }
 
+.cpm-hero {
+  padding: 0 24px 24px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.cpm-hero-logo-container {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  background-color: var(--color-onyx);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+}
+
+.cpm-hero-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cpm-hero-upload-btn {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 32px;
+  background-color: rgba(0,0,0,0.7);
+  border: none;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background-color 0.2s ease;
+}
+
+.cpm-hero-upload-btn:hover {
+  background-color: rgba(212, 175, 55, 0.8);
+}
+
+.cpm-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cpm-hero-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.cpm-hero-subtitle {
+  font-size: 13px;
+  color: var(--color-gold);
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
 .cpm-tabs {
   display: flex;
   gap: 24px;

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, User, CreditCard, Star, ShieldCheck, FileText, Lock, Shield } from 'lucide-react';
+import { X, User, CreditCard, Star, ShieldCheck, FileText, Lock, Shield, Camera } from 'lucide-react';
+import privateAvatar from '../assets/private-avatar-placeholder.png';
 import './PrivateClientProfileModal.css';
 import './UniversalModal.css';
 
@@ -25,6 +26,21 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
               <button className="u-modal-btn-edit" onClick={() => setIsEditing(true)}>EDIT CLIENT</button>
             )}
             <button className="u-modal-btn-close" onClick={onClose}><X size={20} /></button>
+          </div>
+        </div>
+
+        <div className="pcpm-hero">
+          <div className="pcpm-hero-avatar-container">
+            <img src={privateAvatar} alt="Client Avatar" className="pcpm-hero-avatar" />
+            {isEditing && (
+              <button className="pcpm-hero-upload-btn">
+                <Camera size={16} />
+              </button>
+            )}
+          </div>
+          <div className="pcpm-hero-info">
+            <h1 className="pcpm-hero-title">{isNew ? "New Private Client" : "Alexander Sterling"}</h1>
+            <p className="pcpm-hero-subtitle">High-Net-Worth Individual • VIP PRIORITY</p>
           </div>
         </div>
 
