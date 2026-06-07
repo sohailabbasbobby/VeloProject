@@ -57,6 +57,62 @@ const getStatusClass = (status) => {
   }
 };
 
+const CreditUtilizationGauge = ({ limit, utilized }) => {
+  const radius = 35;
+  const circumference = 2 * Math.PI * radius;
+  const percentage = utilized / limit;
+  const offset = circumference - percentage * circumference;
+
+  return (
+    <div className="cpm-gauge-container">
+      <svg width="100" height="100" viewBox="0 0 100 100" className="cpm-gauge-svg">
+        <circle cx="50" cy="50" r={radius} stroke="rgba(255, 255, 255, 0.1)" strokeWidth="6" fill="transparent" />
+        <circle 
+          cx="50" cy="50" r={radius} 
+          stroke="var(--color-gold)" strokeWidth="6" fill="transparent" 
+          strokeDasharray={circumference} strokeDashoffset={offset} 
+          strokeLinecap="round" transform="rotate(-90 50 50)" 
+        />
+        <text x="50" y="55" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">{Math.round(percentage * 100)}%</text>
+      </svg>
+      <div className="cpm-gauge-label">
+        <div style={{color: 'white', fontWeight: 'bold'}}>${(utilized/1000).toFixed(1)}k</div>
+        <div style={{color: 'var(--color-text-muted)', fontSize: '10px'}}>of ${(limit/1000).toFixed(1)}k Limit</div>
+      </div>
+    </div>
+  );
+};
+
+const SpendTrendSparkline = ({ data }) => {
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  
+  const points = data.map((val, i) => {
+    const x = (i / (data.length - 1)) * 100;
+    const y = 100 - ((val - min) / range) * 80 - 10;
+    return `${x},${y}`;
+  }).join(' ');
+
+  return (
+    <div className="cpm-sparkline-container">
+      <div className="cpm-sparkline-title">Spend Trend</div>
+      <svg width="100%" height="80" viewBox="0 -10 100 120" preserveAspectRatio="none" className="cpm-sparkline-svg">
+        <polyline points={points} fill="none" stroke="var(--color-gold)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        {data.map((val, i) => {
+          const x = (i / (data.length - 1)) * 100;
+          const y = 100 - ((val - min) / range) * 80 - 10;
+          return <circle key={i} cx={x} cy={y} r="4" fill="var(--color-onyx)" stroke="var(--color-gold)" strokeWidth="2" />
+        })}
+      </svg>
+      <div className="cpm-sparkline-labels">
+        <span>Prev Cycle</span>
+        <span style={{color: 'var(--color-gold)'}}>Current</span>
+      </div>
+    </div>
+  );
+};
+
 const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(isNew || false);
@@ -139,40 +195,32 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                 </div>
               </div>
 
-              {/* Financial Framework */}
+              {/* Financial Dashboard */}
               <div className="cpm-section">
                 <div className="cpm-section-header">
-                  <Wallet size={16} /> FINANCIAL FRAMEWORK
+                  <Wallet size={16} /> FINANCIAL INTELLIGENCE
                 </div>
-                <div className="cpm-grid-3">
-                  <div className="cpm-field">
-                    <label className="cpm-label">Credit Limit</label>
-                    <input type="text" className="cpm-input cpm-val-gold" defaultValue={isNew ? "" : "$50,000"} readOnly={!isEditing} />
+                <div className="cpm-financial-dashboard">
+                  <div className="cpm-financial-card">
+                    <div className="cpm-financial-card-header">Credit Utilization</div>
+                    <CreditUtilizationGauge limit={50000} utilized={12500} />
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Billing Frequency</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Weekly"} readOnly={!isEditing} />
+                  <div className="cpm-financial-card" style={{ flexGrow: 1 }}>
+                    <SpendTrendSparkline data={[8500, 9200, 7800, 11000, 12500]} />
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Payment Terms</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Net 30"} readOnly={!isEditing} />
-                  </div>
-                </div>
-                <div className="cpm-grid-2">
-                  <div className="cpm-field">
-                    <label className="cpm-label">VAT Number</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "GB 123 4567 89"} readOnly={!isEditing} />
-                  </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Invoicing Email</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "finance@aetheris-global.com"} readOnly={!isEditing} />
-                  </div>
-                </div>
-                <div className="cpm-field">
-                  <label className="cpm-label">Bank Details (IBAN/Swift)</label>
-                  <div className="cpm-input-with-action">
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "GB89 VELO 6016 1331 4455 66 • VELOUK22"} readOnly={!isEditing} />
-                    <Copy size={14} className="cpm-input-action" />
+                  <div className="cpm-financial-card cpm-financial-summary">
+                     <div className="cpm-summary-item">
+                        <span className="cpm-summary-label">Billing Frequency</span>
+                        <span className="cpm-summary-value">Weekly</span>
+                     </div>
+                     <div className="cpm-summary-item">
+                        <span className="cpm-summary-label">Payment Terms</span>
+                        <span className="cpm-summary-value">Net 30</span>
+                     </div>
+                     <div className="cpm-summary-item">
+                        <span className="cpm-summary-label">VAT Number</span>
+                        <span className="cpm-summary-value">GB 123 4567 89</span>
+                     </div>
                   </div>
                 </div>
               </div>
@@ -301,18 +349,60 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
               <div className="cc-metrics-row" style={{ marginBottom: '24px' }}>
                 <button className="cc-pulse-card active">
                   <div className="cc-pulse-percent"><Receipt size={20} className="cc-pulse-icon" />$145K</div>
-                  <div className="cc-pulse-label">TOTAL INVOICED</div>
-                </button>
-                <button className="cc-pulse-card">
-                  <div className="cc-pulse-percent"><CircleDollarSign size={20} className="cc-pulse-icon" />$132.5K</div>
-                  <div className="cc-pulse-label">PAID AMOUNT</div>
+                  <div className="cc-pulse-label">TOTAL REVENUE (YTD)</div>
                 </button>
                 <button className="cc-pulse-card">
                   <div className="cc-pulse-percent"><Wallet size={20} className="cc-pulse-icon" style={{color: '#ff4d4d'}}/>$12.5K</div>
                   <div className="cc-pulse-label" style={{color: '#ff4d4d'}}>OUTSTANDING</div>
                 </button>
+                <button className="cc-pulse-card">
+                  <div className="cc-pulse-percent"><Calendar size={20} className="cc-pulse-icon" />Jul 01</div>
+                  <div className="cc-pulse-label">NEXT INVOICE DATE</div>
+                </button>
               </div>
 
+              <div className="cpm-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <FileText size={16} /> UNBILLED TRIPS (CURRENT CYCLE)
+                </div>
+                <button className="cpm-btn-save" style={{ padding: '8px 16px', fontSize: '11px' }}>
+                  GENERATE CYCLE INVOICE
+                </button>
+              </div>
+
+              <div className="cc-table-container" style={{ marginBottom: '32px' }}>
+                <table className="cc-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '15%' }}>TASK ID</th>
+                      <th style={{ width: '25%' }}>ROUTE</th>
+                      <th style={{ width: '20%' }}>DATE</th>
+                      <th style={{ width: '20%' }}>AMOUNT</th>
+                      <th style={{ width: '20%' }}>STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="cc-card-row">
+                      <td className="text-gold font-bold">#VELO-9912</td>
+                      <td className="text-white">Heathrow T5 to Mayfair</td>
+                      <td className="text-white">28 Jun 2026</td>
+                      <td className="text-white font-bold">$350</td>
+                      <td><span className="cc-status-badge status-waiting">Unbilled</span></td>
+                    </tr>
+                    <tr className="cc-card-row">
+                      <td className="text-gold font-bold">#VELO-9915</td>
+                      <td className="text-white">Mayfair to Gatwick</td>
+                      <td className="text-white">29 Jun 2026</td>
+                      <td className="text-white font-bold">$420</td>
+                      <td><span className="cc-status-badge status-waiting">Unbilled</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="cpm-section-header" style={{ marginBottom: '16px' }}>
+                <Receipt size={16} /> PAST INVOICES
+              </div>
               <div className="cc-table-container">
                 <table className="cc-table">
                   <thead>
@@ -336,6 +426,79 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'users' && (
+            <div className="cpm-tab-content">
+              <div className="cpm-section-header" style={{ marginBottom: '16px' }}>
+                <UserCheck size={16} /> AUTHORIZED PERSONNEL
+              </div>
+              <div className="cpm-user-grid">
+                <div className="cpm-user-card">
+                  <div className="cpm-user-header">
+                    <div className="cpm-user-avatar">
+                      <User size={20} />
+                    </div>
+                    <div className="cpm-user-info">
+                      <div className="cpm-user-name">Eleanor Vance</div>
+                      <div className="cpm-user-role">Executive Assistant</div>
+                    </div>
+                  </div>
+                  <div className="cpm-user-contact">
+                    <div>eleanor@aetheris-global.com</div>
+                    <div>+44 7700 900077</div>
+                  </div>
+                  <div className="cpm-user-actions">
+                    <span className="cpm-user-status active">Booking Permitted</span>
+                    <button className="cpm-toggle-btn active">
+                      <div className="cpm-toggle-knob"></div>
+                    </button>
+                  </div>
+                </div>
+                <div className="cpm-user-card">
+                  <div className="cpm-user-header">
+                    <div className="cpm-user-avatar">
+                      <User size={20} />
+                    </div>
+                    <div className="cpm-user-info">
+                      <div className="cpm-user-name">Marcus Thorne</div>
+                      <div className="cpm-user-role">Managing Director</div>
+                    </div>
+                  </div>
+                  <div className="cpm-user-contact">
+                    <div>marcus@aetheris-global.com</div>
+                    <div>+44 7700 900124</div>
+                  </div>
+                  <div className="cpm-user-actions">
+                    <span className="cpm-user-status active">Booking Permitted</span>
+                    <button className="cpm-toggle-btn active">
+                      <div className="cpm-toggle-knob"></div>
+                    </button>
+                  </div>
+                </div>
+                <div className="cpm-user-card">
+                  <div className="cpm-user-header">
+                    <div className="cpm-user-avatar" style={{backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d'}}>
+                      <UserX size={20} />
+                    </div>
+                    <div className="cpm-user-info">
+                      <div className="cpm-user-name">Sarah Jenkins</div>
+                      <div className="cpm-user-role">Former Employee</div>
+                    </div>
+                  </div>
+                  <div className="cpm-user-contact">
+                    <div>sarah@aetheris-global.com</div>
+                    <div>+44 7700 900888</div>
+                  </div>
+                  <div className="cpm-user-actions">
+                    <span className="cpm-user-status inactive">Booking Revoked</span>
+                    <button className="cpm-toggle-btn inactive">
+                      <div className="cpm-toggle-knob"></div>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}

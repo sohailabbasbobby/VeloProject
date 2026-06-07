@@ -303,9 +303,234 @@ select.cpm-input:disabled {
 .cpm-doc-info {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 12px;
+  gap: 8px;
+  color: white;
+  font-size: 13px;
   font-weight: 500;
+}
+
+/* Financial Dashboard Styles */
+.cpm-financial-dashboard {
+  display: flex;
+  gap: 24px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 16px;
+}
+
+.cpm-financial-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.cpm-financial-card-header {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.cpm-gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.cpm-gauge-svg {
+  transform: scale(1.2);
+}
+
+.cpm-gauge-label {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cpm-sparkline-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.cpm-sparkline-title {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.cpm-sparkline-svg {
+  flex-grow: 1;
+  overflow: visible;
+}
+
+.cpm-sparkline-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+
+.cpm-financial-summary {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding-left: 24px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cpm-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cpm-summary-label {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cpm-summary-value {
+  font-size: 14px;
+  color: white;
+  font-weight: 600;
+}
+
+/* Authorized Users Grid */
+.cpm-user-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+.cpm-user-card {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cpm-user-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cpm-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(212, 175, 55, 0.1);
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cpm-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.cpm-user-name {
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.cpm-user-role {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cpm-user-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.cpm-user-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cpm-user-status {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cpm-user-status.active {
+  color: var(--color-gold);
+}
+
+.cpm-user-status.inactive {
+  color: #ff4d4d;
+}
+
+.cpm-toggle-btn {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s;
+  padding: 0;
+}
+
+.cpm-toggle-btn.active {
+  background-color: var(--color-gold);
+}
+
+.cpm-toggle-btn.inactive {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.cpm-toggle-knob {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: white;
+  position: absolute;
+  top: 2px;
+  transition: transform 0.2s;
+}
+
+.cpm-toggle-btn.active .cpm-toggle-knob {
+  transform: translateX(18px);
+}
+
+.cpm-toggle-btn.inactive .cpm-toggle-knob {
+  transform: translateX(2px);
 }
 
 .cpm-badge-valid {
