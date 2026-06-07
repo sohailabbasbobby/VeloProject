@@ -5,6 +5,7 @@ import './UniversalModal.css';
 
 const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [isEditing, setIsEditing] = useState(isNew || false);
 
   if (!isOpen) return null;
 
@@ -18,7 +19,11 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
             <h2 className="u-modal-title">{isNew ? "Onboard Private Client" : "Private Client Profile"}</h2>
           </div>
           <div className="u-modal-header-actions">
-            <button className="u-modal-btn-edit">EDIT CLIENT</button>
+            {isEditing ? (
+              <button className="pcpm-btn-save" onClick={() => setIsEditing(false)}>SAVE CLIENT</button>
+            ) : (
+              <button className="u-modal-btn-edit" onClick={() => setIsEditing(true)}>EDIT CLIENT</button>
+            )}
             <button className="u-modal-btn-close" onClick={onClose}><X size={20} /></button>
           </div>
         </div>
@@ -42,26 +47,26 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
                 <div className="pcpm-grid-2">
                   <div className="pcpm-field">
                     <label className="pcpm-label">Full Name</label>
-                    <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "Alexander Sterling"} />
+                    <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "Alexander Sterling"} readOnly={!isEditing} />
                   </div>
                   <div className="pcpm-field">
                     <label className="pcpm-label">Date of Birth</label>
-                    <input type="date" className="pcpm-input" defaultValue={isNew ? "" : "1978-04-12"} />
+                    <input type="date" className="pcpm-input" defaultValue={isNew ? "" : "1978-04-12"} readOnly={!isEditing} />
                   </div>
                 </div>
                 <div className="pcpm-grid-2">
                   <div className="pcpm-field">
                     <label className="pcpm-label">Primary Contact Number</label>
-                    <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "+44 7700 900111"} />
+                    <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "+44 7700 900111"} readOnly={!isEditing} />
                   </div>
                   <div className="pcpm-field">
                     <label className="pcpm-label">Email Address</label>
-                    <input type="email" className="pcpm-input" defaultValue={isNew ? "" : "a.sterling@private-domain.com"} />
+                    <input type="email" className="pcpm-input" defaultValue={isNew ? "" : "a.sterling@private-domain.com"} readOnly={!isEditing} />
                   </div>
                 </div>
                 <div className="pcpm-field">
                   <label className="pcpm-label">Primary Residence</label>
-                  <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "42 Kensington Palace Gardens, London, W8 4QQ"} />
+                  <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "42 Kensington Palace Gardens, London, W8 4QQ"} readOnly={!isEditing} />
                 </div>
               </div>
 
@@ -73,11 +78,11 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
                 <div className="pcpm-grid-2">
                   <div className="pcpm-field">
                     <label className="pcpm-label">Primary Card</label>
-                    <input type="text" className="pcpm-input pcpm-val-gold" defaultValue={isNew ? "" : "AMEX Centurion •••• 1004"} />
+                    <input type="text" className="pcpm-input pcpm-val-gold" defaultValue={isNew ? "" : "AMEX Centurion •••• 1004"} readOnly={!isEditing} />
                   </div>
                   <div className="pcpm-field">
                     <label className="pcpm-label">Default Currency</label>
-                    <select className="pcpm-input">
+                    <select className="pcpm-input" disabled={!isEditing}>
                       <option>GBP (£)</option>
                       <option>USD ($)</option>
                       <option>EUR (€)</option>
@@ -86,7 +91,7 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
                 </div>
                 <div className="pcpm-field">
                   <label className="pcpm-label">Billing Address (If different)</label>
-                  <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "Same as Primary Residence"} />
+                  <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "Same as Primary Residence"} readOnly={!isEditing} />
                 </div>
               </div>
 
@@ -100,12 +105,12 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
                     <label className="pcpm-label">Dedicated Chauffeur (Optional)</label>
                     <div className="pcpm-input-with-icon">
                       <User size={14} className="pcpm-input-icon" />
-                      <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "Julian Sterling (VEO-9921)"} />
+                      <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "Julian Sterling (VEO-9921)"} readOnly={!isEditing} />
                     </div>
                   </div>
                   <div className="pcpm-field">
                     <label className="pcpm-label">Preferred Vehicle Class</label>
-                    <select className="pcpm-input pcpm-val-gold">
+                    <select className="pcpm-input pcpm-val-gold" disabled={!isEditing}>
                       <option>First Class (Maybach / Phantom)</option>
                       <option>Business Class (S-Class / 7-Series)</option>
                       <option>SUV (Range Rover / Cullinan)</option>
@@ -114,7 +119,7 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
                 </div>
                 <div className="pcpm-field">
                   <label className="pcpm-label">Cabin Preferences & Dietary</label>
-                  <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "San Pellegrino strictly at room temp, Financial Times, no cabin fragrance"} />
+                  <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "San Pellegrino strictly at room temp, Financial Times, no cabin fragrance"} readOnly={!isEditing} />
                 </div>
               </div>
 

@@ -5,6 +5,7 @@ import './UniversalModal.css';
 
 const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [isEditing, setIsEditing] = useState(isNew || false);
 
   if (!isOpen) return null;
 
@@ -18,7 +19,11 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
             <h2 className="u-modal-title">{isNew ? "Onboard Corporate Client" : "Corporate Account Profile"}</h2>
           </div>
           <div className="u-modal-header-actions">
-            <button className="u-modal-btn-edit">EDIT ACCOUNT</button>
+            {isEditing ? (
+              <button className="cpm-btn-save" onClick={() => setIsEditing(false)}>SAVE ACCOUNT</button>
+            ) : (
+              <button className="u-modal-btn-edit" onClick={() => setIsEditing(true)}>EDIT ACCOUNT</button>
+            )}
             <button className="u-modal-btn-close" onClick={onClose}><X size={20} /></button>
           </div>
         </div>
@@ -42,26 +47,26 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                 <div className="cpm-grid-2">
                   <div className="cpm-field">
                     <label className="cpm-label">Company Name</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Aetheris Global Holdings"} />
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Aetheris Global Holdings"} readOnly={!isEditing} />
                   </div>
                   <div className="cpm-field">
                     <label className="cpm-label">Registration Number</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "UK-992841-B"} />
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "UK-992841-B"} readOnly={!isEditing} />
                   </div>
                 </div>
                 <div className="cpm-grid-2">
                   <div className="cpm-field">
                     <label className="cpm-label">Sector</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Hedge Fund / Private Equity"} />
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Hedge Fund / Private Equity"} readOnly={!isEditing} />
                   </div>
                   <div className="cpm-field">
                     <label className="cpm-label">Primary Contact</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Julian Thorne (Chief of Staff)"} />
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Julian Thorne (Chief of Staff)"} readOnly={!isEditing} />
                   </div>
                 </div>
                 <div className="cpm-field">
                   <label className="cpm-label">Office Address</label>
-                  <input type="text" className="cpm-input" defaultValue={isNew ? "" : "14 Curzon Street, Mayfair, London, W1J 5HI, United Kingdom"} />
+                  <input type="text" className="cpm-input" defaultValue={isNew ? "" : "14 Curzon Street, Mayfair, London, W1J 5HI, United Kingdom"} readOnly={!isEditing} />
                 </div>
               </div>
 
@@ -73,31 +78,31 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                 <div className="cpm-grid-3">
                   <div className="cpm-field">
                     <label className="cpm-label">Credit Limit</label>
-                    <input type="text" className="cpm-input cpm-val-gold" defaultValue={isNew ? "" : "$50,000"} />
+                    <input type="text" className="cpm-input cpm-val-gold" defaultValue={isNew ? "" : "$50,000"} readOnly={!isEditing} />
                   </div>
                   <div className="cpm-field">
                     <label className="cpm-label">Billing Frequency</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Weekly"} />
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Weekly"} readOnly={!isEditing} />
                   </div>
                   <div className="cpm-field">
                     <label className="cpm-label">Payment Terms</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Net 30"} />
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Net 30"} readOnly={!isEditing} />
                   </div>
                 </div>
                 <div className="cpm-grid-2">
                   <div className="cpm-field">
                     <label className="cpm-label">VAT Number</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "GB 123 4567 89"} />
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "GB 123 4567 89"} readOnly={!isEditing} />
                   </div>
                   <div className="cpm-field">
                     <label className="cpm-label">Invoicing Email</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "finance@aetheris-global.com"} />
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "finance@aetheris-global.com"} readOnly={!isEditing} />
                   </div>
                 </div>
                 <div className="cpm-field">
                   <label className="cpm-label">Bank Details (IBAN/Swift)</label>
                   <div className="cpm-input-with-action">
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "GB89 VELO 6016 1331 4455 66 • VELOUK22"} />
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "GB89 VELO 6016 1331 4455 66 • VELOUK22"} readOnly={!isEditing} />
                     <Copy size={14} className="cpm-input-action" />
                   </div>
                 </div>
@@ -113,12 +118,12 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                     <label className="cpm-label">Account Manager</label>
                     <div className="cpm-input-with-icon">
                       <User size={14} className="cpm-input-icon" />
-                      <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Eleanor Vance"} />
+                      <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Eleanor Vance"} readOnly={!isEditing} />
                     </div>
                   </div>
                   <div className="cpm-field">
                     <label className="cpm-label">Service Tier</label>
-                    <select className="cpm-input cpm-val-gold">
+                    <select className="cpm-input cpm-val-gold" disabled={!isEditing}>
                       <option>EXECUTIVE ELITE</option>
                       <option>PLATINUM</option>
                       <option>CORE</option>
@@ -128,14 +133,14 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                 <div className="cpm-grid-2">
                   <div className="cpm-field">
                     <label className="cpm-label">Preferred Vehicle Class</label>
-                    <select className="cpm-input">
+                    <select className="cpm-input" disabled={!isEditing}>
                       <option>First Class (Maybach / Phantom)</option>
                       <option>Business Class (S-Class / 7-Series)</option>
                     </select>
                   </div>
                   <div className="cpm-field">
                     <label className="cpm-label">Special Instructions</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Bottled Fiji Water, no scent"} />
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Bottled Fiji Water, no scent"} readOnly={!isEditing} />
                   </div>
                 </div>
               </div>

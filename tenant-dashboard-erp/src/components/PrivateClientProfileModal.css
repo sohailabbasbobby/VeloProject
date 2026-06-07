@@ -165,6 +165,21 @@ select.pcpm-input {
   padding-right: 32px;
 }
 
+.pcpm-input[readonly], select.pcpm-input:disabled {
+  background-color: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  pointer-events: none;
+  font-weight: 500;
+  color: white;
+  -webkit-text-fill-color: white;
+  opacity: 1;
+}
+
+select.pcpm-input:disabled {
+  background-image: none;
+}
+
 .pcpm-input-with-icon {
   position: relative;
 }
@@ -179,6 +194,10 @@ select.pcpm-input {
 
 .pcpm-input-with-icon .pcpm-input {
   padding-left: 36px;
+}
+
+.pcpm-input-with-icon .pcpm-input[readonly] {
+  padding-left: 28px;
 }
 
 .pcpm-input-with-action {
