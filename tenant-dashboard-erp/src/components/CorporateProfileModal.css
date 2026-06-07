@@ -533,6 +533,35 @@ select.cpm-input:disabled {
   transform: translateX(2px);
 }
 
+/* Active Bookings Legibility Overhaul */
+.cpm-bookings-tab .cc-pulse-card {
+  padding: var(--spacing-md) var(--spacing-lg);
+  min-height: 85px; /* ~30% larger */
+}
+
+.cpm-bookings-tab .cc-pulse-percent {
+  font-size: 32px; /* 30% larger */
+}
+
+.cpm-bookings-tab .cc-pulse-card:hover .cc-pulse-percent {
+  font-size: 36px;
+}
+
+.cpm-bookings-tab .cc-pulse-label {
+  font-size: 11px; /* slightly larger */
+}
+
+.cpm-bookings-tab .cc-card-row td {
+  padding-top: 16px;
+  padding-bottom: 24px;
+  font-size: 13px; /* Ensure task IDs and text are high contrast and legible */
+}
+
+.cpm-bookings-tab .cc-card-row td.text-white {
+  color: #fff;
+  font-weight: 500;
+}
+
 .cpm-badge-valid {
   background-color: rgba(212, 175, 55, 0.1);
   border: 1px solid rgba(212, 175, 55, 0.3);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Building2, Wallet, Contact, ShieldCheck, FileText, Copy, Shield, User, Camera, CarFront, Calendar, UserCheck, UserX, CheckCircle, MapPin, Receipt, CircleDollarSign } from 'lucide-react';
+import { X, Building2, Wallet, Contact, ShieldCheck, FileText, Copy, Shield, User, Camera, CarFront, Calendar, UserCheck, UserX, CheckCircle, MapPin, Receipt, CircleDollarSign, ChevronDown, ChevronUp, ChevronLeft, Filter } from 'lucide-react';
 import corporateLogo from '../assets/corporate-logo-placeholder.png';
 import './CorporateProfileModal.css';
 import './UniversalModal.css';
@@ -116,6 +116,12 @@ const SpendTrendSparkline = ({ data }) => {
 const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(isNew || false);
+  const [expandedInvoices, setExpandedInvoices] = useState({});
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const toggleInvoice = (id) => {
+    setExpandedInvoices(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   if (!isOpen) return null;
 
@@ -179,19 +185,57 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                     <input type="text" className="cpm-input" defaultValue={isNew ? "" : "UK-992841-B"} readOnly={!isEditing} />
                   </div>
                 </div>
+                <div className="cpm-field" style={{marginTop: '16px'}}>
+                  <label className="cpm-label">Office Address</label>
+                  <input type="text" className="cpm-input" defaultValue={isNew ? "" : "14 Curzon Street, Mayfair, London, W1J 5HI, United Kingdom"} readOnly={!isEditing} />
+                </div>
+              </div>
+
+              {/* Full Contact Block */}
+              <div className="cpm-section">
+                <div className="cpm-section-header">
+                  <Contact size={16} /> PRIMARY & FINANCE CONTACTS
+                </div>
                 <div className="cpm-grid-2">
                   <div className="cpm-field">
-                    <label className="cpm-label">Sector</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Hedge Fund / Private Equity"} readOnly={!isEditing} />
+                    <label className="cpm-label">Primary Office Phone</label>
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "+44 20 7946 0881"} readOnly={!isEditing} />
                   </div>
                   <div className="cpm-field">
                     <label className="cpm-label">Primary Contact</label>
                     <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Julian Thorne (Chief of Staff)"} readOnly={!isEditing} />
                   </div>
                 </div>
-                <div className="cpm-field">
-                  <label className="cpm-label">Office Address</label>
-                  <input type="text" className="cpm-input" defaultValue={isNew ? "" : "14 Curzon Street, Mayfair, London, W1J 5HI, United Kingdom"} readOnly={!isEditing} />
+                <div className="cpm-grid-2">
+                  <div className="cpm-field">
+                    <label className="cpm-label">Finance/Accounts Phone</label>
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "+44 20 7946 0885"} readOnly={!isEditing} />
+                  </div>
+                  <div className="cpm-field">
+                    <label className="cpm-label">Finance/Accounts Email</label>
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "finance@aetheris-global.com"} readOnly={!isEditing} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Authorized Personnel Summary */}
+              <div className="cpm-section">
+                <div className="cpm-section-header">
+                  <UserCheck size={16} /> AUTHORIZED PERSONNEL SUMMARY
+                </div>
+                <div className="cpm-grid-3">
+                  <div className="cpm-field">
+                    <label className="cpm-label">Total Users</label>
+                    <input type="text" className="cpm-input cpm-val-gold" defaultValue={isNew ? "" : "12 Personnel"} readOnly={!isEditing} />
+                  </div>
+                  <div className="cpm-field">
+                    <label className="cpm-label">Active Bookers</label>
+                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "8 Permitted"} readOnly={!isEditing} />
+                  </div>
+                  <div className="cpm-field">
+                    <label className="cpm-label">Manage Personnel</label>
+                    <button className="u-modal-btn-edit" style={{width: '100%', justifyContent: 'center'}} onClick={() => setActiveTab('users')}>VIEW DIRECTORY</button>
+                  </div>
                 </div>
               </div>
 
@@ -286,7 +330,7 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
           )}
 
           {activeTab === 'bookings' && (
-            <div className="cpm-tab-content">
+            <div className="cpm-tab-content cpm-bookings-tab">
               <div className="cc-metrics-row" style={{ marginBottom: '24px' }}>
                 <button className="cc-pulse-card active">
                   <div className="cc-pulse-percent"><CarFront size={20} className="cc-pulse-icon" />2</div>
@@ -346,6 +390,27 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
 
           {activeTab === 'billing' && (
             <div className="cpm-tab-content">
+              {/* Finance Contact Block */}
+              <div className="cpm-section" style={{ marginBottom: '24px' }}>
+                <div className="cpm-section-header">
+                  <Contact size={16} /> ACCOUNT DEPARTMENT CONTACT
+                </div>
+                <div className="cpm-grid-3">
+                  <div className="cpm-field">
+                    <label className="cpm-label">Finance Manager</label>
+                    <input type="text" className="cpm-input" defaultValue="Sarah Jenkins" readOnly={true} />
+                  </div>
+                  <div className="cpm-field">
+                    <label className="cpm-label">Direct Line</label>
+                    <input type="text" className="cpm-input" defaultValue="+44 20 7946 0885" readOnly={true} />
+                  </div>
+                  <div className="cpm-field">
+                    <label className="cpm-label">Billing Email</label>
+                    <input type="text" className="cpm-input" defaultValue="finance@aetheris-global.com" readOnly={true} />
+                  </div>
+                </div>
+              </div>
+
               <div className="cc-metrics-row" style={{ marginBottom: '24px' }}>
                 <button className="cc-pulse-card active">
                   <div className="cc-pulse-percent"><Receipt size={20} className="cc-pulse-icon" />$145K</div>
@@ -407,22 +472,60 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                 <table className="cc-table">
                   <thead>
                     <tr>
+                      <th style={{ width: '5%' }}></th>
                       <th style={{ width: '20%' }}>INVOICE ID</th>
                       <th style={{ width: '20%' }}>DATE</th>
-                      <th style={{ width: '20%' }}>TRIPS</th>
+                      <th style={{ width: '15%' }}>TRIPS</th>
                       <th style={{ width: '20%' }}>AMOUNT</th>
                       <th style={{ width: '20%' }}>STATUS</th>
                     </tr>
                   </thead>
                   <tbody>
                     {MOCK_INVOICES.map(inv => (
-                      <tr key={inv.id} className="cc-card-row">
-                        <td className="text-gold font-bold">{inv.id}</td>
-                        <td className="text-white">{inv.date}</td>
-                        <td className="text-white">{inv.trips}</td>
-                        <td className="text-white font-bold">{inv.amount}</td>
-                        <td><span className={`cc-status-badge ${getStatusClass(inv.status)}`}>{inv.status}</span></td>
-                      </tr>
+                      <React.Fragment key={inv.id}>
+                        <tr className="cc-card-row" onClick={() => toggleInvoice(inv.id)}>
+                          <td style={{ textAlign: 'center' }}>
+                            {expandedInvoices[inv.id] ? <ChevronUp size={16} color="var(--color-gold)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
+                          </td>
+                          <td className="text-gold font-bold">{inv.id}</td>
+                          <td className="text-white">{inv.date}</td>
+                          <td className="text-white">{inv.trips}</td>
+                          <td className="text-white font-bold">{inv.amount}</td>
+                          <td><span className={`cc-status-badge ${getStatusClass(inv.status)}`}>{inv.status}</span></td>
+                        </tr>
+                        {expandedInvoices[inv.id] && (
+                          <tr className="cpm-nested-row">
+                            <td colSpan="6" style={{ padding: '0 24px 16px 24px', backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                              <div className="cpm-nested-table-container">
+                                <table className="cc-table" style={{ marginTop: '8px' }}>
+                                  <thead>
+                                    <tr>
+                                      <th style={{ width: '20%' }}>TRIP ID</th>
+                                      <th style={{ width: '40%' }}>ROUTE</th>
+                                      <th style={{ width: '20%' }}>DATE</th>
+                                      <th style={{ width: '20%' }}>AMOUNT</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr className="cc-card-row" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
+                                      <td className="text-gold font-bold">#VELO-9801</td>
+                                      <td className="text-white">Heathrow to Mayfair</td>
+                                      <td className="text-white">{inv.date}</td>
+                                      <td className="text-white font-bold">$450</td>
+                                    </tr>
+                                    <tr className="cc-card-row" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
+                                      <td className="text-gold font-bold">#VELO-9802</td>
+                                      <td className="text-white">Mayfair to Gatwick</td>
+                                      <td className="text-white">{inv.date}</td>
+                                      <td className="text-white font-bold">$550</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>
@@ -432,74 +535,130 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
 
           {activeTab === 'users' && (
             <div className="cpm-tab-content">
-              <div className="cpm-section-header" style={{ marginBottom: '16px' }}>
-                <UserCheck size={16} /> AUTHORIZED PERSONNEL
-              </div>
-              <div className="cpm-user-grid">
-                <div className="cpm-user-card">
-                  <div className="cpm-user-header">
-                    <div className="cpm-user-avatar">
-                      <User size={20} />
-                    </div>
-                    <div className="cpm-user-info">
-                      <div className="cpm-user-name">Eleanor Vance</div>
-                      <div className="cpm-user-role">Executive Assistant</div>
-                    </div>
-                  </div>
-                  <div className="cpm-user-contact">
-                    <div>eleanor@aetheris-global.com</div>
-                    <div>+44 7700 900077</div>
-                  </div>
-                  <div className="cpm-user-actions">
-                    <span className="cpm-user-status active">Booking Permitted</span>
-                    <button className="cpm-toggle-btn active">
-                      <div className="cpm-toggle-knob"></div>
+              {selectedUser ? (
+                <div className="cpm-user-drilldown">
+                  <div className="cpm-drilldown-header" style={{ marginBottom: '24px' }}>
+                    <button className="cpm-btn-save" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'transparent', color: 'var(--color-gold)', border: '1px solid var(--color-gold)' }} onClick={() => setSelectedUser(null)}>
+                      <ChevronLeft size={16} /> BACK TO DIRECTORY
                     </button>
                   </div>
-                </div>
-                <div className="cpm-user-card">
-                  <div className="cpm-user-header">
-                    <div className="cpm-user-avatar">
-                      <User size={20} />
+                  <div className="cpm-drilldown-profile" style={{ display: 'flex', gap: '24px', alignItems: 'center', padding: '24px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div className="cpm-drilldown-avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(212,175,55,0.1)', color: 'var(--color-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <User size={40} />
                     </div>
-                    <div className="cpm-user-info">
-                      <div className="cpm-user-name">Marcus Thorne</div>
-                      <div className="cpm-user-role">Managing Director</div>
+                    <div className="cpm-drilldown-info">
+                      <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', color: '#fff', fontFamily: 'var(--font-family-main)' }}>{selectedUser.name}</h3>
+                      <div className="cpm-drilldown-role" style={{ color: 'var(--color-gold)', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>{selectedUser.role}</div>
+                      <div className="cpm-drilldown-contact" style={{ color: 'var(--color-text-secondary)', fontSize: '12px' }}>{selectedUser.email} &bull; {selectedUser.phone}</div>
                     </div>
                   </div>
-                  <div className="cpm-user-contact">
-                    <div>marcus@aetheris-global.com</div>
-                    <div>+44 7700 900124</div>
-                  </div>
-                  <div className="cpm-user-actions">
-                    <span className="cpm-user-status active">Booking Permitted</span>
-                    <button className="cpm-toggle-btn active">
-                      <div className="cpm-toggle-knob"></div>
+                  <div className="cpm-section-header" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <FileText size={16} /> TRIPS BOOKED BY {selectedUser.name.toUpperCase()}
+                    </div>
+                    <button className="u-modal-btn-edit" style={{ padding: '4px 12px', fontSize: '10px', display: 'flex', alignItems: 'center' }}>
+                      <Filter size={12} style={{marginRight: '4px'}} /> FILTER
                     </button>
                   </div>
+                  <div className="cc-table-container">
+                    <table className="cc-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: '20%' }}>TASK ID</th>
+                          <th style={{ width: '40%' }}>ROUTE</th>
+                          <th style={{ width: '20%' }}>DATE</th>
+                          <th style={{ width: '20%' }}>AMOUNT</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="cc-card-row">
+                          <td className="text-gold font-bold">#VELO-8801</td>
+                          <td className="text-white">Heathrow to City</td>
+                          <td className="text-white">14 Jun 2026</td>
+                          <td className="text-white font-bold">$250</td>
+                        </tr>
+                        <tr className="cc-card-row">
+                          <td className="text-gold font-bold">#VELO-8815</td>
+                          <td className="text-white">City to Mayfair</td>
+                          <td className="text-white">16 Jun 2026</td>
+                          <td className="text-white font-bold">$120</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-                <div className="cpm-user-card">
-                  <div className="cpm-user-header">
-                    <div className="cpm-user-avatar" style={{backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d'}}>
-                      <UserX size={20} />
+              ) : (
+                <>
+                  <div className="cpm-section-header" style={{ marginBottom: '16px' }}>
+                    <UserCheck size={16} /> AUTHORIZED PERSONNEL
+                  </div>
+                  <div className="cpm-user-grid">
+                    <div className="cpm-user-card" style={{cursor: 'pointer'}} onClick={() => setSelectedUser({name: 'Eleanor Vance', role: 'Executive Assistant', email: 'eleanor@aetheris-global.com', phone: '+44 7700 900077'})}>
+                      <div className="cpm-user-header">
+                        <div className="cpm-user-avatar">
+                          <User size={20} />
+                        </div>
+                        <div className="cpm-user-info">
+                          <div className="cpm-user-name">Eleanor Vance</div>
+                          <div className="cpm-user-role">Executive Assistant</div>
+                        </div>
+                      </div>
+                      <div className="cpm-user-contact">
+                        <div>eleanor@aetheris-global.com</div>
+                        <div>+44 7700 900077</div>
+                      </div>
+                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
+                        <span className="cpm-user-status active">Booking Permitted</span>
+                        <button className="cpm-toggle-btn active">
+                          <div className="cpm-toggle-knob"></div>
+                        </button>
+                      </div>
                     </div>
-                    <div className="cpm-user-info">
-                      <div className="cpm-user-name">Sarah Jenkins</div>
-                      <div className="cpm-user-role">Former Employee</div>
+                    <div className="cpm-user-card" style={{cursor: 'pointer'}} onClick={() => setSelectedUser({name: 'Marcus Thorne', role: 'Managing Director', email: 'marcus@aetheris-global.com', phone: '+44 7700 900124'})}>
+                      <div className="cpm-user-header">
+                        <div className="cpm-user-avatar">
+                          <User size={20} />
+                        </div>
+                        <div className="cpm-user-info">
+                          <div className="cpm-user-name">Marcus Thorne</div>
+                          <div className="cpm-user-role">Managing Director</div>
+                        </div>
+                      </div>
+                      <div className="cpm-user-contact">
+                        <div>marcus@aetheris-global.com</div>
+                        <div>+44 7700 900124</div>
+                      </div>
+                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
+                        <span className="cpm-user-status active">Booking Permitted</span>
+                        <button className="cpm-toggle-btn active">
+                          <div className="cpm-toggle-knob"></div>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="cpm-user-card" style={{cursor: 'pointer'}} onClick={() => setSelectedUser({name: 'Sarah Jenkins', role: 'Former Employee', email: 'sarah@aetheris-global.com', phone: '+44 7700 900888'})}>
+                      <div className="cpm-user-header">
+                        <div className="cpm-user-avatar" style={{backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d'}}>
+                          <UserX size={20} />
+                        </div>
+                        <div className="cpm-user-info">
+                          <div className="cpm-user-name">Sarah Jenkins</div>
+                          <div className="cpm-user-role">Former Employee</div>
+                        </div>
+                      </div>
+                      <div className="cpm-user-contact">
+                        <div>sarah@aetheris-global.com</div>
+                        <div>+44 7700 900888</div>
+                      </div>
+                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
+                        <span className="cpm-user-status inactive">Booking Revoked</span>
+                        <button className="cpm-toggle-btn inactive">
+                          <div className="cpm-toggle-knob"></div>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <div className="cpm-user-contact">
-                    <div>sarah@aetheris-global.com</div>
-                    <div>+44 7700 900888</div>
-                  </div>
-                  <div className="cpm-user-actions">
-                    <span className="cpm-user-status inactive">Booking Revoked</span>
-                    <button className="cpm-toggle-btn inactive">
-                      <div className="cpm-toggle-knob"></div>
-                    </button>
-                  </div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           )}
         </div>
