@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View, Text, SafeAreaView, StatusBar, TouchableOpacity, Modal } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SideMenuDrawer } from '../components/SideMenuDrawer';
 import { SecureBookingEngine } from '../components/SecureBookingEngine';
 import { ActiveTripCard } from '../components/ActiveTripCard';
@@ -19,7 +20,8 @@ import { VehicleSelectionModal } from '../components/VehicleSelectionModal';
 
 
 const Header = ({ onOpenDrawer, currentRole, onOpenAccountSwitcher }) => {
-  const roleDisplay = currentRole === 'CORPORATE' ? 'Acme Corp Ltd' : 'Personal Account';
+  const { t } = useTranslation();
+  const roleDisplay = currentRole === 'CORPORATE' ? t('sidebar.corporate_account') : t('sidebar.personal_account');
   return (
     <View style={[styles.glassHeaderContainer, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 15 }]}>
       <TouchableOpacity onPress={onOpenDrawer} style={{ padding: 10, paddingLeft: 0 }}>
@@ -48,6 +50,7 @@ const Header = ({ onOpenDrawer, currentRole, onOpenAccountSwitcher }) => {
 };
 
 export const HomeScreen = () => {
+  const { t } = useTranslation();
   const [activeScreen, setActiveScreen] = useState('HOME');
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isAccountModalVisible, setAccountModalVisible] = useState(false);
@@ -100,7 +103,7 @@ export const HomeScreen = () => {
   const handleConfirmBooking = () => {
     setSummaryVisible(false);
     if (currentRole === 'CORPORATE') {
-      alert("Sent to Admin for Approval. Awaiting Dispatch.");
+      alert(t('home.submit_admin_approval'));
       return;
     } 
     
@@ -201,7 +204,7 @@ export const HomeScreen = () => {
       <Modal visible={isSummaryVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>TRIP ITINERARY SUMMARY</Text>
+            <Text style={styles.modalTitle}>{t('home.trip_itinerary_summary')}</Text>
             
             <View style={{ marginBottom: 15, padding: 15, backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.05)' }}>
               {stops.filter(s => s.address.trim() !== '').map((s, idx) => (
@@ -213,22 +216,22 @@ export const HomeScreen = () => {
             </View>
             
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-              <Text style={styles.modalPriceLabel}>PICKUP TIME</Text>
-              <Text style={styles.modalPriceLabel}>ESTIMATED ETA</Text>
+              <Text style={styles.modalPriceLabel}>{t('home.pickup_time')}</Text>
+              <Text style={styles.modalPriceLabel}>{t('home.estimated_eta')}</Text>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' }}>{pickupTimeType === 'ASAP' ? 'ASAP' : scheduledTime || 'Scheduled'}</Text>
+              <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' }}>{pickupTimeType === 'ASAP' ? t('home.asap') : scheduledTime || t('home.schedule')}</Text>
               <Text style={{ color: '#D4AF37', fontSize: 16, fontWeight: 'bold' }}>25 mins</Text>
             </View>
             
             <View style={styles.modalDivider} />
-            <Text style={styles.modalPriceLabel}>TOTAL FIXED QUOTE</Text>
+            <Text style={styles.modalPriceLabel}>{t('home.total_fixed_quote')}</Text>
             <Text style={styles.modalPrice}>£85.00</Text>
             
             {/* Payment Method Selector */}
             {currentRole !== 'CORPORATE' && (
               <View style={{ zIndex: 100, marginBottom: 15 }}>
-                <Text style={[styles.modalPriceLabel, { marginBottom: 5 }]}>PAYMENT METHOD</Text>
+                <Text style={[styles.modalPriceLabel, { marginBottom: 5 }]}>{t('sidebar.payment_method')}</Text>
                 <TouchableOpacity 
                   style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: showPaymentDropdown ? '#D4AF37' : 'rgba(255, 255, 255, 0.1)' }}
                   onPress={() => setShowPaymentDropdown(!showPaymentDropdown)}
@@ -258,12 +261,12 @@ export const HomeScreen = () => {
             
             <TouchableOpacity style={styles.modalConfirmBtn} onPress={handleConfirmBooking}>
               <Text style={styles.modalConfirmText}>
-                {currentRole === 'CORPORATE' ? 'Submit for Admin Approval' : 'Confirm Ride'}
+                {currentRole === 'CORPORATE' ? t('home.submit_admin_approval') : t('home.confirm_ride')}
               </Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={{ marginTop: 15 }} onPress={() => setSummaryVisible(false)}>
-              <Text style={{ color: '#8A8A8E', textAlign: 'center', fontWeight: 'bold' }}>Cancel</Text>
+              <Text style={{ color: '#8A8A8E', textAlign: 'center', fontWeight: 'bold' }}>{t('home.cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -280,7 +283,7 @@ export const HomeScreen = () => {
       <Modal visible={isAccountModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>SELECT ACCOUNT</Text>
+            <Text style={styles.modalTitle}>{t('home.select_account')}</Text>
             
             <TouchableOpacity 
               style={[styles.accountOption, currentRole === 'PERSONAL' && styles.accountOptionActive]}
@@ -288,8 +291,8 @@ export const HomeScreen = () => {
             >
               <Text style={styles.accountIcon}>👤</Text>
               <View style={{ flex: 1 }}>
-                <Text style={styles.accountName}>Personal Account</Text>
-                <Text style={styles.accountSub}>Pay via Credit/Debit Card</Text>
+                <Text style={styles.accountName}>{t('sidebar.personal_account')}</Text>
+                <Text style={styles.accountSub}>{t('sidebar.personal_sub')}</Text>
               </View>
               {currentRole === 'PERSONAL' && <Text style={styles.activeCheck}>✓</Text>}
             </TouchableOpacity>
@@ -300,14 +303,14 @@ export const HomeScreen = () => {
             >
               <Text style={styles.accountIcon}>🏢</Text>
               <View style={{ flex: 1 }}>
-                <Text style={styles.accountName}>Acme Corp Ltd</Text>
-                <Text style={styles.accountSub}>Corporate Billing (Admin Approved)</Text>
+                <Text style={styles.accountName}>{t('sidebar.corporate_account')}</Text>
+                <Text style={styles.accountSub}>{t('sidebar.corporate_sub')}</Text>
               </View>
               {currentRole === 'CORPORATE' && <Text style={styles.activeCheck}>✓</Text>}
             </TouchableOpacity>
 
             <TouchableOpacity style={{ marginTop: 20 }} onPress={() => setAccountModalVisible(false)}>
-              <Text style={{ color: '#8A8A8E', textAlign: 'center', fontWeight: 'bold' }}>Cancel</Text>
+              <Text style={{ color: '#8A8A8E', textAlign: 'center', fontWeight: 'bold' }}>{t('home.cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>

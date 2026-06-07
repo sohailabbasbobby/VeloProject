@@ -2,6 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const express = require("express");
 const cors = require("cors");
+const { GoogleGenAI } = require("@google/genai");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -471,5 +472,76 @@ exports.initiateTenantBuild = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('internal', error.message);
   }
 });
+
+// ----------------------------------------------------
+// AI REAL-TIME MESSAGING TRANSLATION
+// ----------------------------------------------------
+exports.translateMessage = functions.firestore
+  .document('Messages/{messageId}')
+  .onCreate(async (snap, context) => {
+    const data = snap.data();
+    
+    // Check if there is content to translate
+    if (!data.content || !data.content.original) {
+      return null;
+    }
+    
+    const originalText = data.content.original;
+    const sourceLanguage = data.originalLanguage || 'en';
+    
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      
+      const prompt = `
+        You are a real-time translation engine for a luxury chauffeur app.
+        Translate the following message from the source language (${sourceLanguage}) to the following languages: 
+        English (en), French (fr), Spanish (es), Arabic (ar), Urdu (ur), Somali (so), Bengali (bn), Turkish (tr), Romanian (ro), Polish (pl).
+        
+        CRITICAL RULE: Do NOT translate proper nouns such as passenger names, operational addresses, locations, or phone numbers. Leave them exactly as they are in the original text.
+        
+        Message to translate: "${originalText}"
+        
+        Return ONLY a valid JSON object where the keys are the language codes (en, fr, es, ar, ur, so, bn, tr, ro, pl) and the values are the translated strings. Do not include markdown formatting or backticks.
+      `;
+      
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+      });
+
+      let jsonStr = response.text.trim();
+      if (jsonStr.startsWith('\`\`\`json')) {
+        jsonStr = jsonStr.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+      } else if (jsonStr.startsWith('\`\`\`')) {
+        jsonStr = jsonStr.replace(/\`\`\`/g, '').trim();
+      }
+      
+      const translations = JSON.parse(jsonStr);
+      
+      // Merge translations back into the document
+      await snap.ref.update({
+        'content.en': translations.en || originalText,
+        'content.fr': translations.fr || originalText,
+        'content.es': translations.es || originalText,
+        'content.ar': translations.ar || originalText,
+        'content.ur': translations.ur || originalText,
+        'content.so': translations.so || originalText,
+        'content.bn': translations.bn || originalText,
+        'content.tr': translations.tr || originalText,
+        'content.ro': translations.ro || originalText,
+        'content.pl': translations.pl || originalText,
+        status: 'TRANSLATED'
+      });
+      
+      console.log(`Successfully translated message ${context.params.messageId}`);
+      return null;
+      
+    } catch (error) {
+      console.error("Translation Error:", error);
+      // Mark as failed but keep original
+      await snap.ref.update({ status: 'TRANSLATION_FAILED' });
+      return null;
+    }
+  });
 
 

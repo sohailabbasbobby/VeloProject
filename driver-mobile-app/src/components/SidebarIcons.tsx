@@ -60,3 +60,12 @@ export const IconSettings = ({ color = COLOURS.gold, size = 18 }) => (
     <View style={{ width: size * 0.55, height: size * 0.55, borderRadius: size * 0.3, backgroundColor: COLOURS.bg, borderWidth: 1.5, borderColor: color }} />
   </View>
 );
+
+export const IconExpenses = ({ color = COLOURS.gold, size = 18 }) => (
+  <View style={{ width: size, height: size, borderWidth: 1.5, borderColor: color, borderRadius: 2, justifyContent: 'flex-start', alignItems: 'center', paddingTop: 2 }}>
+    <View style={{ width: size - 8, height: 1.5, backgroundColor: color, borderRadius: 1, marginBottom: 2 }} />
+    <View style={{ width: size - 8, height: 1.5, backgroundColor: color, borderRadius: 1, marginBottom: 2 }} />
+    <View style={{ width: size - 8, height: 1.5, backgroundColor: color, borderRadius: 1 }} />
+  </View>
+);
+

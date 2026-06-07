@@ -9,14 +9,20 @@ require_relative '../node_modules/react-native/scripts/react_native_pods'
 platform :ios, '15.1'
 prepare_react_native_project!
 
+config = use_native_modules!
+
 target 'VeloDriverApp' do
   use_react_native!(
-    :path => '../node_modules/react-native',
+    :path => config[:reactNativePath],
     :hermes_enabled => true,
     :fabric_enabled => false
   )
 end
 
 post_install do |installer|
-  react_native_post_install(installer)
+  react_native_post_install(
+    installer,
+    config[:reactNativePath],
+    :mac_catalyst_enabled => false
+  )
 end

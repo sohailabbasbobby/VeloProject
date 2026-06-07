@@ -34,7 +34,7 @@ export const globalStyles = StyleSheet.create({
   paxSub: { color: '#888', fontSize: 12 },
   takeoverButton: { backgroundColor: '#D4AF37', height: 50, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
   takeoverButtonText: { color: '#000', fontWeight: 'bold', fontSize: 16, letterSpacing: 1 },
-  takeoverModalOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center', zIndex: 100 },
+  takeoverModalOverlay: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center', zIndex: 100 },
   takeoverModalContent: { width: '90%', backgroundColor: '#111', borderRadius: 16, padding: 25, borderWidth: 1, borderColor: '#333' },
   takeoverTitle: { color: '#FFF', fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 10 },
   takeoverSubtitle: { color: '#888', textAlign: 'center', marginBottom: 30 },

@@ -89,7 +89,7 @@ export class MapErrorBoundary extends React.Component<{ children: React.ReactNod
 
 const styles = StyleSheet.create({
   fallbackContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: '#080809',
     overflow: 'hidden',
   },

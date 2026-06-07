@@ -72,7 +72,7 @@ const PrivateClientRegistry = () => {
 
       <div className="u-grid">
         {MOCK_CLIENTS.map((c, i) => (
-          <div key={i} className="u-card">
+          <div key={i} className="u-card" onClick={handleOpenProfile} style={{ cursor: 'pointer' }}>
             <div className="u-card-header">
               <div className="u-card-header-left">
                 <span className="u-card-id" style={{ fontSize: '10px' }}>{c.type || 'Private Client'}</span>
@@ -114,9 +114,8 @@ const PrivateClientRegistry = () => {
             </div>
 
             <div className="u-card-footer">
-              <div className="u-card-actions">
-                <button className="u-btn primary" onClick={handleOpenProfile}>View Profile</button>
-                <button className="u-btn" style={{ flex: '0 0 32px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><Mail size={14} /></button>
+              <div className="u-card-actions" style={{ justifyContent: 'flex-end' }}>
+                <button className="u-btn" style={{ flex: '0 0 32px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}><Mail size={14} /></button>
               </div>
             </div>
           </div>

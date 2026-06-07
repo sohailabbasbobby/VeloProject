@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import { HomeScreen } from './src/screens/HomeScreen';
+import './src/i18n';
 
 // --- Firebase Web SDK for React Native Auth & Sync ---
 import { initializeApp, getApps, getApp } from 'firebase/app';

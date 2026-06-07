@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert } from 'react-native';
+import i18n from '../i18n';
 
 export const SettingsScreen = ({ onClose }) => {
   const [notifications, setNotifications] = useState(true);
@@ -56,6 +57,68 @@ export const SettingsScreen = ({ onClose }) => {
               trackColor={{ false: '#2A2A2D', true: '#D4AF37' }}
               thumbColor="#FFFFFF"
             />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>LANGUAGE & REGION</Text>
+          
+          <View style={styles.settingRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.settingTitle}>App Display Language</Text>
+              <Text style={styles.settingSub}>Changes the language of the entire app UI.</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', padding: 20, paddingTop: 0, borderBottomWidth: 1, borderBottomColor: '#1A1A1D' }}>
+            {[
+              { id: 'en', label: 'English' },
+              { id: 'fr', label: 'Français' },
+              { id: 'es', label: 'Español' },
+              { id: 'de', label: 'Deutsch' },
+              { id: 'it', label: 'Italiano' },
+              { id: 'pt', label: 'Português' },
+              { id: 'nl', label: 'Nederlands' },
+              { id: 'ar', label: 'العربية' }
+            ].map(lang => (
+              <TouchableOpacity 
+                key={lang.id}
+                style={{ width: '31%', alignItems: 'center', padding: 10, borderWidth: 1, borderColor: i18n.language === lang.id ? '#D4AF37' : '#2A2A2D', borderRadius: 8, margin: '1%', backgroundColor: i18n.language === lang.id ? '#1A1505' : 'transparent' }}
+                onPress={() => i18n.changeLanguage(lang.id)}
+              >
+                <Text style={{ color: i18n.language === lang.id ? '#D4AF37' : '#8A8A8E', fontWeight: 'bold', fontSize: 12 }}>
+                  {lang.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View style={styles.settingRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.settingTitle}>Preferred Communication Language</Text>
+              <Text style={styles.settingSub}>The language you type messages in, and how you want to receive messages from drivers/company. Translates via AI.</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', padding: 20, paddingTop: 0 }}>
+            {[
+              { id: 'en', label: 'English' },
+              { id: 'fr', label: 'Français' },
+              { id: 'es', label: 'Español' },
+              { id: 'de', label: 'Deutsch' },
+              { id: 'it', label: 'Italiano' },
+              { id: 'pt', label: 'Português' },
+              { id: 'nl', label: 'Nederlands' },
+              { id: 'ar', label: 'العربية' }
+            ].map(lang => (
+              <TouchableOpacity 
+                key={`comm-${lang.id}`}
+                style={{ width: '31%', alignItems: 'center', padding: 10, borderWidth: 1, borderColor: '#2A2A2D', borderRadius: 8, margin: '1%' }}
+                onPress={() => alert(`Communication language set to ${lang.label}. This will update your Firestore profile in Phase 2.`)}
+              >
+                <Text style={{ color: '#8A8A8E', fontWeight: 'bold', fontSize: 12 }}>
+                  {lang.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 

@@ -15,12 +15,13 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Animated, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Animated, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View, TextInput, Modal, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 
 import { COLOURS } from './src/constants/theme';
 import { SidebarDrawer } from './src/components/SidebarDrawer';
 import { VeloSwipeTrack } from './src/components/VeloSwipeTrack';
 import { DriverMap, DriverMapStage } from './src/components/DriverMap';
+import './src/i18n';
 import { MapErrorBoundary } from './src/components/MapErrorBoundary';
 import { GatekeeperScreen } from './src/screens/GatekeeperScreen';
 import { DispatchScreen } from './src/screens/DispatchScreen';
@@ -30,7 +31,7 @@ import { AnimatedStatusDot } from './src/components/AnimatedStatusDot';
 import { BottomStatusSheet } from './src/components/BottomStatusSheet';
 
 type AppStage = 'STAGE1' | 'STAGE2_IDLE' | 'STAGE2_TAKEOVER' | 'STAGE3' | 'STAGE4_POST_TRIP' | 'LANDSCAPE_PAGING';
-type SidebarTab = 'NONE' | 'PROFILE' | 'HISTORY' | 'EARNINGS' | 'VEHICLE' | 'SETTINGS';
+type SidebarTab = 'NONE' | 'PROFILE' | 'EXPENSES' | 'UPCOMING' | 'HISTORY' | 'EARNINGS' | 'OPERATORS' | 'SETTINGS';
 
 export default function App() {
   // ── Navigation ──────────────────────────────────────────────────────────────
@@ -41,6 +42,7 @@ export default function App() {
   // ── Driver & Payroll ────────────────────────────────────────────────────────
   const [tenantPayrollType, setTenantPayrollType] = useState<'PERCENTAGE_SPLIT' | 'FIXED_WAGE'>('PERCENTAGE_SPLIT');
   const [isAdminApprovalPending, setIsAdminApprovalPending] = useState(false);
+  const [adminApprovalResult, setAdminApprovalResult] = useState(false);
   const [driverProfile, setDriverProfile] = useState({
     name: 'JOHN DOE',
     phone: '+44 7700 900077',
@@ -65,7 +67,13 @@ export default function App() {
   // ── Expenses ────────────────────────────────────────────────────────────────
   const [customTripExpenseName, setCustomTripExpenseName]     = useState('');
   const [customTripExpenseAmount, setCustomTripExpenseAmount] = useState('');
-  const [tripExpenses, setTripExpenses] = useState<{ [key: string]: Array<{ name: string; amount: string; timestamp: string }> }>({});
+  const [tripExpenses, setTripExpenses] = useState<{ [key: string]: Array<{ name: string; amount: string; timestamp: string, receiptImageUrl?: string }> }>({});
+  
+  const [globalExpenses, setGlobalExpenses] = useState<Array<{ id: string, name: string, amount: string, timestamp: string, receiptImageUrl?: string }>>([]);
+
+  // ── Admin Chat ──────────────────────────────────────────────────────────────
+  const [isAdminChatVisible, setIsAdminChatVisible] = useState(false);
+  const [adminChatInput, setAdminChatInput] = useState('');
 
   // ── Animations ──────────────────────────────────────────────────────────────
   const pulseAnim = useRef(new Animated.Value(0.4)).current;
@@ -95,26 +103,11 @@ export default function App() {
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
   const requestAdminCancellationPrivilege = () => {
-    Alert.alert(
-      'Request Fleet Cancellation Override',
-      'Are you sure you want to request an emergency cancellation from the admin desk?',
-      [
-        { text: 'Dismiss Request', style: 'cancel' },
-        {
-          text: 'Transmit Request',
-          style: 'destructive',
-          onPress: () => {
-            setIsAdminApprovalPending(true);
-            setTimeout(() => {
-              Alert.alert('Privilege Override Granted',
-                'Back office has approved the cancellation ticket remotely. Manifest voided successfully.',
-                [{ text: 'Return to Radar Pool', onPress: () => { setIsAdminApprovalPending(false); setTripPhase(1); setCurrentStage('STAGE2_IDLE'); } }]
-              );
-            }, 3000);
-          },
-        },
-      ]
-    );
+    setIsAdminApprovalPending(true);
+    setAdminApprovalResult(false);
+    setTimeout(() => {
+      setAdminApprovalResult(true);
+    }, 3000);
   };
 
   const handleAddTripExpense = (tripId: string, name: string, amount?: string) => {
@@ -153,15 +146,79 @@ export default function App() {
         {isAdminApprovalPending && (
           <View style={styles.adminLockoutOverlaySurface}>
             <View style={styles.lockoutCardContainer}>
-              <Text style={styles.lockoutPulsingText}>⏳   TRANSMITTING EMERGENCY OVERRIDE TICKET</Text>
-              <Text style={styles.lockoutSubText}>Awaiting secure cancellation privilege approval from back-office tenant controllers...</Text>
-              <TouchableOpacity style={styles.cancelRequestBtn} onPress={() => setIsAdminApprovalPending(false)}>
-                <Text style={{ color: '#A5A5A7', fontWeight: '800', fontSize: 11 }}>WITHDRAW CANCELLATION TICKET</Text>
-              </TouchableOpacity>
+              {!adminApprovalResult ? (
+                <>
+                  <ActivityIndicator size="large" color={COLOURS.red} style={{ marginBottom: 12 }} />
+                  <Text style={styles.lockoutPulsingText}>TRANSMITTING EMERGENCY OVERRIDE TICKET</Text>
+                  <Text style={styles.lockoutSubText}>Awaiting secure cancellation privilege approval from back-office tenant controllers...</Text>
+                  <TouchableOpacity style={styles.cancelRequestBtn} onPress={() => setIsAdminApprovalPending(false)}>
+                    <Text style={{ color: '#A5A5A7', fontWeight: '800', fontSize: 11 }}>DISMISS REQUEST</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <Text style={[styles.lockoutPulsingText, { color: COLOURS.gold, fontSize: 15 }]}>RIDE CANCELLED</Text>
+                  <Text style={styles.lockoutSubText}>Back office has approved the cancellation ticket remotely. Manifest voided successfully.</Text>
+                  <TouchableOpacity style={[styles.cancelRequestBtn, { borderColor: COLOURS.gold }]} onPress={() => { 
+                    setIsAdminApprovalPending(false); 
+                    setAdminApprovalResult(false); 
+                    setTripPhase(1); 
+                    setCurrentStage('STAGE2_IDLE'); 
+                  }}>
+                    <Text style={{ color: COLOURS.gold, fontWeight: '800', fontSize: 11 }}>RETURN TO RADAR POOL</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           </View>
         )}
 
+
+        {/* Admin Support Chat Modal */}
+        <Modal visible={isAdminChatVisible} transparent animationType="slide">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.chatModalContainer}>
+            <View style={styles.chatHeader}>
+              <TouchableOpacity onPress={() => setIsAdminChatVisible(false)} style={{ padding: 8 }}>
+                <Text style={{ color: COLOURS.gold, fontSize: 14, fontWeight: '800' }}>CLOSE</Text>
+              </TouchableOpacity>
+              <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900' }}>DISPATCH CONTROL</Text>
+              <View style={{ width: 50 }} />
+            </View>
+            
+            <ScrollView style={styles.chatScrollContent}>
+              <Text style={styles.chatTimestamp}>TODAY 11:45</Text>
+              
+              <View style={styles.chatBubbleCustomer}>
+                <Text style={styles.chatTextCustomer}>Attention: There's heavy traffic reported on M62. Please use alternate route if heading East.</Text>
+                <View style={styles.chatMetaRowRight}>
+                  <Text style={styles.chatMetaText}>11:45</Text>
+                  <Text style={styles.chatTickReadCustomer}>✓✓</Text>
+                </View>
+              </View>
+              
+              <View style={styles.chatBubbleDriver}>
+                <Text style={styles.chatTextDriver}>Copy that. I'm taking the A57 instead.</Text>
+                <View style={styles.chatMetaRowRight}>
+                  <Text style={styles.chatMetaText}>11:46</Text>
+                  <Text style={styles.chatTickUnread}>✓</Text>
+                </View>
+              </View>
+            </ScrollView>
+            
+            <View style={styles.chatInputContainer}>
+              <TextInput
+                style={styles.chatTextInput}
+                placeholder="Type message to Dispatch..."
+                placeholderTextColor={COLOURS.textDim}
+                value={adminChatInput}
+                onChangeText={setAdminChatInput}
+              />
+              <TouchableOpacity style={styles.chatSendBtn} onPress={() => setAdminChatInput('')}>
+                <Text style={{ color: COLOURS.blue, fontWeight: '900', fontSize: 12 }}>SEND</Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
+        </Modal>
 
         {/* Sidebar Drawer */}
         {isSidebarOpen && (
@@ -174,6 +231,11 @@ export default function App() {
             setActiveTab={setSidebarActiveTab}
             odometerValue={odometerValue}
             tripExpenses={tripExpenses}
+            globalExpenses={globalExpenses}
+            onAddGlobalExpense={(name, amount, receiptImageUrl) => {
+              const newExpense = { id: 'exp-'+Date.now(), name, amount, timestamp: '03 Jun 2026, 22:15', receiptImageUrl };
+              setGlobalExpenses([...globalExpenses, newExpense]);
+            }}
             customTripExpenseName={customTripExpenseName}
             setCustomTripExpenseName={setCustomTripExpenseName}
             customTripExpenseAmount={customTripExpenseAmount}
@@ -224,13 +286,16 @@ export default function App() {
 
             {/* Right FABs */}
             <View style={styles.fabContainer}>
-              <TouchableOpacity style={styles.fabBtn}>
+              <TouchableOpacity style={styles.fabBtn} onPress={() => setIsAdminChatVisible(true)}>
                 <View style={styles.chatIconBubble} />
                 <View style={styles.chatIconTail} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.fabBtn}>
                 <View style={styles.locationIconPin} />
                 <View style={styles.locationIconNeedle} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.fabBtn} onPress={() => { setIsSidebarOpen(true); setSidebarActiveTab('EXPENSES'); }}>
+                <Text style={{ color: COLOURS.gold, fontSize: 16, fontWeight: '900' }}>£</Text>
               </TouchableOpacity>
             </View>
 
@@ -336,4 +401,22 @@ const styles = StyleSheet.create({
   // Landscape paging
   landscapeContainer:  { flex: 1, backgroundColor: COLOURS.bg, width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' },
   landscapePagingText: { color: '#FFFFFF', fontSize: 68, fontWeight: '900', letterSpacing: 6 },
+  
+  // Chat Modal
+  chatModalContainer:         { flex: 1, backgroundColor: COLOURS.bg, paddingTop: 50 },
+  chatHeader:                 { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#1C1C1E' },
+  chatScrollContent:          { flex: 1, padding: 16 },
+  chatTimestamp:              { color: COLOURS.textDim, fontSize: 10, fontWeight: '800', textAlign: 'center', marginVertical: 12 },
+  chatBubbleDriver:           { backgroundColor: COLOURS.blue, padding: 12, borderRadius: 12, borderBottomRightRadius: 4, alignSelf: 'flex-end', maxWidth: '80%', marginBottom: 12 },
+  chatTextDriver:             { color: '#FFF', fontSize: 14, fontWeight: '600' },
+  chatBubbleCustomer:         { backgroundColor: '#1C1C1E', padding: 12, borderRadius: 12, borderBottomLeftRadius: 4, alignSelf: 'flex-start', maxWidth: '80%', marginBottom: 12, borderWidth: 1, borderColor: '#2A2A2C' },
+  chatTextCustomer:           { color: '#FFF', fontSize: 14, fontWeight: '600' },
+  chatInputContainer:         { flexDirection: 'row', padding: 16, borderTopWidth: 1, borderTopColor: '#1C1C1E', backgroundColor: COLOURS.surface, paddingBottom: 30 },
+  chatTextInput:              { flex: 1, backgroundColor: COLOURS.bg, height: 44, borderRadius: 22, paddingHorizontal: 16, color: '#FFF', fontSize: 14 },
+  chatSendBtn:                { marginLeft: 12, justifyContent: 'center', paddingHorizontal: 10 },
+  chatMetaRowRight:           { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 6, alignItems: 'center' },
+  chatMetaText:               { fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: '600', marginRight: 4 },
+  chatTickReadDriver:         { fontSize: 11, color: COLOURS.gold, fontWeight: '800' },
+  chatTickReadCustomer:       { fontSize: 11, color: COLOURS.blue, fontWeight: '800' },
+  chatTickUnread:             { fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: '800' },
 });

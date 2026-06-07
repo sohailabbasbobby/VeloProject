@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Dimensions, Modal, TextInput } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { COLOURS } from '../constants/theme';
 import { VeloSwipeTrack } from '../components/VeloSwipeTrack';
 
@@ -13,6 +14,7 @@ interface DispatchScreenProps {
 }
 
 export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }: DispatchScreenProps) {
+  const { t } = useTranslation();
   const isConflict = dispatches.length > 1;
 
   const [isCancelModalVisible, setCancelModalVisible] = useState(false);
@@ -20,14 +22,20 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
   const [cancelNotes, setCancelNotes] = useState('');
   const [jobToCancel, setJobToCancel] = useState<string | null>(null);
   
-  const reasons = ['Vehicle Issue', 'Vehicle Too Small', 'Too Many Bags', 'Passenger No-Show'];
+  const reasons = [
+    t('cancellation.reason_vehicle_issue'),
+    t('cancellation.reason_too_small'),
+    t('cancellation.reason_too_many_bags'),
+    'Passenger No-Show',
+    'Other - Please specify'
+  ];
 
   return (
     <View style={isConflict ? styles.fullScreenContainer : styles.bottomSheetContainer}>
       {isConflict && (
         <View style={styles.conflictHeader}>
-          <Text style={styles.conflictTitle}>⚠️ SCHEDULE CONFLICT DETECTED</Text>
-          <Text style={styles.conflictSubtitle}>Please review the conflicting requests below. Accepting one will automatically forfeit the others.</Text>
+          <Text style={styles.conflictTitle}>{t('radar.conflict_detected')}</Text>
+          <Text style={styles.conflictSubtitle}>{t('radar.conflict_desc')}</Text>
         </View>
       )}
       
@@ -37,7 +45,7 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
             
             {/* Header */}
             <View style={[styles.assignmentHeaderRow, isConflict && { flexDirection: 'row', alignItems: 'center', marginBottom: 10 }]}>
-              <Text style={isConflict ? styles.pulsingWarningHeaderSmall : styles.pulsingWarningHeader}>TRIP REQUEST</Text>
+              <Text style={isConflict ? styles.pulsingWarningHeaderSmall : styles.pulsingWarningHeader}>{t('radar.trip_request')}</Text>
               <Text style={isConflict ? styles.tenantOriginatorLabelSmall : styles.tenantOriginatorLabel}>
                 {isConflict ? ` - ${job.tenantName}` : job.tenantName}
               </Text>
@@ -46,14 +54,14 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
             {/* Compressed Payout & Time Row for Conflicts */}
             <View style={{ flexDirection: isConflict ? 'row' : 'column', justifyContent: 'space-between' }}>
               <View style={[styles.requestedTimeSolidBox, isConflict && { flex: 1, marginRight: 5, padding: 12, marginBottom: 8 }]}>
-                <Text style={styles.timeBoxLabel}>PAYOUT</Text>
+                <Text style={styles.timeBoxLabel}>{t('post_trip.payout')}</Text>
                 <Text style={[styles.timeBoxValueBold, { color: COLOURS.green, fontSize: isConflict ? 15 : 18 }]}>
-                  {payrollType === 'PERCENTAGE_SPLIT' ? `Net: ${job.payout}` : 'Fixed Wage'}
+                  {payrollType === 'PERCENTAGE_SPLIT' ? `Net: ${job.payout}` : t('profile.salaried')}
                 </Text>
               </View>
 
               <View style={[styles.requestedTimeSolidBox, isConflict && { flex: 1, marginLeft: 5, padding: 12, marginBottom: 8 }]}>
-                <Text style={styles.timeBoxLabel}>PICKUP TIME</Text>
+                <Text style={styles.timeBoxLabel}>{t('radar.pickup_time')}</Text>
                 <Text style={[styles.timeBoxValueBold, { fontSize: isConflict ? 15 : 18 }]}>{job.time}</Text>
               </View>
             </View>
@@ -64,7 +72,7 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
                 <View style={styles.routeRingNode} />
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.nodeLocation, isConflict && { fontSize: 13 }]}>{job.pickup}</Text>
-                  {!isConflict && <Text style={styles.nodeInlineMetrics}>En Route: 8 min (2.4 mi)</Text>}
+                  {!isConflict && <Text style={styles.nodeInlineMetrics}>{t('active_trip.en_route', { time: '8 min', distance: '2.4 mi' })}</Text>}
                 </View>
               </View>
               <View style={[styles.routeDashedConnectorLine, isConflict && { height: 10, marginVertical: 2 }]} />
@@ -72,7 +80,7 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
                 <View style={[styles.routeRingNode, { borderColor: COLOURS.red }]} />
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.nodeLocation, isConflict && { fontSize: 13 }]}>MANCHESTER AIRPORT T2</Text>
-                  {!isConflict && <Text style={styles.nodeInlineMetrics}>In Transit: 28 min (11.4 mi)</Text>}
+                  {!isConflict && <Text style={styles.nodeInlineMetrics}>{t('active_trip.in_transit', { time: '28 min', distance: '11.4 mi' })}</Text>}
                 </View>
               </View>
             </View>
@@ -80,7 +88,7 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
             {/* Emergency Cancellation - Hide in conflict to save space */}
             {!isConflict && (
               <TouchableOpacity style={styles.takeoverEmergencyCancelBtn} onPress={() => { setJobToCancel(job.id); setCancelModalVisible(true); }}>
-                <Text style={styles.emergencyCancelBtnText}>🛑   REQUEST CANCELLATION</Text>
+                <Text style={styles.emergencyCancelBtnText}>{t('active_trip.request_cancellation')}</Text>
               </TouchableOpacity>
             )}
 
@@ -101,8 +109,8 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
       <Modal visible={isCancelModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>REQUEST CANCELLATION</Text>
-            <Text style={styles.modalSubtitle}>Please select a reason for cancelling this trip.</Text>
+            <Text style={styles.modalTitle}>{t('cancellation.title')}</Text>
+            <Text style={styles.modalSubtitle}>{t('cancellation.select_reason')}</Text>
             
             {reasons.map(r => (
               <TouchableOpacity key={r} style={[styles.reasonPill, cancelReason === r && styles.reasonPillActive]} onPress={() => setCancelReason(r)}>
@@ -112,7 +120,7 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
             
             <TextInput
               style={styles.modalInput}
-              placeholder="Additional notes (optional)..."
+              placeholder={t('cancellation.optional_notes')}
               placeholderTextColor={COLOURS.textDim}
               value={cancelNotes}
               onChangeText={setCancelNotes}
@@ -121,7 +129,7 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
             
             <View style={styles.modalButtonRow}>
               <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#1A1A1C' }]} onPress={() => setCancelModalVisible(false)}>
-                <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>GO BACK</Text>
+                <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>{t('cancellation.close').toUpperCase()}</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.modalBtn, { backgroundColor: cancelReason ? COLOURS.red : '#3A1515' }]} 
@@ -132,7 +140,7 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
                     onDecline(jobToCancel);
                   }
                 }}>
-                <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '900' }}>SUBMIT</Text>
+                <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '900' }}>{t('post_trip.submit').toUpperCase()}</Text>
               </TouchableOpacity>
             </View>
           </View>

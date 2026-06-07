@@ -1,7 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, SafeAreaView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, SafeAreaView } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { COLOURS } from '../constants/theme';
+import { IconUpcoming, IconHistory, IconSettings, IconAddress, IconPayment } from './SidebarIcons';
 
 export const SideMenuDrawer = ({ visible, onClose, onSelectRole, currentRole, onNavigate }) => {
+  const { t } = useTranslation();
+
   return (
     <Modal
       visible={visible}
@@ -11,103 +16,135 @@ export const SideMenuDrawer = ({ visible, onClose, onSelectRole, currentRole, on
     >
       <View style={styles.overlay}>
         <SafeAreaView style={styles.drawerContainer}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          
+          <View style={styles.sidebarTopHeaderRow}>
+            <TouchableOpacity style={styles.sidebarCloseButton} onPress={onClose}>
+              <Text style={styles.closeBtnText}>{t('sidebar.close')}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.sidebarMenuScroller} contentContainerStyle={{ paddingBottom: 120, paddingTop: 10 }} showsVerticalScrollIndicator={false}>
+            
             {/* 1. Header Section */}
-            <View style={styles.headerSection}>
-              <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                <Text style={styles.closeIcon}>✕</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.profileRow}
-                onPress={() => { onNavigate('PROFILE'); onClose(); }}
-              >
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>JD</Text>
-                </View>
-                <View style={styles.profileInfo}>
-                  <Text style={styles.fullName}>John Doe</Text>
-                  <Text style={styles.contactDetails}>+44 7700 900077</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity activeOpacity={0.9} style={styles.driverHeaderCardTrigger} onPress={() => { onNavigate('PROFILE'); onClose(); }}>
+              <View style={styles.avatarPlaceholderLarge} />
+              <View style={{ marginLeft: 16, flex: 1 }}>
+                <Text style={styles.sidebarDriverName}>JOHN DOE</Text>
+                <Text style={styles.sidebarDriverId}>+44 7700 900077</Text>
+                <Text style={styles.editProfileNoticeText}>{t('sidebar.update_profile')}</Text>
+              </View>
+            </TouchableOpacity>
 
-            <View style={styles.divider} />
-
-            {/* 2. Account Section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>ACCOUNT SWITCHER</Text>
-              <TouchableOpacity 
-                style={[styles.accountOption, currentRole === 'PERSONAL' && styles.accountOptionActive]}
-                onPress={() => { onSelectRole('PERSONAL'); onClose(); }}
-              >
-                <Text style={styles.accountIcon}>👤</Text>
+            {/* 2. Account Switcher Section */}
+            <Text style={styles.subCardTitle}>{t('sidebar.account_switcher')}</Text>
+            
+            <TouchableOpacity 
+              style={[styles.menuRowItem, currentRole === 'PERSONAL' ? styles.menuRowActive : styles.menuRowInactive]}
+              onPress={() => { onSelectRole('PERSONAL'); onClose(); }}
+            >
+              <View style={styles.menuRowLabelWrapper}>
+                <View style={[styles.iconCircleWrapper, currentRole !== 'PERSONAL' && { borderColor: '#4A4A4C' }]}>
+                  <Text style={{fontSize: 16, color: currentRole === 'PERSONAL' ? COLOURS.gold : '#4A4A4C', top: -1}}>👤</Text>
+                </View>
                 <View>
-                  <Text style={styles.accountName}>Personal Account</Text>
-                  <Text style={styles.accountSub}>Pay via Credit/Debit Card</Text>
+                  <Text style={[styles.menuRowLabelText, currentRole !== 'PERSONAL' && { color: '#EAEAEA' }]}>{t('sidebar.personal_account')}</Text>
+                  <Text style={[styles.accountSub, currentRole === 'PERSONAL' ? {color: COLOURS.gold} : {color: '#8A8A8E'}]}>{t('sidebar.personal_sub')}</Text>
                 </View>
-                {currentRole === 'PERSONAL' && <Text style={styles.activeCheck}>✓</Text>}
-              </TouchableOpacity>
+              </View>
+              {currentRole === 'PERSONAL' && <Text style={styles.chevronIndicator}>✓</Text>}
+            </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={[styles.accountOption, currentRole === 'CORPORATE' && styles.accountOptionActive]}
-                onPress={() => { onSelectRole('CORPORATE'); onClose(); }}
-              >
-                <Text style={styles.accountIcon}>🏢</Text>
+            <TouchableOpacity 
+              style={[styles.menuRowItem, currentRole === 'CORPORATE' ? styles.menuRowActive : styles.menuRowInactive]}
+              onPress={() => { onSelectRole('CORPORATE'); onClose(); }}
+            >
+              <View style={styles.menuRowLabelWrapper}>
+                <View style={[styles.iconCircleWrapper, currentRole !== 'CORPORATE' && { borderColor: '#4A4A4C' }]}>
+                  <Text style={{fontSize: 16, color: currentRole === 'CORPORATE' ? COLOURS.gold : '#4A4A4C', top: -1}}>🏢</Text>
+                </View>
                 <View>
-                  <Text style={styles.accountName}>Acme Corp Ltd</Text>
-                  <Text style={styles.accountSub}>Corporate Billing (Admin Approved)</Text>
+                  <Text style={[styles.menuRowLabelText, currentRole !== 'CORPORATE' && { color: '#EAEAEA' }]}>{t('sidebar.corporate_account')}</Text>
+                  <Text style={[styles.accountSub, currentRole === 'CORPORATE' ? {color: COLOURS.gold} : {color: '#8A8A8E'}]}>{t('sidebar.corporate_sub')}</Text>
                 </View>
-                {currentRole === 'CORPORATE' && <Text style={styles.activeCheck}>✓</Text>}
-              </TouchableOpacity>
-            </View>
+              </View>
+              {currentRole === 'CORPORATE' && <Text style={styles.chevronIndicator}>✓</Text>}
+            </TouchableOpacity>
 
-            <View style={styles.divider} />
-
+            <View style={{height: 15}} />
+            <Text style={styles.subCardTitle}>{t('sidebar.menu')}</Text>
+            
             {/* 3. Navigation Section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>MENU</Text>
-              
-              <TouchableOpacity style={styles.navOption} onPress={() => { onNavigate('UPCOMING_BOOKINGS'); onClose(); }}>
-                <Text style={[styles.navIcon, { color: '#D4AF37' }]}>🗓︎</Text>
-                <Text style={styles.navText}>Upcoming Bookings</Text>
-              </TouchableOpacity>
+            <TouchableOpacity style={styles.menuRowItem} onPress={() => { onNavigate('UPCOMING_BOOKINGS'); onClose(); }}>
+              <View style={styles.menuRowLabelWrapper}>
+                <View style={styles.iconCircleWrapper}>
+                  <IconUpcoming color={COLOURS.gold} size={14} />
+                </View>
+                <Text style={styles.menuRowLabelText}>{t('sidebar.upcoming_bookings')}</Text>
+              </View>
+              <Text style={styles.chevronIndicator}>▶</Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity style={styles.navOption} onPress={() => { onNavigate('SAVED_ADDRESSES'); onClose(); }}>
-                <Text style={[styles.navIcon, { color: '#D4AF37' }]}>⚲</Text>
-                <Text style={styles.navText}>Saved Addresses</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity style={styles.navOption} onPress={() => { onNavigate('TRIP_HISTORY'); onClose(); }}>
-                <Text style={[styles.navIcon, { color: '#D4AF37' }]}>◷</Text>
-                <Text style={styles.navText}>Trip History</Text>
-              </TouchableOpacity>
+            <TouchableOpacity style={styles.menuRowItem} onPress={() => { onNavigate('TRIP_HISTORY'); onClose(); }}>
+              <View style={styles.menuRowLabelWrapper}>
+                <View style={styles.iconCircleWrapper}>
+                  <IconHistory color={COLOURS.gold} size={14} />
+                </View>
+                <Text style={styles.menuRowLabelText}>{t('sidebar.trip_history')}</Text>
+              </View>
+              <Text style={styles.chevronIndicator}>▶</Text>
+            </TouchableOpacity>
 
-              {currentRole === 'PERSONAL' && (
-                <TouchableOpacity style={styles.navOption} onPress={() => { onNavigate('PAYMENT_METHOD'); onClose(); }}>
-                  <Text style={[styles.navIcon, { color: '#D4AF37' }]}>💳</Text>
-                  <Text style={styles.navText}>Payment Method</Text>
-                </TouchableOpacity>
-              )}
-              
-              <TouchableOpacity style={styles.navOption} onPress={() => { onNavigate('SETTINGS'); onClose(); }}>
-                <Text style={[styles.navIcon, { color: '#D4AF37' }]}>⚙︎</Text>
-                <Text style={styles.navText}>App Settings</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.menuRowItem} onPress={() => { onNavigate('SAVED_ADDRESSES'); onClose(); }}>
+              <View style={styles.menuRowLabelWrapper}>
+                <View style={styles.iconCircleWrapper}>
+                  <IconAddress color={COLOURS.gold} size={14} />
+                </View>
+                <Text style={styles.menuRowLabelText}>{t('sidebar.saved_addresses')}</Text>
+              </View>
+              <Text style={styles.chevronIndicator}>▶</Text>
+            </TouchableOpacity>
 
-            <View style={styles.divider} />
+            {currentRole === 'PERSONAL' && (
+              <TouchableOpacity style={styles.menuRowItem} onPress={() => { onNavigate('PAYMENT_METHOD'); onClose(); }}>
+                <View style={styles.menuRowLabelWrapper}>
+                  <View style={styles.iconCircleWrapper}>
+                    <IconPayment color={COLOURS.gold} size={14} />
+                  </View>
+                  <Text style={styles.menuRowLabelText}>{t('sidebar.payment_method')}</Text>
+                </View>
+                <Text style={styles.chevronIndicator}>▶</Text>
+              </TouchableOpacity>
+            )}
+            
+            <TouchableOpacity style={styles.menuRowItem} onPress={() => { onNavigate('SETTINGS'); onClose(); }}>
+              <View style={styles.menuRowLabelWrapper}>
+                <View style={styles.iconCircleWrapper}>
+                  <IconSettings color={COLOURS.gold} size={14} />
+                </View>
+                <Text style={styles.menuRowLabelText}>{t('sidebar.app_settings')}</Text>
+              </View>
+              <Text style={styles.chevronIndicator}>▶</Text>
+            </TouchableOpacity>
 
-            <View style={styles.section}>
-              <TouchableOpacity style={styles.navOption} onPress={() => { alert('Logged out'); onClose(); }}>
-                <Text style={[styles.navIcon, { color: '#8A8A8E' }]}>⎋</Text>
-                <Text style={styles.navText}>Log Out</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity style={[styles.navOption, { marginTop: 10 }]} onPress={() => { alert('Account deletion requested'); onClose(); }}>
-                <Text style={[styles.navIcon, { color: '#FF3B30', fontSize: 24, top: -2 }]}>⨂</Text>
-                <Text style={[styles.navText, { color: '#FF3B30' }]}>Delete Account Permanently</Text>
-              </TouchableOpacity>
-            </View>
+            <View style={{height: 15}} />
+            
+            <TouchableOpacity style={[styles.menuRowItem, { borderColor: '#1A1A1C', backgroundColor: '#070708' }]} onPress={() => { alert('Logged out'); onClose(); }}>
+              <View style={styles.menuRowLabelWrapper}>
+                <View style={[styles.iconCircleWrapper, { borderColor: '#2A2A2D' }]}>
+                  <Text style={{color: '#8A8A8E', fontSize: 16, top: -1}}>⎋</Text>
+                </View>
+                <Text style={[styles.menuRowLabelText, { color: '#8A8A8E' }]}>{t('sidebar.logout')}</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.menuRowItem, { borderColor: '#1A1A1C', backgroundColor: '#070708' }]} onPress={() => { alert('Account deletion requested'); onClose(); }}>
+              <View style={styles.menuRowLabelWrapper}>
+                <View style={[styles.iconCircleWrapper, { borderColor: '#2A2A2D' }]}>
+                  <Text style={{color: '#FF3B30', fontSize: 16, top: -1}}>⨂</Text>
+                </View>
+                <Text style={[styles.menuRowLabelText, { color: '#FF3B30' }]}>{t('sidebar.delete_account')}</Text>
+              </View>
+            </TouchableOpacity>
 
           </ScrollView>
         </SafeAreaView>
@@ -125,147 +162,128 @@ const styles = StyleSheet.create({
   drawerContainer: {
     flex: 1,
     width: '85%',
-    backgroundColor: '#070708',
-    borderRightWidth: 1,
-    borderRightColor: '#2A2A2D',
+    backgroundColor: COLOURS.bg,
+    borderRightWidth: 1.5,
+    borderColor: COLOURS.gold,
   },
-  headerSection: {
-    padding: 20,
-    paddingTop: 40,
+  sidebarTopHeaderRow: {
+    width: '100%',
+    alignItems: 'flex-end',
+    paddingHorizontal: 22,
+    paddingTop: 50,
+    marginBottom: 5,
   },
-  closeBtn: {
-    alignSelf: 'flex-end',
-    marginBottom: 10,
+  sidebarCloseButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: COLOURS.surface,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#222',
   },
-  closeIcon: {
-    color: '#8A8A8E',
-    fontSize: 24,
-    fontWeight: 'bold',
+  closeBtnText: {
+    color: COLOURS.gold,
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1,
   },
-  profileRow: {
+  sidebarMenuScroller: {
+    flex: 1,
+    paddingHorizontal: 22,
+  },
+  driverHeaderCardTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: COLOURS.surface,
+    padding: 18,
+    borderRadius: 12,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: COLOURS.gold,
+  },
+  avatarPlaceholderLarge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#1D1D1F',
+    borderWidth: 1,
+    borderColor: COLOURS.gold,
+  },
+  sidebarDriverName: {
+    color: COLOURS.textPrimary,
+    fontSize: 18,
+    fontWeight: '900',
+    letterSpacing: 1.5,
+  },
+  sidebarDriverId: {
+    color: COLOURS.textMuted,
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '800',
+  },
+  editProfileNoticeText: {
+    color: COLOURS.gold,
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 4,
+    letterSpacing: 0.5,
+  },
+  subCardTitle: {
+    color: COLOURS.textDim,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1,
+    marginBottom: 10,
     marginTop: 10,
   },
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#D4AF37',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    color: '#000000',
-    fontSize: 20,
-    fontWeight: '900',
-  },
-  profileInfo: {
-    marginLeft: 15,
-  },
-  fullName: {
-    color: '#FFFFFF',
-    fontSize: 22,
-    fontWeight: '800',
-  },
-  contactDetails: {
-    color: '#8A8A8E',
-    fontSize: 14,
-    marginTop: 4,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#1A1A1D',
-    marginHorizontal: 20,
-    marginVertical: 10,
-  },
-  section: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  sectionTitle: {
-    color: '#8A8A8E',
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 2,
-    marginBottom: 15,
-  },
-  sectionHeaderRow: {
+  menuRowItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: COLOURS.gold,
+    borderRadius: 12,
+    marginBottom: 10,
+    backgroundColor: COLOURS.surface,
   },
-  addText: {
-    color: '#D4AF37',
-    fontSize: 12,
-    fontWeight: '700',
+  menuRowActive: {
+    borderColor: COLOURS.gold,
   },
-  accountOption: {
+  menuRowInactive: {
+    borderColor: '#2A2A2D',
+    backgroundColor: '#131315',
+  },
+  menuRowLabelWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#131315',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#2A2A2D',
-    marginBottom: 10,
   },
-  accountOptionActive: {
-    borderColor: '#D4AF37',
-    backgroundColor: '#1A1505',
+  iconCircleWrapper: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: COLOURS.gold,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
   },
-  accountIcon: {
-    fontSize: 24,
-    marginRight: 15,
+  menuRowLabelText: {
+    color: COLOURS.gold,
+    fontSize: 15,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
-  accountName: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
+  chevronIndicator: {
+    color: COLOURS.gold,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   accountSub: {
-    color: '#8A8A8E',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  activeCheck: {
-    color: '#D4AF37',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginLeft: 'auto',
-  },
-  addressOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  addressIcon: {
-    fontSize: 20,
-    marginRight: 15,
-  },
-  addressTitle: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  addressText: {
-    color: '#8A8A8E',
-    fontSize: 14,
-    marginTop: 2,
-  },
-  navOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  navIcon: {
-    fontSize: 20,
-    marginRight: 15,
-  },
-  navText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    color: COLOURS.gold,
+    fontSize: 11,
     fontWeight: '600',
+    marginTop: 2,
   },
 });

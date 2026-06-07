@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { COLOURS } from '../constants/theme';
 import { VeloSwipeTrack } from '../components/VeloSwipeTrack';
 
@@ -21,6 +22,7 @@ export function GatekeeperScreen({
   odometerValue, setOdometerValue,
   isUnlocked, onGoOnline,
 }: GatekeeperScreenProps) {
+  const { t } = useTranslation();
 
   const checks = [
     { id: 'pristine', text: 'Pristine exterior body' },
@@ -74,8 +76,8 @@ export function GatekeeperScreen({
         {/* Camera capture */}
         <TouchableOpacity style={styles.cameraWindowTarget} onPress={() => setHasCameraPayload(!hasCameraPayload)}>
           {hasCameraPayload
-            ? <Text style={styles.cameraPayloadSuccessText}>✓ CABIN CAPTURED SUCCESSFUL</Text>
-            : <Text style={styles.cameraPlaceholderText}>📷   TAP TO CAPTURE REAR CABIN PRESENTATION</Text>
+            ? <Text style={styles.cameraPayloadSuccessText}>{t('active_trip.cabin_captured').toUpperCase()}</Text>
+            : <Text style={styles.cameraPlaceholderText}>{t('active_trip.cabin_presentation').toUpperCase()}</Text>
           }
         </TouchableOpacity>
       </ScrollView>

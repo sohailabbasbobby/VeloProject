@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import GatekeeperScreen from '../screens/GatekeeperScreen';
+import { GatekeeperScreen } from '../screens/GatekeeperScreen';
 // import RadarPoolScreen from '../screens/RadarPoolScreen';
 // import ActiveRideScreen from '../screens/ActiveRideScreen';
 

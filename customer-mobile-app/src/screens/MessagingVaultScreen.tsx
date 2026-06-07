@@ -1,10 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 export const MessagingVaultScreen = () => {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'en';
+  
+  const messages = [
+    {
+      id: '1',
+      sender: 'driver',
+      timestamp: '19:42',
+      originalLanguage: 'es',
+      content: {
+        original: 'Buenas noches. Estoy esperando afuera del edificio de la terminal cerca de la salida 4.',
+        en: 'Good evening. I am waiting outside the terminal building near exit 4.',
+        ar: 'مساء الخير. أنا أنتظر خارج مبنى الركاب بالقرب من المخرج 4.',
+        es: 'Buenas noches. Estoy esperando afuera del edificio de la terminal cerca de la salida 4.'
+      }
+    },
+    {
+      id: '2',
+      sender: 'customer',
+      timestamp: '19:44',
+      originalLanguage: 'en',
+      content: {
+        original: "Perfect, I'm just walking out now. See you in 2 mins.",
+        en: "Perfect, I'm just walking out now. See you in 2 mins.",
+        ar: "ممتاز، أنا أخرج الآن. أراك خلال دقيقتين.",
+        es: "Perfecto, estoy saliendo ahora mismo. Nos vemos en 2 minutos."
+      }
+    }
+  ];
+
+  const renderMessage = (msg) => {
+    const isCustomer = msg.sender === 'customer';
+    const bubbleStyle = isCustomer ? styles.messageBubbleCustomer : styles.messageBubbleDriver;
+    const textStyle = isCustomer ? styles.messageTextCustomer : styles.messageTextDriver;
+    const translatedText = msg.content[currentLang] || msg.content.original;
+    const showTranslation = msg.originalLanguage !== currentLang && translatedText !== msg.content.original;
+
+    return (
+      <View key={msg.id} style={bubbleStyle}>
+        {showTranslation && (
+          <Text style={[textStyle, { fontStyle: 'italic', opacity: 0.8, fontSize: 13, marginBottom: 4 }]}>
+            {msg.content.original}
+          </Text>
+        )}
+        <Text style={textStyle}>
+          {translatedText}
+        </Text>
+        {showTranslation && (
+          <Text style={{ color: isCustomer ? 'rgba(0,0,0,0.5)' : '#D4AF37', fontSize: 9, marginTop: 4, fontWeight: 'bold' }}>
+            TRANSLATED BY AI
+          </Text>
+        )}
+        <Text style={[styles.timestamp, { color: isCustomer ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)' }]}>{msg.timestamp}</Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>MESSAGING VAULT</Text>
+      <Text style={styles.headerTitle}>{t('messaging.title', 'MESSAGING VAULT')}</Text>
       
       <View style={styles.driverProfileCard}>
         <View style={styles.driverAvatar}>
@@ -21,15 +79,7 @@ export const MessagingVaultScreen = () => {
       </View>
 
       <ScrollView style={styles.chatContainer} showsVerticalScrollIndicator={false}>
-        <View style={styles.messageBubbleDriver}>
-          <Text style={styles.messageText}>Good evening. I am waiting outside the terminal building near exit 4.</Text>
-          <Text style={styles.timestamp}>19:42</Text>
-        </View>
-
-        <View style={styles.messageBubbleCustomer}>
-          <Text style={styles.messageText}>Perfect, I'm just walking out now. See you in 2 mins.</Text>
-          <Text style={styles.timestamp}>19:44</Text>
-        </View>
+        {messages.map(renderMessage)}
       </ScrollView>
 
       <View style={styles.inputArea}>
@@ -137,7 +187,12 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
     marginBottom: 15,
   },
-  messageText: {
+  messageTextCustomer: {
+    color: '#000000',
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  messageTextDriver: {
     color: '#FFFFFF',
     fontSize: 15,
     lineHeight: 22,
