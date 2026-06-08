@@ -72,7 +72,7 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
           </div>
           <div className="u-modal-header-actions">
             {isEditing ? (
-              <button className="pcpm-btn-save" onClick={() => setIsEditing(false)}>SAVE CLIENT</button>
+              <button className="u-modal-btn-save" onClick={() => setIsEditing(false)}>SAVE CLIENT</button>
             ) : (
               <button className="u-modal-btn-edit" onClick={() => setIsEditing(true)}>EDIT CLIENT</button>
             )}
@@ -80,18 +80,18 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
           </div>
         </div>
 
-        <div className="pcpm-hero">
-          <div className="pcpm-hero-avatar-container">
-            <img src={privateAvatar} alt="Client Avatar" className="pcpm-hero-avatar" />
+        <div className="u-modal-hero">
+          <div className="u-modal-hero-avatar-container">
+            <img src={privateAvatar} alt="Client Avatar" className="u-modal-hero-avatar" />
             {isEditing && (
-              <button className="pcpm-hero-upload-btn">
+              <button className="u-modal-hero-upload-btn">
                 <Camera size={16} />
               </button>
             )}
           </div>
-          <div className="pcpm-hero-info">
-            <h1 className="pcpm-hero-title">{isNew ? "New Private Client" : "Alexander Sterling"}</h1>
-            <p className="pcpm-hero-subtitle">High-Net-Worth Individual • VIP PRIORITY</p>
+          <div className="u-modal-hero-info">
+            <h1 className="u-modal-hero-title">{isNew ? "New Private Client" : "Alexander Sterling"}</h1>
+            <p className="u-modal-hero-subtitle">High-Net-Worth Individual • VIP PRIORITY</p>
           </div>
         </div>
 
@@ -107,106 +107,106 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
           {activeTab === 'overview' && (
             <>
               {/* Identity */}
-              <div className="pcpm-section">
-                <div className="pcpm-section-header">
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
                   <User size={16} /> PERSONAL IDENTITY
                 </div>
-                <div className="pcpm-grid-2">
-                  <div className="pcpm-field">
-                    <label className="pcpm-label">Full Name</label>
-                    <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "Alexander Sterling"} readOnly={!isEditing} />
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Full Name</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "Alexander Sterling"} readOnly={!isEditing} />
                   </div>
-                  <div className="pcpm-field">
-                    <label className="pcpm-label">Date of Birth</label>
-                    <input type="date" className="pcpm-input" defaultValue={isNew ? "" : "1978-04-12"} readOnly={!isEditing} />
-                  </div>
-                </div>
-                <div className="pcpm-grid-2">
-                  <div className="pcpm-field">
-                    <label className="pcpm-label">Primary Contact Number</label>
-                    <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "+44 7700 900111"} readOnly={!isEditing} />
-                  </div>
-                  <div className="pcpm-field">
-                    <label className="pcpm-label">Email Address</label>
-                    <input type="email" className="pcpm-input" defaultValue={isNew ? "" : "a.sterling@private-domain.com"} readOnly={!isEditing} />
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Date of Birth</label>
+                    <input type="date" className="u-modal-input" defaultValue={isNew ? "" : "1978-04-12"} readOnly={!isEditing} />
                   </div>
                 </div>
-                <div className="pcpm-field">
-                  <label className="pcpm-label">Primary Residence</label>
-                  <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "42 Kensington Palace Gardens, London, W8 4QQ"} readOnly={!isEditing} />
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Primary Contact Number</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "+44 7700 900111"} readOnly={!isEditing} />
+                  </div>
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Email Address</label>
+                    <input type="email" className="u-modal-input" defaultValue={isNew ? "" : "a.sterling@private-domain.com"} readOnly={!isEditing} />
+                  </div>
+                </div>
+                <div className="u-modal-field">
+                  <label className="u-modal-label">Primary Residence</label>
+                  <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "42 Kensington Palace Gardens, London, W8 4QQ"} readOnly={!isEditing} />
                 </div>
               </div>
 
               {/* Financial & Billing */}
-              <div className="pcpm-section">
-                <div className="pcpm-section-header">
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
                   <CreditCard size={16} /> FINANCIAL & BILLING
                 </div>
-                <div className="pcpm-grid-2">
-                  <div className="pcpm-field">
-                    <label className="pcpm-label">Primary Card</label>
-                    <input type="text" className="pcpm-input pcpm-val-gold" defaultValue={isNew ? "" : "AMEX Centurion •••• 1004"} readOnly={!isEditing} />
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Primary Card</label>
+                    <input type="text" className="u-modal-input u-modal-val-gold" defaultValue={isNew ? "" : "AMEX Centurion •••• 1004"} readOnly={!isEditing} />
                   </div>
-                  <div className="pcpm-field">
-                    <label className="pcpm-label">Default Currency</label>
-                    <select className="pcpm-input" disabled={!isEditing}>
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Default Currency</label>
+                    <select className="u-modal-input" disabled={!isEditing}>
                       <option>GBP (£)</option>
                       <option>USD ($)</option>
                       <option>EUR (€)</option>
                     </select>
                   </div>
                 </div>
-                <div className="pcpm-field">
-                  <label className="pcpm-label">Billing Address (If different)</label>
-                  <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "Same as Primary Residence"} readOnly={!isEditing} />
+                <div className="u-modal-field">
+                  <label className="u-modal-label">Billing Address (If different)</label>
+                  <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "Same as Primary Residence"} readOnly={!isEditing} />
                 </div>
               </div>
 
               {/* VIP Preferences */}
-              <div className="pcpm-section">
-                <div className="pcpm-section-header">
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
                   <Star size={16} /> VIP PREFERENCES
                 </div>
-                <div className="pcpm-grid-2">
-                  <div className="pcpm-field">
-                    <label className="pcpm-label">Dedicated Chauffeur (Optional)</label>
-                    <div className="pcpm-input-with-icon">
-                      <User size={14} className="pcpm-input-icon" />
-                      <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "Julian Sterling (VEO-9921)"} readOnly={!isEditing} />
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Dedicated Chauffeur (Optional)</label>
+                    <div className="u-modal-input-with-icon">
+                      <User size={14} className="u-modal-input-icon" />
+                      <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "Julian Sterling (VEO-9921)"} readOnly={!isEditing} />
                     </div>
                   </div>
-                  <div className="pcpm-field">
-                    <label className="pcpm-label">Preferred Vehicle Class</label>
-                    <select className="pcpm-input pcpm-val-gold" disabled={!isEditing}>
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Preferred Vehicle Class</label>
+                    <select className="u-modal-input u-modal-val-gold" disabled={!isEditing}>
                       <option>First Class (Maybach / Phantom)</option>
                       <option>Business Class (S-Class / 7-Series)</option>
                       <option>SUV (Range Rover / Cullinan)</option>
                     </select>
                   </div>
                 </div>
-                <div className="pcpm-field">
-                  <label className="pcpm-label">Cabin Preferences & Dietary</label>
-                  <input type="text" className="pcpm-input" defaultValue={isNew ? "" : "San Pellegrino strictly at room temp, Financial Times, no cabin fragrance"} readOnly={!isEditing} />
+                <div className="u-modal-field">
+                  <label className="u-modal-label">Cabin Preferences & Dietary</label>
+                  <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "San Pellegrino strictly at room temp, Financial Times, no cabin fragrance"} readOnly={!isEditing} />
                 </div>
               </div>
 
               {/* Security & Identity */}
-              <div className="pcpm-section">
-                <div className="pcpm-section-header">
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
                   <ShieldCheck size={16} /> SECURITY & IDENTITY
                 </div>
-                <div className="pcpm-grid-2">
-                  <div className="pcpm-doc-card">
-                    <div className="pcpm-doc-info">
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-doc-card">
+                    <div className="u-modal-doc-info">
                       <FileText size={14} /> Passport / Govt ID
                     </div>
-                    {isNew ? <span className="pcpm-update-link" style={{fontSize: '10px', color: 'var(--color-gold)', cursor: 'pointer'}}>UPLOAD</span> : <span className="pcpm-badge-valid">VERIFIED</span>}
+                    {isNew ? <span className="u-modal-update-link" style={{fontSize: '10px', color: 'var(--color-gold)', cursor: 'pointer'}}>UPLOAD</span> : <span className="u-modal-badge-valid">VERIFIED</span>}
                   </div>
-                  <div className="pcpm-doc-card">
-                    <div className="pcpm-doc-info">
+                  <div className="u-modal-doc-card">
+                    <div className="u-modal-doc-info">
                       <Lock size={14} /> Background / Security Check
                     </div>
-                    {isNew ? <span className="pcpm-update-link" style={{fontSize: '10px', color: 'var(--color-gold)', cursor: 'pointer'}}>INITIATE</span> : <span className="pcpm-badge-valid">CLEARED</span>}
+                    {isNew ? <span className="u-modal-update-link" style={{fontSize: '10px', color: 'var(--color-gold)', cursor: 'pointer'}}>INITIATE</span> : <span className="u-modal-badge-valid">CLEARED</span>}
                   </div>
                 </div>
               </div>
@@ -214,8 +214,8 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
           )}
 
           {activeTab === 'rides' && (
-            <div className="pcpm-tab-content">
-              <div className="cc-metrics-row" style={{ marginBottom: '24px' }}>
+            <div className="u-modal-tab-content">
+              <div className="u-metric-row" style={{ marginBottom: '24px' }}>
                 <button className="cc-pulse-card active">
                   <div className="cc-pulse-percent"><CarFront size={20} className="cc-pulse-icon" />2</div>
                   <div className="cc-pulse-label">ACTIVE TRIPS</div>
@@ -273,8 +273,8 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
           )}
 
           {activeTab === 'billing' && (
-            <div className="pcpm-tab-content">
-              <div className="cc-metrics-row" style={{ marginBottom: '24px' }}>
+            <div className="u-modal-tab-content">
+              <div className="u-metric-row" style={{ marginBottom: '24px' }}>
                 <button className="cc-pulse-card active">
                   <div className="cc-pulse-percent"><Receipt size={20} className="cc-pulse-icon" />$24.5K</div>
                   <div className="cc-pulse-label">LIFETIME INVOICED</div>

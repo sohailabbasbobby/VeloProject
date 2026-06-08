@@ -64,8 +64,8 @@ const CreditUtilizationGauge = ({ limit, utilized }) => {
   const offset = circumference - percentage * circumference;
 
   return (
-    <div className="cpm-gauge-container">
-      <svg width="100" height="100" viewBox="0 0 100 100" className="cpm-gauge-svg">
+    <div className="u-modal-gauge-container">
+      <svg width="100" height="100" viewBox="0 0 100 100" className="u-modal-gauge-svg">
         <circle cx="50" cy="50" r={radius} stroke="rgba(255, 255, 255, 0.1)" strokeWidth="6" fill="transparent" />
         <circle 
           cx="50" cy="50" r={radius} 
@@ -75,7 +75,7 @@ const CreditUtilizationGauge = ({ limit, utilized }) => {
         />
         <text x="50" y="55" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">{Math.round(percentage * 100)}%</text>
       </svg>
-      <div className="cpm-gauge-label">
+      <div className="u-modal-gauge-label">
         <div style={{color: 'white', fontWeight: 'bold'}}>${(utilized/1000).toFixed(1)}k</div>
         <div style={{color: 'var(--color-text-muted)', fontSize: '10px'}}>of ${(limit/1000).toFixed(1)}k Limit</div>
       </div>
@@ -95,9 +95,9 @@ const SpendTrendSparkline = ({ data }) => {
   }).join(' ');
 
   return (
-    <div className="cpm-sparkline-container">
-      <div className="cpm-sparkline-title">Spend Trend</div>
-      <svg width="100%" height="80" viewBox="0 -10 100 120" preserveAspectRatio="none" className="cpm-sparkline-svg">
+    <div className="u-modal-sparkline-container">
+      <div className="u-modal-sparkline-title">Spend Trend</div>
+      <svg width="100%" height="80" viewBox="0 -10 100 120" preserveAspectRatio="none" className="u-modal-sparkline-svg">
         <polyline points={points} fill="none" stroke="var(--color-gold)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
         {data.map((val, i) => {
           const x = (i / (data.length - 1)) * 100;
@@ -105,7 +105,7 @@ const SpendTrendSparkline = ({ data }) => {
           return <circle key={i} cx={x} cy={y} r="4" fill="var(--color-onyx)" stroke="var(--color-gold)" strokeWidth="2" />
         })}
       </svg>
-      <div className="cpm-sparkline-labels">
+      <div className="u-modal-sparkline-labels">
         <span>Prev Cycle</span>
         <span style={{color: 'var(--color-gold)'}}>Current</span>
       </div>
@@ -136,7 +136,7 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
           </div>
           <div className="u-modal-header-actions">
             {isEditing ? (
-              <button className="cpm-btn-save" onClick={() => setIsEditing(false)}>SAVE ACCOUNT</button>
+              <button className="u-modal-btn-save" onClick={() => setIsEditing(false)}>SAVE ACCOUNT</button>
             ) : (
               <button className="u-modal-btn-edit" onClick={() => setIsEditing(true)}>EDIT ACCOUNT</button>
             )}
@@ -144,23 +144,23 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
           </div>
         </div>
 
-        <div className="cpm-hero" style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '0' }}>
+        <div className="u-modal-hero" style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '0' }}>
           <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-            <div className="cpm-hero-logo-container">
-              <img src={corporateLogo} alt="Corporate Logo" className="cpm-hero-logo" />
+            <div className="u-modal-hero-logo-container">
+              <img src={corporateLogo} alt="Corporate Logo" className="u-modal-hero-logo" />
               {isEditing && (
-                <button className="cpm-hero-upload-btn">
+                <button className="u-modal-hero-upload-btn">
                   <Camera size={16} />
                 </button>
               )}
             </div>
-            <div className="cpm-hero-info" style={{ flexGrow: 1 }}>
-              <h1 className="cpm-hero-title" style={{ fontSize: '28px', marginBottom: '8px' }}>{isNew ? "New Corporate Client" : "Aetheris Global Holdings"}</h1>
-              <p className="cpm-hero-subtitle" style={{ fontSize: '14px', letterSpacing: '1px' }}>Hedge Fund / Private Equity • <span style={{color: 'var(--color-gold)'}}>EXECUTIVE ELITE</span></p>
+            <div className="u-modal-hero-info" style={{ flexGrow: 1 }}>
+              <h1 className="u-modal-hero-title" style={{ fontSize: '28px', marginBottom: '8px' }}>{isNew ? "New Corporate Client" : "Aetheris Global Holdings"}</h1>
+              <p className="u-modal-hero-subtitle" style={{ fontSize: '14px', letterSpacing: '1px' }}>Hedge Fund / Private Equity • <span style={{color: 'var(--color-gold)'}}>EXECUTIVE ELITE</span></p>
             </div>
           </div>
           
-          <div className="cpm-hero-persistent-info" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="u-modal-hero-persistent-info" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Primary Phone</span>
                 <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>+44 20 7946 0881</span>
@@ -192,158 +192,158 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
           {activeTab === 'overview' && (
             <>
               {/* Identity & Location */}
-              <div className="cpm-section">
-                <div className="cpm-section-header">
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
                   <Building2 size={16} /> IDENTITY & LOCATION
                 </div>
-                <div className="cpm-grid-2">
-                  <div className="cpm-field">
-                    <label className="cpm-label">Company Name</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Aetheris Global Holdings"} readOnly={!isEditing} />
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Company Name</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "Aetheris Global Holdings"} readOnly={!isEditing} />
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Registration Number</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "UK-992841-B"} readOnly={!isEditing} />
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Registration Number</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "UK-992841-B"} readOnly={!isEditing} />
                   </div>
                 </div>
-                <div className="cpm-field" style={{marginTop: '16px'}}>
-                  <label className="cpm-label">Office Address</label>
-                  <input type="text" className="cpm-input" defaultValue={isNew ? "" : "14 Curzon Street, Mayfair, London, W1J 5HI, United Kingdom"} readOnly={!isEditing} />
+                <div className="u-modal-field" style={{marginTop: '16px'}}>
+                  <label className="u-modal-label">Office Address</label>
+                  <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "14 Curzon Street, Mayfair, London, W1J 5HI, United Kingdom"} readOnly={!isEditing} />
                 </div>
               </div>
 
               {/* Full Contact Block */}
-              <div className="cpm-section">
-                <div className="cpm-section-header">
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
                   <Contact size={16} /> PRIMARY & FINANCE CONTACTS
                 </div>
-                <div className="cpm-grid-2">
-                  <div className="cpm-field">
-                    <label className="cpm-label">Primary Office Phone</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "+44 20 7946 0881"} readOnly={!isEditing} />
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Primary Office Phone</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "+44 20 7946 0881"} readOnly={!isEditing} />
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Primary Contact</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Julian Thorne (Chief of Staff)"} readOnly={!isEditing} />
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Primary Contact</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "Julian Thorne (Chief of Staff)"} readOnly={!isEditing} />
                   </div>
                 </div>
-                <div className="cpm-grid-2">
-                  <div className="cpm-field">
-                    <label className="cpm-label">Finance/Accounts Phone</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "+44 20 7946 0885"} readOnly={!isEditing} />
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Finance/Accounts Phone</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "+44 20 7946 0885"} readOnly={!isEditing} />
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Finance/Accounts Email</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "finance@aetheris-global.com"} readOnly={!isEditing} />
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Finance/Accounts Email</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "finance@aetheris-global.com"} readOnly={!isEditing} />
                   </div>
                 </div>
               </div>
 
               {/* Authorized Personnel Summary */}
-              <div className="cpm-section">
-                <div className="cpm-section-header">
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
                   <UserCheck size={16} /> AUTHORIZED PERSONNEL SUMMARY
                 </div>
-                <div className="cpm-grid-3">
-                  <div className="cpm-field">
-                    <label className="cpm-label">Total Users</label>
-                    <input type="text" className="cpm-input cpm-val-gold" defaultValue={isNew ? "" : "12 Personnel"} readOnly={!isEditing} />
+                <div className="u-modal-grid-3">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Total Users</label>
+                    <input type="text" className="u-modal-input u-modal-val-gold" defaultValue={isNew ? "" : "12 Personnel"} readOnly={!isEditing} />
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Active Bookers</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "8 Permitted"} readOnly={!isEditing} />
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Active Bookers</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "8 Permitted"} readOnly={!isEditing} />
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Manage Personnel</label>
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Manage Personnel</label>
                     <button className="u-modal-btn-edit" style={{width: '100%', justifyContent: 'center'}} onClick={() => setActiveTab('users')}>VIEW DIRECTORY</button>
                   </div>
                 </div>
               </div>
 
               {/* Financial Dashboard */}
-              <div className="cpm-section">
-                <div className="cpm-section-header">
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
                   <Wallet size={16} /> FINANCIAL INTELLIGENCE
                 </div>
-                <div className="cpm-financial-dashboard">
-                  <div className="cpm-financial-card">
-                    <div className="cpm-financial-card-header">Credit Utilization</div>
+                <div className="u-modal-financial-dashboard">
+                  <div className="u-modal-financial-card">
+                    <div className="u-modal-financial-card-header">Credit Utilization</div>
                     <CreditUtilizationGauge limit={50000} utilized={12500} />
                   </div>
-                  <div className="cpm-financial-card" style={{ flexGrow: 1 }}>
+                  <div className="u-modal-financial-card" style={{ flexGrow: 1 }}>
                     <SpendTrendSparkline data={[8500, 9200, 7800, 11000, 12500]} />
                   </div>
-                  <div className="cpm-financial-card cpm-financial-summary">
-                     <div className="cpm-summary-item">
-                        <span className="cpm-summary-label">Billing Frequency</span>
-                        <span className="cpm-summary-value">Weekly</span>
+                  <div className="u-modal-financial-card u-modal-financial-summary">
+                     <div className="u-modal-summary-item">
+                        <span className="u-modal-summary-label">Billing Frequency</span>
+                        <span className="u-modal-summary-value">Weekly</span>
                      </div>
-                     <div className="cpm-summary-item">
-                        <span className="cpm-summary-label">Payment Terms</span>
-                        <span className="cpm-summary-value">Net 30</span>
+                     <div className="u-modal-summary-item">
+                        <span className="u-modal-summary-label">Payment Terms</span>
+                        <span className="u-modal-summary-value">Net 30</span>
                      </div>
-                     <div className="cpm-summary-item">
-                        <span className="cpm-summary-label">VAT Number</span>
-                        <span className="cpm-summary-value">GB 123 4567 89</span>
+                     <div className="u-modal-summary-item">
+                        <span className="u-modal-summary-label">VAT Number</span>
+                        <span className="u-modal-summary-value">GB 123 4567 89</span>
                      </div>
                   </div>
                 </div>
               </div>
 
               {/* SLA & Preferences */}
-              <div className="cpm-section">
-                <div className="cpm-section-header">
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
                   <Contact size={16} /> SLA & PREFERENCES
                 </div>
-                <div className="cpm-grid-2">
-                  <div className="cpm-field">
-                    <label className="cpm-label">Account Manager</label>
-                    <div className="cpm-input-with-icon">
-                      <User size={14} className="cpm-input-icon" />
-                      <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Eleanor Vance"} readOnly={!isEditing} />
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Account Manager</label>
+                    <div className="u-modal-input-with-icon">
+                      <User size={14} className="u-modal-input-icon" />
+                      <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "Eleanor Vance"} readOnly={!isEditing} />
                     </div>
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Service Tier</label>
-                    <select className="cpm-input cpm-val-gold" disabled={!isEditing}>
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Service Tier</label>
+                    <select className="u-modal-input u-modal-val-gold" disabled={!isEditing}>
                       <option>EXECUTIVE ELITE</option>
                       <option>PLATINUM</option>
                       <option>CORE</option>
                     </select>
                   </div>
                 </div>
-                <div className="cpm-grid-2">
-                  <div className="cpm-field">
-                    <label className="cpm-label">Preferred Vehicle Class</label>
-                    <select className="cpm-input" disabled={!isEditing}>
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Preferred Vehicle Class</label>
+                    <select className="u-modal-input" disabled={!isEditing}>
                       <option>First Class (Maybach / Phantom)</option>
                       <option>Business Class (S-Class / 7-Series)</option>
                     </select>
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Special Instructions</label>
-                    <input type="text" className="cpm-input" defaultValue={isNew ? "" : "Bottled Fiji Water, no scent"} readOnly={!isEditing} />
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Special Instructions</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "Bottled Fiji Water, no scent"} readOnly={!isEditing} />
                   </div>
                 </div>
               </div>
 
               {/* Compliance & Documentation */}
-              <div className="cpm-section">
-                <div className="cpm-section-header">
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
                   <ShieldCheck size={16} /> COMPLIANCE & DOCUMENTATION
                 </div>
-                <div className="cpm-grid-2">
-                  <div className="cpm-doc-card">
-                    <div className="cpm-doc-info">
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-doc-card">
+                    <div className="u-modal-doc-info">
                       <FileText size={14} /> Master Service Agreement
                     </div>
-                    {isNew ? <span className="cpm-update-link" style={{fontSize: '10px', color: 'var(--color-gold)', cursor: 'pointer'}}>UPLOAD</span> : <span className="cpm-badge-valid">VALID</span>}
+                    {isNew ? <span className="u-modal-update-link" style={{fontSize: '10px', color: 'var(--color-gold)', cursor: 'pointer'}}>UPLOAD</span> : <span className="u-modal-badge-valid">VALID</span>}
                   </div>
-                  <div className="cpm-doc-card">
-                    <div className="cpm-doc-info">
+                  <div className="u-modal-doc-card">
+                    <div className="u-modal-doc-info">
                       <Shield size={14} /> Corporate Insurance
                     </div>
-                    {isNew ? <span className="cpm-update-link" style={{fontSize: '10px', color: 'var(--color-gold)', cursor: 'pointer'}}>UPLOAD</span> : <span className="cpm-badge-valid">VALID</span>}
+                    {isNew ? <span className="u-modal-update-link" style={{fontSize: '10px', color: 'var(--color-gold)', cursor: 'pointer'}}>UPLOAD</span> : <span className="u-modal-badge-valid">VALID</span>}
                   </div>
                 </div>
               </div>
@@ -351,19 +351,19 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
           )}
 
           {activeTab === 'bookings' && (
-            <div className="cpm-tab-content cpm-bookings-tab">
-              <div className="cc-metrics-row" style={{ marginBottom: '24px', display: 'flex', gap: '16px' }}>
-                <div className="cpm-massive-metric" style={{ borderColor: 'var(--color-gold)', backgroundColor: 'rgba(212,175,55,0.05)' }}>
-                  <div className="cpm-massive-number"><CarFront size={32} />2</div>
-                  <div className="cpm-massive-label">ACTIVE BOOKINGS</div>
+            <div className="u-modal-tab-content u-modal-bookings-tab">
+              <div className="u-metric-row" style={{ marginBottom: '24px', display: 'flex', gap: '16px' }}>
+                <div className="u-metric-massive" style={{ borderColor: 'var(--color-gold)', backgroundColor: 'rgba(212,175,55,0.05)' }}>
+                  <div className="u-metric-number"><CarFront size={32} />2</div>
+                  <div className="u-metric-label">ACTIVE BOOKINGS</div>
                 </div>
-                <div className="cpm-massive-metric">
-                  <div className="cpm-massive-number"><CheckCircle size={32} />1</div>
-                  <div className="cpm-massive-label">COMPLETED</div>
+                <div className="u-metric-massive">
+                  <div className="u-metric-number"><CheckCircle size={32} />1</div>
+                  <div className="u-metric-label">COMPLETED</div>
                 </div>
-                <div className="cpm-massive-metric">
-                  <div className="cpm-massive-number"><Calendar size={32} />4</div>
-                  <div className="cpm-massive-label">UPCOMING</div>
+                <div className="u-metric-massive">
+                  <div className="u-metric-number"><Calendar size={32} />4</div>
+                  <div className="u-metric-label">UPCOMING</div>
                 </div>
               </div>
 
@@ -410,49 +410,49 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
           )}
 
           {activeTab === 'billing' && (
-            <div className="cpm-tab-content">
-              <div className="cpm-section-header" style={{ marginBottom: '16px' }}>
+            <div className="u-modal-tab-content">
+              <div className="u-modal-section-header" style={{ marginBottom: '16px' }}>
                 <FileText size={16} /> BILLING SUMMARY
               </div>
 
               {/* Finance Contact Block */}
-              <div className="cpm-section" style={{ marginBottom: '24px' }}>
-                <div className="cpm-grid-3">
-                  <div className="cpm-field">
-                    <label className="cpm-label">Finance Department</label>
-                    <div className="cpm-value-box">Sarah Jenkins</div>
+              <div className="u-modal-section" style={{ marginBottom: '24px' }}>
+                <div className="u-modal-grid-3">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Finance Department</label>
+                    <div className="u-modal-value-box">Sarah Jenkins</div>
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Direct Line</label>
-                    <div className="cpm-value-box">+44 20 7946 0885</div>
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Direct Line</label>
+                    <div className="u-modal-value-box">+44 20 7946 0885</div>
                   </div>
-                  <div className="cpm-field">
-                    <label className="cpm-label">Billing Email</label>
-                    <div className="cpm-value-box">finance@aetheris-global.com</div>
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Billing Email</label>
+                    <div className="u-modal-value-box">finance@aetheris-global.com</div>
                   </div>
                 </div>
               </div>
 
-              <div className="cc-metrics-row" style={{ marginBottom: '32px', display: 'flex', gap: '16px' }}>
-                <div className="cpm-massive-metric">
-                  <div className="cpm-massive-number"><Receipt size={32} />$145K</div>
-                  <div className="cpm-massive-label">TOTAL REVENUE (YTD)</div>
+              <div className="u-metric-row" style={{ marginBottom: '32px', display: 'flex', gap: '16px' }}>
+                <div className="u-metric-massive">
+                  <div className="u-metric-number"><Receipt size={32} />$145K</div>
+                  <div className="u-metric-label">TOTAL REVENUE (YTD)</div>
                 </div>
-                <div className="cpm-massive-metric" style={{ borderColor: 'rgba(255, 77, 77, 0.3)', backgroundColor: 'rgba(255, 77, 77, 0.05)' }}>
-                  <div className="cpm-massive-number" style={{color: '#ff4d4d'}}><Wallet size={32} />$12.5K</div>
-                  <div className="cpm-massive-label" style={{color: '#ff4d4d'}}>OUTSTANDING</div>
+                <div className="u-metric-massive" style={{ borderColor: 'rgba(255, 77, 77, 0.3)', backgroundColor: 'rgba(255, 77, 77, 0.05)' }}>
+                  <div className="u-metric-number" style={{color: '#ff4d4d'}}><Wallet size={32} />$12.5K</div>
+                  <div className="u-metric-label" style={{color: '#ff4d4d'}}>OUTSTANDING</div>
                 </div>
-                <div className="cpm-massive-metric">
-                  <div className="cpm-massive-number"><Calendar size={32} />Jul 01</div>
-                  <div className="cpm-massive-label">NEXT INVOICE DATE</div>
+                <div className="u-metric-massive">
+                  <div className="u-metric-number"><Calendar size={32} />Jul 01</div>
+                  <div className="u-metric-label">NEXT INVOICE DATE</div>
                 </div>
               </div>
 
-              <div className="cpm-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div className="u-modal-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <FileText size={16} /> UNBILLED TRIPS (CURRENT CYCLE)
                 </div>
-                <button className="cpm-btn-save" style={{ padding: '8px 16px', fontSize: '11px' }}>
+                <button className="u-modal-btn-save" style={{ padding: '8px 16px', fontSize: '11px' }}>
                   GENERATE CYCLE INVOICE
                 </button>
               </div>
@@ -487,7 +487,7 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                 </table>
               </div>
 
-              <div className="cpm-section-header" style={{ marginBottom: '16px' }}>
+              <div className="u-modal-section-header" style={{ marginBottom: '16px' }}>
                 <Receipt size={16} /> PAST INVOICES
               </div>
               <div className="cc-table-container">
@@ -516,9 +516,9 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                           <td><span className={`cc-status-badge ${getStatusClass(inv.status)}`}>{inv.status}</span></td>
                         </tr>
                         {expandedInvoices[inv.id] && (
-                          <tr className="cpm-nested-row">
+                          <tr className="u-modal-nested-row">
                             <td colSpan="6" style={{ padding: '0 24px 16px 24px', backgroundColor: 'rgba(255,255,255,0.01)' }}>
-                              <div className="cpm-nested-table-container">
+                              <div className="u-modal-nested-table-container">
                                 <table className="cc-table" style={{ marginTop: '8px' }}>
                                   <thead>
                                     <tr>
@@ -556,25 +556,25 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
           )}
 
           {activeTab === 'users' && (
-            <div className="cpm-tab-content">
+            <div className="u-modal-tab-content">
               {selectedUser ? (
-                <div className="cpm-user-drilldown">
-                  <div className="cpm-drilldown-header" style={{ marginBottom: '24px' }}>
-                    <button className="cpm-btn-save" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'transparent', color: 'var(--color-gold)', border: '1px solid var(--color-gold)' }} onClick={() => setSelectedUser(null)}>
+                <div className="u-modal-user-drilldown">
+                  <div className="u-modal-drilldown-header" style={{ marginBottom: '24px' }}>
+                    <button className="u-modal-btn-save" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'transparent', color: 'var(--color-gold)', border: '1px solid var(--color-gold)' }} onClick={() => setSelectedUser(null)}>
                       <ChevronLeft size={16} /> BACK TO DIRECTORY
                     </button>
                   </div>
-                  <div className="cpm-drilldown-profile" style={{ display: 'flex', gap: '24px', alignItems: 'center', padding: '24px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div className="cpm-drilldown-avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(212,175,55,0.1)', color: 'var(--color-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="u-modal-drilldown-profile" style={{ display: 'flex', gap: '24px', alignItems: 'center', padding: '24px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div className="u-modal-drilldown-avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(212,175,55,0.1)', color: 'var(--color-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <User size={40} />
                     </div>
-                    <div className="cpm-drilldown-info">
+                    <div className="u-modal-drilldown-info">
                       <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', color: '#fff', fontFamily: 'var(--font-family-main)' }}>{selectedUser.name}</h3>
-                      <div className="cpm-drilldown-role" style={{ color: 'var(--color-gold)', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>{selectedUser.role}</div>
-                      <div className="cpm-drilldown-contact" style={{ color: 'var(--color-text-secondary)', fontSize: '12px' }}>{selectedUser.email} &bull; {selectedUser.phone}</div>
+                      <div className="u-modal-drilldown-role" style={{ color: 'var(--color-gold)', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>{selectedUser.role}</div>
+                      <div className="u-modal-drilldown-contact" style={{ color: 'var(--color-text-secondary)', fontSize: '12px' }}>{selectedUser.email} &bull; {selectedUser.phone}</div>
                     </div>
                   </div>
-                  <div className="cpm-section-header" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', marginBottom: '16px' }}>
+                  <div className="u-modal-section-header" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', marginBottom: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <FileText size={16} /> TRIPS BOOKED BY {selectedUser.name.toUpperCase()}
                     </div>
@@ -611,73 +611,73 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                 </div>
               ) : (
                 <>
-                  <div className="cpm-section-header" style={{ marginBottom: '16px' }}>
+                  <div className="u-modal-section-header" style={{ marginBottom: '16px' }}>
                     <UserCheck size={16} /> AUTHORIZED PERSONNEL
                   </div>
-                  <div className="cpm-user-grid">
-                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Eleanor Vance', role: 'Executive Assistant', email: 'eleanor@aetheris-global.com', phone: '+44 7700 900077'})}>
+                  <div className="u-modal-user-grid">
+                    <div className="u-modal-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Eleanor Vance', role: 'Executive Assistant', email: 'eleanor@aetheris-global.com', phone: '+44 7700 900077'})}>
                       <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-gold)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
-                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
-                        <div className="cpm-user-avatar">
+                      <div className="u-modal-user-header" style={{ marginTop: '16px' }}>
+                        <div className="u-modal-user-avatar">
                           <User size={20} />
                         </div>
-                        <div className="cpm-user-info">
-                          <div className="cpm-user-name">Eleanor Vance</div>
-                          <div className="cpm-user-role">Executive Assistant</div>
+                        <div className="u-modal-user-info">
+                          <div className="u-modal-user-name">Eleanor Vance</div>
+                          <div className="u-modal-user-role">Executive Assistant</div>
                         </div>
                       </div>
-                      <div className="cpm-user-contact">
+                      <div className="u-modal-user-contact">
                         <div>eleanor@aetheris-global.com</div>
                         <div>+44 7700 900077</div>
                       </div>
-                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
-                        <span className="cpm-user-status active">Booking Permitted</span>
-                        <button className="cpm-toggle-btn active">
-                          <div className="cpm-toggle-knob"></div>
+                      <div className="u-modal-user-actions" onClick={e => e.stopPropagation()}>
+                        <span className="u-modal-user-status active">Booking Permitted</span>
+                        <button className="u-modal-toggle-btn active">
+                          <div className="u-modal-toggle-knob"></div>
                         </button>
                       </div>
                     </div>
-                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Marcus Thorne', role: 'Managing Director', email: 'marcus@aetheris-global.com', phone: '+44 7700 900124'})}>
+                    <div className="u-modal-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Marcus Thorne', role: 'Managing Director', email: 'marcus@aetheris-global.com', phone: '+44 7700 900124'})}>
                       <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-gold)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
-                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
-                        <div className="cpm-user-avatar">
+                      <div className="u-modal-user-header" style={{ marginTop: '16px' }}>
+                        <div className="u-modal-user-avatar">
                           <User size={20} />
                         </div>
-                        <div className="cpm-user-info">
-                          <div className="cpm-user-name">Marcus Thorne</div>
-                          <div className="cpm-user-role">Managing Director</div>
+                        <div className="u-modal-user-info">
+                          <div className="u-modal-user-name">Marcus Thorne</div>
+                          <div className="u-modal-user-role">Managing Director</div>
                         </div>
                       </div>
-                      <div className="cpm-user-contact">
+                      <div className="u-modal-user-contact">
                         <div>marcus@aetheris-global.com</div>
                         <div>+44 7700 900124</div>
                       </div>
-                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
-                        <span className="cpm-user-status active">Booking Permitted</span>
-                        <button className="cpm-toggle-btn active">
-                          <div className="cpm-toggle-knob"></div>
+                      <div className="u-modal-user-actions" onClick={e => e.stopPropagation()}>
+                        <span className="u-modal-user-status active">Booking Permitted</span>
+                        <button className="u-modal-toggle-btn active">
+                          <div className="u-modal-toggle-knob"></div>
                         </button>
                       </div>
                     </div>
-                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid rgba(255,255,255,0.2)'}} onClick={() => setSelectedUser({name: 'Sarah Jenkins', role: 'Former Employee', email: 'sarah@aetheris-global.com', phone: '+44 7700 900888'})}>
+                    <div className="u-modal-user-card" style={{cursor: 'pointer', border: '1px solid rgba(255,255,255,0.2)'}} onClick={() => setSelectedUser({name: 'Sarah Jenkins', role: 'Former Employee', email: 'sarah@aetheris-global.com', phone: '+44 7700 900888'})}>
                       <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-text-muted)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
-                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
-                        <div className="cpm-user-avatar" style={{backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d'}}>
+                      <div className="u-modal-user-header" style={{ marginTop: '16px' }}>
+                        <div className="u-modal-user-avatar" style={{backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d'}}>
                           <UserX size={20} />
                         </div>
-                        <div className="cpm-user-info">
-                          <div className="cpm-user-name">Sarah Jenkins</div>
-                          <div className="cpm-user-role">Former Employee</div>
+                        <div className="u-modal-user-info">
+                          <div className="u-modal-user-name">Sarah Jenkins</div>
+                          <div className="u-modal-user-role">Former Employee</div>
                         </div>
                       </div>
-                      <div className="cpm-user-contact">
+                      <div className="u-modal-user-contact">
                         <div>sarah@aetheris-global.com</div>
                         <div>+44 7700 900888</div>
                       </div>
-                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
-                        <span className="cpm-user-status inactive">Booking Revoked</span>
-                        <button className="cpm-toggle-btn inactive">
-                          <div className="cpm-toggle-knob"></div>
+                      <div className="u-modal-user-actions" onClick={e => e.stopPropagation()}>
+                        <span className="u-modal-user-status inactive">Booking Revoked</span>
+                        <button className="u-modal-toggle-btn inactive">
+                          <div className="u-modal-toggle-knob"></div>
                         </button>
                       </div>
                     </div>

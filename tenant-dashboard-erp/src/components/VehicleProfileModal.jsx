@@ -34,61 +34,57 @@ const VehicleProfileModal = ({ vehicle, onClose }) => {
         </div>
 
         {/* Hero Section */}
-        <div className="vp-hero" style={{ flexShrink: 0 }}>
-          <div className="vp-image-container">
-            {(() => {
-              const workingImages = [
-                'https://images.unsplash.com/photo-1549399542-7e3f8b79c341',
-                'https://images.unsplash.com/photo-1552519507-da3b142c6e3d',
-                'https://images.unsplash.com/photo-1542282088-fe8426682b8f'
-              ];
-              // Pick a deterministic image based on fleet number or ID string
-              const charCode = vehicle.fleetNo ? vehicle.fleetNo.charCodeAt(vehicle.fleetNo.length - 1) : vehicle.id.charCodeAt(vehicle.id.length - 1);
-              let imgUrl = workingImages[charCode % 3];
-              return (
-                <img 
-                  src={imgUrl} 
-                  loading="eager"
-                  alt={vehicle.name} 
-                  className="vp-image" 
-                />
-              );
-            })()}
-          </div>
-          <div className="vp-hero-info">
-            <div className="vp-hero-header">
-              <div>
-                <h2 className="vp-vehicle-name">{vehicle.name}</h2>
-                <div className="vp-vehicle-sub">{vehicle.plate} • VIN: {vehicle.vin || 'VLO-7492-XJ9'}</div>
-              </div>
-              <div className="vp-fleet-badge">
+        <div className="u-modal-hero" style={{ flexShrink: 0 }}>
+          <div className="u-modal-hero-top">
+            <div className="u-modal-hero-avatar-container">
+              {(() => {
+                const workingImages = [
+                  'https://images.unsplash.com/photo-1549399542-7e3f8b79c341',
+                  'https://images.unsplash.com/photo-1552519507-da3b142c6e3d',
+                  'https://images.unsplash.com/photo-1542282088-fe8426682b8f'
+                ];
+                // Pick a deterministic image based on fleet number or ID string
+                const charCode = vehicle.fleetNo ? vehicle.fleetNo.charCodeAt(vehicle.fleetNo.length - 1) : vehicle.id.charCodeAt(vehicle.id.length - 1);
+                let imgUrl = workingImages[charCode % 3];
+                return (
+                  <img 
+                    src={imgUrl} 
+                    loading="eager"
+                    alt={vehicle.name} 
+                    className="u-modal-hero-avatar" 
+                  />
+                );
+              })()}
+            </div>
+            
+            <div className="u-modal-hero-info">
+              <h1 className="u-modal-hero-title">{vehicle.name}</h1>
+              <p className="u-modal-hero-subtitle">{vehicle.plate} • VIN: {vehicle.vin || 'VLO-7492-XJ9'}</p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <div className="vp-fleet-badge" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Building2 size={12} /> {vehicle.ownership === 'Owner Vehicle' ? 'OWNER ASSET' : 'FLEET ASSET'}
               </div>
             </div>
-
-            <div className="vp-mileage-box">
-              <div className="vp-mileage-label">CURRENT MILEAGE</div>
-              <div className="vp-mileage-value">{vehicle.mileage}</div>
-              <div className="vp-mileage-time">⟳ LAST LOG: 12 OCT 2023 14:32</div>
+          </div>
+          
+          <div className="u-modal-hero-persistent-info">
+            <div className="u-modal-field">
+              <span className="u-modal-label">CURRENT MILEAGE</span>
+              <span className="u-modal-value-box">{vehicle.mileage}</span>
             </div>
-
-            <div className="vp-status-grid">
-              <div className="vp-status-box" style={{ borderColor: '#34C759' }}>
-                <div className="vp-status-box-label">MOT</div>
-                <div className="vp-status-box-val">{vehicle.motExpiry || '14 Nov 2024'}</div>
-              </div>
-              <div className="vp-status-box" style={{ borderColor: 'var(--color-gold)' }}>
-                <div className="vp-status-box-label">TAX</div>
-                <div className="vp-status-box-val warning">01 Jan 2025</div>
-              </div>
-              <div className="vp-status-box" style={{ borderColor: '#34C759' }}>
-                <div className="vp-status-box-label">INSURANCE</div>
-                <div className="vp-status-box-val">{vehicle.insuranceExpiry || '22 Mar 2025'}</div>
-              </div>
-              <div className="vp-status-box" style={{ borderColor: '#34C759' }}>
-                <div className="vp-status-box-label">PCO</div>
-                <div className="vp-status-box-val">15 Aug 2024</div>
-              </div>
+            <div className="u-modal-field">
+              <span className="u-modal-label">MOT EXPIRY</span>
+              <span className="u-modal-value-box">{vehicle.motExpiry || '14 Nov 2024'}</span>
+            </div>
+            <div className="u-modal-field">
+              <span className="u-modal-label" style={{color: 'var(--color-gold)'}}>TAX EXPIRY</span>
+              <span className="u-modal-value-box" style={{borderColor: 'var(--color-gold)'}}>01 Jan 2025</span>
+            </div>
+            <div className="u-modal-field">
+              <span className="u-modal-label">INSURANCE</span>
+              <span className="u-modal-value-box">{vehicle.insuranceExpiry || '22 Mar 2025'}</span>
             </div>
           </div>
         </div>
