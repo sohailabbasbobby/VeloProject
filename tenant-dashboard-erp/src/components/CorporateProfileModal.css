@@ -535,10 +535,10 @@ select.cpm-input:disabled {
 
 /* Active Bookings Legibility Overhaul */
 .cpm-massive-metric {
-  background-color: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: var(--border-radius-sm);
-  padding: 24px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -546,10 +546,11 @@ select.cpm-input:disabled {
   min-height: 120px;
   gap: 12px;
   flex: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .cpm-massive-number {
-  font-size: 40px;
+  font-size: 32px;
   line-height: 1;
   font-weight: 700;
   color: var(--color-gold);
@@ -559,12 +560,23 @@ select.cpm-input:disabled {
 }
 
 .cpm-massive-label {
-  font-size: 14px;
+  font-size: 11px;
   color: #fff;
   letter-spacing: 1.5px;
   font-weight: 700;
   text-transform: uppercase;
   text-align: center;
+}
+
+.cpm-value-box {
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: white;
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  width: 100%;
 }
 
 .cpm-bookings-tab .cc-pulse-card {

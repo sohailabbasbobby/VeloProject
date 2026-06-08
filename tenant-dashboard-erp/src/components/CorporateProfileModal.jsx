@@ -420,15 +420,15 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                 <div className="cpm-grid-3">
                   <div className="cpm-field">
                     <label className="cpm-label">Finance Department</label>
-                    <input type="text" className="cpm-input" defaultValue="Sarah Jenkins" readOnly={true} />
+                    <div className="cpm-value-box">Sarah Jenkins</div>
                   </div>
                   <div className="cpm-field">
                     <label className="cpm-label">Direct Line</label>
-                    <input type="text" className="cpm-input" defaultValue="+44 20 7946 0885" readOnly={true} />
+                    <div className="cpm-value-box">+44 20 7946 0885</div>
                   </div>
                   <div className="cpm-field">
                     <label className="cpm-label">Billing Email</label>
-                    <input type="text" className="cpm-input" defaultValue="finance@aetheris-global.com" readOnly={true} />
+                    <div className="cpm-value-box">finance@aetheris-global.com</div>
                   </div>
                 </div>
               </div>
