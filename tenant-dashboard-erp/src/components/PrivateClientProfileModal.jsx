@@ -3,6 +3,7 @@ import { X, User, CreditCard, Star, ShieldCheck, FileText, Lock, Shield, Camera,
 import privateAvatar from '../assets/private-avatar-placeholder.png';
 import './PrivateClientProfileModal.css';
 import './UniversalModal.css';
+import ConciergeFeed from './ConciergeFeed';
 import './CommandCenter.css'; // Import for cc-table styles
 
 const FastCarIcon = ({ size = 20, className = "" }) => (
@@ -100,6 +101,7 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
           <button className={`u-modal-tab ${activeTab === 'rides' ? 'active' : ''}`} onClick={() => setActiveTab('rides')}>RIDE HISTORY</button>
           <button className={`u-modal-tab ${activeTab === 'billing' ? 'active' : ''}`} onClick={() => setActiveTab('billing')}>PAYMENT METHODS</button>
           <button className={`u-modal-tab ${activeTab === 'preferences' ? 'active' : ''}`} onClick={() => setActiveTab('preferences')}>PREFERENCES</button>
+          <button className={`u-modal-tab ${activeTab === 'engagement' ? 'active' : ''}`} onClick={() => setActiveTab('engagement')}>ENGAGEMENT</button>
         </div>
 
         {/* Body */}

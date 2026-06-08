@@ -1,0 +1,298 @@
+.cf-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: 24px;
+}
+
+.cf-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cf-card {
+  background-color: var(--color-background-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.cf-card:hover {
+  border-color: var(--color-gold);
+}
+
+.cf-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.cf-card-subject {
+  font-family: var(--font-secondary);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.cf-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cf-badge.urgent {
+  background-color: rgba(255, 69, 58, 0.1);
+  color: #ff453a;
+  border: 1px solid rgba(255, 69, 58, 0.2);
+}
+
+.cf-badge.progress {
+  background-color: rgba(255, 214, 10, 0.1);
+  color: #ffd60a;
+  border: 1px solid rgba(255, 214, 10, 0.2);
+}
+
+.cf-badge.archived {
+  background-color: rgba(153, 153, 153, 0.1);
+  color: #999;
+  border: 1px solid rgba(153, 153, 153, 0.2);
+}
+
+.cf-card-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+
+.cf-thread-id {
+  color: var(--color-gold);
+}
+
+.cf-card-preview {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  background: rgba(0,0,0,0.2);
+  padding: 12px;
+  border-left: 2px solid var(--color-border);
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 16px;
+}
+
+.cf-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.cf-btn-primary {
+  flex: 1;
+  background-color: var(--color-gold);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-family: var(--font-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.cf-btn-primary:hover {
+  background-color: #d4af37; /* slightly darker gold */
+}
+
+.cf-btn-secondary {
+  background-color: transparent;
+  color: var(--color-gold);
+  border: 1px solid var(--color-gold);
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.cf-btn-secondary:hover {
+  background-color: rgba(212, 175, 55, 0.1);
+}
+
+/* Active Thread View */
+.cf-thread-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.cf-thread-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cf-back-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.cf-back-btn:hover {
+  color: var(--color-gold);
+}
+
+.cf-thread-title-group {
+  flex: 1;
+}
+
+.cf-thread-subject {
+  font-family: var(--font-secondary);
+  color: var(--color-text-primary);
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 4px 0;
+}
+
+.cf-thread-meta {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cf-message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.cf-message {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 85%;
+}
+
+.cf-message.received {
+  align-self: flex-start;
+}
+
+.cf-message.sent {
+  align-self: flex-end;
+}
+
+.cf-message-bubble {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cf-message.received .cf-message-bubble {
+  background-color: var(--color-background-elevated);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  border-top-left-radius: 0;
+}
+
+.cf-message.sent .cf-message-bubble {
+  background-color: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--color-gold);
+  border-top-right-radius: 0;
+}
+
+.cf-message-info {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  display: flex;
+  gap: 6px;
+}
+
+.cf-message.sent .cf-message-info {
+  justify-content: flex-end;
+}
+
+.cf-reply-box {
+  margin-top: auto;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-background-elevated);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cf-reply-input {
+  background: transparent;
+  border: none;
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  resize: none;
+  min-height: 60px;
+  outline: none;
+}
+
+.cf-reply-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.cf-reply-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cf-reply-tools {
+  display: flex;
+  gap: 8px;
+  color: var(--color-text-muted);
+}
+
+.cf-tool-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.cf-tool-btn:hover {
+  color: var(--color-gold);
+}

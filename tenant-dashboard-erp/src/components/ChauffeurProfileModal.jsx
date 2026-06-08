@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, MessageSquare, Phone, Briefcase, Lock, CarFront, Asterisk, ShieldCheck, Wallet, X } from 'lucide-react';
 import './ChauffeurProfileModal.css';
 import './UniversalModal.css';
+import ConciergeFeed from './ConciergeFeed';
 
 const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -78,6 +79,7 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
           <button className={`u-modal-tab ${activeTab === 'shift_log' ? 'active' : ''}`} onClick={() => setActiveTab('shift_log')}>SHIFT LOG</button>
           <button className={`u-modal-tab ${activeTab === 'maintenance' ? 'active' : ''}`} onClick={() => setActiveTab('maintenance')}>MAINTENANCE</button>
           <button className={`u-modal-tab ${activeTab === 'financials' ? 'active' : ''}`} onClick={() => setActiveTab('financials')}>FINANCIALS</button>
+          <button className={`u-modal-tab ${activeTab === 'engagement' ? 'active' : ''}`} onClick={() => setActiveTab('engagement')}>ENGAGEMENT</button>
         </div>
 
         {/* Body Content */}

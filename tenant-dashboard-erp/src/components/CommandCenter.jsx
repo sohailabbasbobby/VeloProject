@@ -9,7 +9,6 @@ import FleetVault from './FleetVault';
 import ChauffeurHub from './ChauffeurHub';
 import CorporateClientHub from './CorporateClientHub';
 import PrivateClientRegistry from './PrivateClientRegistry';
-import CustomerEngagementSuite from './CustomerEngagementSuite';
 import OperationalStaffDirectory from './OperationalStaffDirectory';
 import WorkforceScheduler from './WorkforceScheduler';
 import FinancialDashboard from './FinancialDashboard';
@@ -60,7 +59,6 @@ const CommandCenter = ({ onNavigate }) => {
 
 
   const secondaryNav = [
-    { id: 'engagement', icon: <Users size={14} />, label: 'Customer Engagement Suite' },
     { id: 'staff', icon: <Contact size={14} />, label: 'Operational Staff Directory' },
     { id: 'roster', icon: <CalendarDays size={14} />, label: 'Workforce Roster & Scheduling' },
     { id: 'analytics', icon: <LineChart size={14} className="text-gold" />, label: 'Financial Intelligence & Compliance' },
@@ -285,7 +283,6 @@ const CommandCenter = ({ onNavigate }) => {
         <PrivateClientRegistry />
       )}
 
-      {activeSubView === 'engagement' && <CustomerEngagementSuite />}
       {activeSubView === 'staff' && <OperationalStaffDirectory />}
       {activeSubView === 'roster' && <WorkforceScheduler />}
       {activeSubView === 'analytics' && <FinancialDashboard />}

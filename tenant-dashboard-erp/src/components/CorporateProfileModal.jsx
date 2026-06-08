@@ -3,7 +3,8 @@ import { X, Building2, Wallet, Contact, ShieldCheck, FileText, Copy, Shield, Use
 import corporateLogo from '../assets/corporate-logo-placeholder.png';
 import './CorporateProfileModal.css';
 import './UniversalModal.css';
-import './CommandCenter.css'; // Import for cc-table styles
+import './CommandCenter.css';
+import ConciergeFeed from './ConciergeFeed'; // Import for cc-table styles
 
 const FastCarIcon = ({ size = 20, className = "" }) => (
   <svg width={size} height={size * 0.4} viewBox="0 0 100 40" className={className} xmlns="http://www.w3.org/2000/svg">
@@ -185,6 +186,7 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
           <button className={`u-modal-tab ${activeTab === 'bookings' ? 'active' : ''}`} onClick={() => setActiveTab('bookings')}>ACTIVE BOOKINGS</button>
           <button className={`u-modal-tab ${activeTab === 'billing' ? 'active' : ''}`} onClick={() => setActiveTab('billing')}>BILLING HISTORY</button>
           <button className={`u-modal-tab ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>AUTHORIZED USERS</button>
+          <button className={`u-modal-tab ${activeTab === 'engagement' ? 'active' : ''}`} onClick={() => setActiveTab('engagement')}>ENGAGEMENT</button>
         </div>
 
         {/* Body */}
