@@ -144,18 +144,39 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
           </div>
         </div>
 
-        <div className="cpm-hero">
-          <div className="cpm-hero-logo-container">
-            <img src={corporateLogo} alt="Corporate Logo" className="cpm-hero-logo" />
-            {isEditing && (
-              <button className="cpm-hero-upload-btn">
-                <Camera size={16} />
-              </button>
-            )}
+        <div className="cpm-hero" style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '0' }}>
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+            <div className="cpm-hero-logo-container">
+              <img src={corporateLogo} alt="Corporate Logo" className="cpm-hero-logo" />
+              {isEditing && (
+                <button className="cpm-hero-upload-btn">
+                  <Camera size={16} />
+                </button>
+              )}
+            </div>
+            <div className="cpm-hero-info" style={{ flexGrow: 1 }}>
+              <h1 className="cpm-hero-title" style={{ fontSize: '28px', marginBottom: '8px' }}>{isNew ? "New Corporate Client" : "Aetheris Global Holdings"}</h1>
+              <p className="cpm-hero-subtitle" style={{ fontSize: '14px', letterSpacing: '1px' }}>Hedge Fund / Private Equity • <span style={{color: 'var(--color-gold)'}}>EXECUTIVE ELITE</span></p>
+            </div>
           </div>
-          <div className="cpm-hero-info">
-            <h1 className="cpm-hero-title">{isNew ? "New Corporate Client" : "Aetheris Global Holdings"}</h1>
-            <p className="cpm-hero-subtitle">Hedge Fund / Private Equity • EXECUTIVE ELITE</p>
+          
+          <div className="cpm-hero-persistent-info" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Primary Phone</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>+44 20 7946 0881</span>
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Finance Email</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>finance@aetheris-global.com</span>
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Primary Contact</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>Julian Thorne</span>
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Account Status</span>
+                <span style={{ fontSize: '13px', color: 'var(--status-completed)', fontWeight: 'bold' }}>ACTIVE</span>
+             </div>
           </div>
         </div>
 
@@ -331,19 +352,19 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
 
           {activeTab === 'bookings' && (
             <div className="cpm-tab-content cpm-bookings-tab">
-              <div className="cc-metrics-row" style={{ marginBottom: '24px' }}>
-                <button className="cc-pulse-card active">
-                  <div className="cc-pulse-percent"><CarFront size={20} className="cc-pulse-icon" />2</div>
-                  <div className="cc-pulse-label">ACTIVE TRIPS</div>
-                </button>
-                <button className="cc-pulse-card">
-                  <div className="cc-pulse-percent"><CheckCircle size={20} className="cc-pulse-icon" />1</div>
-                  <div className="cc-pulse-label">COMPLETED</div>
-                </button>
-                <button className="cc-pulse-card">
-                  <div className="cc-pulse-percent"><Calendar size={20} className="cc-pulse-icon" />4</div>
-                  <div className="cc-pulse-label">UPCOMING</div>
-                </button>
+              <div className="cc-metrics-row" style={{ marginBottom: '24px', display: 'flex', gap: '16px' }}>
+                <div className="cpm-massive-metric" style={{ borderColor: 'var(--color-gold)', backgroundColor: 'rgba(212,175,55,0.05)' }}>
+                  <div className="cpm-massive-number"><CarFront size={32} />2</div>
+                  <div className="cpm-massive-label">ACTIVE BOOKINGS</div>
+                </div>
+                <div className="cpm-massive-metric">
+                  <div className="cpm-massive-number"><CheckCircle size={32} />1</div>
+                  <div className="cpm-massive-label">COMPLETED</div>
+                </div>
+                <div className="cpm-massive-metric">
+                  <div className="cpm-massive-number"><Calendar size={32} />4</div>
+                  <div className="cpm-massive-label">UPCOMING</div>
+                </div>
               </div>
 
               <div className="cc-table-container">
@@ -390,14 +411,15 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
 
           {activeTab === 'billing' && (
             <div className="cpm-tab-content">
+              <div className="cpm-section-header" style={{ marginBottom: '16px' }}>
+                <FileText size={16} /> BILLING SUMMARY
+              </div>
+
               {/* Finance Contact Block */}
               <div className="cpm-section" style={{ marginBottom: '24px' }}>
-                <div className="cpm-section-header">
-                  <Contact size={16} /> ACCOUNT DEPARTMENT CONTACT
-                </div>
                 <div className="cpm-grid-3">
                   <div className="cpm-field">
-                    <label className="cpm-label">Finance Manager</label>
+                    <label className="cpm-label">Finance Department</label>
                     <input type="text" className="cpm-input" defaultValue="Sarah Jenkins" readOnly={true} />
                   </div>
                   <div className="cpm-field">
@@ -411,19 +433,19 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                 </div>
               </div>
 
-              <div className="cc-metrics-row" style={{ marginBottom: '24px' }}>
-                <button className="cc-pulse-card active">
-                  <div className="cc-pulse-percent"><Receipt size={20} className="cc-pulse-icon" />$145K</div>
-                  <div className="cc-pulse-label">TOTAL REVENUE (YTD)</div>
-                </button>
-                <button className="cc-pulse-card">
-                  <div className="cc-pulse-percent"><Wallet size={20} className="cc-pulse-icon" style={{color: '#ff4d4d'}}/>$12.5K</div>
-                  <div className="cc-pulse-label" style={{color: '#ff4d4d'}}>OUTSTANDING</div>
-                </button>
-                <button className="cc-pulse-card">
-                  <div className="cc-pulse-percent"><Calendar size={20} className="cc-pulse-icon" />Jul 01</div>
-                  <div className="cc-pulse-label">NEXT INVOICE DATE</div>
-                </button>
+              <div className="cc-metrics-row" style={{ marginBottom: '32px', display: 'flex', gap: '16px' }}>
+                <div className="cpm-massive-metric">
+                  <div className="cpm-massive-number"><Receipt size={32} />$145K</div>
+                  <div className="cpm-massive-label">TOTAL REVENUE (YTD)</div>
+                </div>
+                <div className="cpm-massive-metric" style={{ borderColor: 'rgba(255, 77, 77, 0.3)', backgroundColor: 'rgba(255, 77, 77, 0.05)' }}>
+                  <div className="cpm-massive-number" style={{color: '#ff4d4d'}}><Wallet size={32} />$12.5K</div>
+                  <div className="cpm-massive-label" style={{color: '#ff4d4d'}}>OUTSTANDING</div>
+                </div>
+                <div className="cpm-massive-metric">
+                  <div className="cpm-massive-number"><Calendar size={32} />Jul 01</div>
+                  <div className="cpm-massive-label">NEXT INVOICE DATE</div>
+                </div>
               </div>
 
               <div className="cpm-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -593,8 +615,9 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                     <UserCheck size={16} /> AUTHORIZED PERSONNEL
                   </div>
                   <div className="cpm-user-grid">
-                    <div className="cpm-user-card" style={{cursor: 'pointer'}} onClick={() => setSelectedUser({name: 'Eleanor Vance', role: 'Executive Assistant', email: 'eleanor@aetheris-global.com', phone: '+44 7700 900077'})}>
-                      <div className="cpm-user-header">
+                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Eleanor Vance', role: 'Executive Assistant', email: 'eleanor@aetheris-global.com', phone: '+44 7700 900077'})}>
+                      <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-gold)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
+                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
                         <div className="cpm-user-avatar">
                           <User size={20} />
                         </div>
@@ -614,8 +637,9 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                         </button>
                       </div>
                     </div>
-                    <div className="cpm-user-card" style={{cursor: 'pointer'}} onClick={() => setSelectedUser({name: 'Marcus Thorne', role: 'Managing Director', email: 'marcus@aetheris-global.com', phone: '+44 7700 900124'})}>
-                      <div className="cpm-user-header">
+                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Marcus Thorne', role: 'Managing Director', email: 'marcus@aetheris-global.com', phone: '+44 7700 900124'})}>
+                      <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-gold)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
+                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
                         <div className="cpm-user-avatar">
                           <User size={20} />
                         </div>
@@ -635,8 +659,9 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                         </button>
                       </div>
                     </div>
-                    <div className="cpm-user-card" style={{cursor: 'pointer'}} onClick={() => setSelectedUser({name: 'Sarah Jenkins', role: 'Former Employee', email: 'sarah@aetheris-global.com', phone: '+44 7700 900888'})}>
-                      <div className="cpm-user-header">
+                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid rgba(255,255,255,0.2)'}} onClick={() => setSelectedUser({name: 'Sarah Jenkins', role: 'Former Employee', email: 'sarah@aetheris-global.com', phone: '+44 7700 900888'})}>
+                      <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-text-muted)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
+                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
                         <div className="cpm-user-avatar" style={{backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d'}}>
                           <UserX size={20} />
                         </div>
