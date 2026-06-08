@@ -614,70 +614,70 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                   <div className="u-modal-section-header" style={{ marginBottom: '16px' }}>
                     <UserCheck size={16} /> AUTHORIZED PERSONNEL
                   </div>
-                  <div className="u-modal-user-grid">
-                    <div className="u-modal-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Eleanor Vance', role: 'Executive Assistant', email: 'eleanor@aetheris-global.com', phone: '+44 7700 900077'})}>
+                  <div className="cpm-user-grid">
+                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Eleanor Vance', role: 'Executive Assistant', email: 'eleanor@aetheris-global.com', phone: '+44 7700 900077'})}>
                       <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-gold)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
-                      <div className="u-modal-user-header" style={{ marginTop: '16px' }}>
-                        <div className="u-modal-user-avatar">
+                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
+                        <div className="cpm-user-avatar">
                           <User size={20} />
                         </div>
-                        <div className="u-modal-user-info">
-                          <div className="u-modal-user-name">Eleanor Vance</div>
-                          <div className="u-modal-user-role">Executive Assistant</div>
+                        <div className="cpm-user-info">
+                          <div className="cpm-user-name">Eleanor Vance</div>
+                          <div className="cpm-user-role">Executive Assistant</div>
                         </div>
                       </div>
-                      <div className="u-modal-user-contact">
+                      <div className="cpm-user-contact">
                         <div>eleanor@aetheris-global.com</div>
                         <div>+44 7700 900077</div>
                       </div>
-                      <div className="u-modal-user-actions" onClick={e => e.stopPropagation()}>
-                        <span className="u-modal-user-status active">Booking Permitted</span>
-                        <button className="u-modal-toggle-btn active">
-                          <div className="u-modal-toggle-knob"></div>
+                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
+                        <span className="cpm-user-status active">Booking Permitted</span>
+                        <button className="cpm-toggle-btn active">
+                          <div className="cpm-toggle-knob"></div>
                         </button>
                       </div>
                     </div>
-                    <div className="u-modal-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Marcus Thorne', role: 'Managing Director', email: 'marcus@aetheris-global.com', phone: '+44 7700 900124'})}>
+                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Marcus Thorne', role: 'Managing Director', email: 'marcus@aetheris-global.com', phone: '+44 7700 900124'})}>
                       <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-gold)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
-                      <div className="u-modal-user-header" style={{ marginTop: '16px' }}>
-                        <div className="u-modal-user-avatar">
+                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
+                        <div className="cpm-user-avatar">
                           <User size={20} />
                         </div>
-                        <div className="u-modal-user-info">
-                          <div className="u-modal-user-name">Marcus Thorne</div>
-                          <div className="u-modal-user-role">Managing Director</div>
+                        <div className="cpm-user-info">
+                          <div className="cpm-user-name">Marcus Thorne</div>
+                          <div className="cpm-user-role">Managing Director</div>
                         </div>
                       </div>
-                      <div className="u-modal-user-contact">
+                      <div className="cpm-user-contact">
                         <div>marcus@aetheris-global.com</div>
                         <div>+44 7700 900124</div>
                       </div>
-                      <div className="u-modal-user-actions" onClick={e => e.stopPropagation()}>
-                        <span className="u-modal-user-status active">Booking Permitted</span>
-                        <button className="u-modal-toggle-btn active">
-                          <div className="u-modal-toggle-knob"></div>
+                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
+                        <span className="cpm-user-status active">Booking Permitted</span>
+                        <button className="cpm-toggle-btn active">
+                          <div className="cpm-toggle-knob"></div>
                         </button>
                       </div>
                     </div>
-                    <div className="u-modal-user-card" style={{cursor: 'pointer', border: '1px solid rgba(255,255,255,0.2)'}} onClick={() => setSelectedUser({name: 'Sarah Jenkins', role: 'Former Employee', email: 'sarah@aetheris-global.com', phone: '+44 7700 900888'})}>
+                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid rgba(255,255,255,0.2)'}} onClick={() => setSelectedUser({name: 'Sarah Jenkins', role: 'Former Employee', email: 'sarah@aetheris-global.com', phone: '+44 7700 900888'})}>
                       <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-text-muted)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
-                      <div className="u-modal-user-header" style={{ marginTop: '16px' }}>
-                        <div className="u-modal-user-avatar" style={{backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d'}}>
+                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
+                        <div className="cpm-user-avatar" style={{backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d'}}>
                           <UserX size={20} />
                         </div>
-                        <div className="u-modal-user-info">
-                          <div className="u-modal-user-name">Sarah Jenkins</div>
-                          <div className="u-modal-user-role">Former Employee</div>
+                        <div className="cpm-user-info">
+                          <div className="cpm-user-name">Sarah Jenkins</div>
+                          <div className="cpm-user-role">Former Employee</div>
                         </div>
                       </div>
-                      <div className="u-modal-user-contact">
+                      <div className="cpm-user-contact">
                         <div>sarah@aetheris-global.com</div>
                         <div>+44 7700 900888</div>
                       </div>
-                      <div className="u-modal-user-actions" onClick={e => e.stopPropagation()}>
-                        <span className="u-modal-user-status inactive">Booking Revoked</span>
-                        <button className="u-modal-toggle-btn inactive">
-                          <div className="u-modal-toggle-knob"></div>
+                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
+                        <span className="cpm-user-status inactive">Booking Revoked</span>
+                        <button className="cpm-toggle-btn inactive">
+                          <div className="cpm-toggle-knob"></div>
                         </button>
                       </div>
                     </div>
