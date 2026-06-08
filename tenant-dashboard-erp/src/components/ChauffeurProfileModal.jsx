@@ -84,7 +84,7 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
         <div className="u-modal-body">
           {activeTab === 'overview' && (
             <>
-              <div className="u-modal-grid-2-col">
+              <div className="cp-grid-2-col">
                 {/* Left Column */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                   <div className="u-modal-section">
@@ -93,40 +93,40 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
                       Personal Identity
                     </div>
                     
-                    <div className="u-modal-data-row">
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">FULL NAME</span>
-                        <span className="u-modal-data-value">{chauffeur.name}</span>
+                    <div className="cp-data-row">
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">FULL NAME</span>
+                        <span className="cp-data-value">{chauffeur.name}</span>
                       </div>
                     </div>
 
-                    <div className="u-modal-data-row">
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">DATE OF BIRTH</span>
-                        <span className="u-modal-data-value">12 SEP 1972</span>
+                    <div className="cp-data-row">
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">DATE OF BIRTH</span>
+                        <span className="cp-data-value">12 SEP 1972</span>
                       </div>
                     </div>
 
-                    <div className="u-modal-data-row">
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">MOBILE NUMBER</span>
-                        <span className="u-modal-data-value">+44 20 7946 0000</span>
+                    <div className="cp-data-row">
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">MOBILE NUMBER</span>
+                        <span className="cp-data-value">+44 20 7946 0000</span>
                       </div>
-                      <span className="u-modal-update-link">UPDATE</span>
+                      <span className="cp-update-link">UPDATE</span>
                     </div>
 
-                    <div className="u-modal-data-row">
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">EMAIL ADDRESS</span>
-                        <span className="u-modal-data-value">j.sterling@velo-executive.com</span>
+                    <div className="cp-data-row">
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">EMAIL ADDRESS</span>
+                        <span className="cp-data-value">j.sterling@velo-executive.com</span>
                       </div>
-                      <span className="u-modal-update-link">UPDATE</span>
+                      <span className="cp-update-link">UPDATE</span>
                     </div>
 
-                    <div className="u-modal-data-row">
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">RESIDENTIAL ADDRESS</span>
-                        <span className="u-modal-data-value">12 Mayfair Gardens, London, W1J 7JZ</span>
+                    <div className="cp-data-row">
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">RESIDENTIAL ADDRESS</span>
+                        <span className="cp-data-value">12 Mayfair Gardens, London, W1J 7JZ</span>
                       </div>
                     </div>
                   </div>
@@ -137,14 +137,14 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
                       Emergency Contact
                     </div>
                     
-                    <div className="u-modal-inner-grid">
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">CONTACT NAME</span>
-                        <span className="u-modal-data-value">Eleanor Sterling</span>
+                    <div className="cp-inner-grid">
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">CONTACT NAME</span>
+                        <span className="cp-data-value">Eleanor Sterling</span>
                       </div>
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">CONTACT PHONE</span>
-                        <span className="u-modal-data-value">+44 7700 900000</span>
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">CONTACT PHONE</span>
+                        <span className="cp-data-value">+44 7700 900000</span>
                       </div>
                     </div>
                   </div>
@@ -158,34 +158,34 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
                       Compliance & Credentials
                     </div>
 
-                    <div className="u-modal-data-row">
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">DRIVING LICENSE EXPIRY</span>
-                        <span className="u-modal-data-value">14 NOV 2026</span>
+                    <div className="cp-data-row">
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">DRIVING LICENSE EXPIRY</span>
+                        <span className="cp-data-value">14 NOV 2026</span>
                       </div>
-                      <span className="u-modal-update-link">UPDATE</span>
+                      <span className="cp-update-link">UPDATE</span>
                     </div>
 
-                    <div className="u-modal-data-row">
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">PCO LICENSE EXPIRY</span>
-                        <span className="u-modal-data-value">22 JAN 2027</span>
+                    <div className="cp-data-row">
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">PCO LICENSE EXPIRY</span>
+                        <span className="cp-data-value">22 JAN 2027</span>
                       </div>
-                      <span className="u-modal-update-link">UPDATE</span>
+                      <span className="cp-update-link">UPDATE</span>
                     </div>
 
-                    <div className="u-modal-data-row" style={{ borderBottom: 'none' }}>
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">NATIONAL INSURANCE NUMBER</span>
-                        <span className="u-modal-data-value">QQ 12 34 56 C</span>
+                    <div className="cp-data-row" style={{ borderBottom: 'none' }}>
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">NATIONAL INSURANCE NUMBER</span>
+                        <span className="cp-data-value">QQ 12 34 56 C</span>
                       </div>
                     </div>
 
-                    <div className="u-modal-data-row" style={{ borderBottom: 'none' }}>
-                      <div className="u-modal-data-group">
-                        <span className="u-modal-data-label">DBS/BACKGROUND CHECK REF</span>
-                        <span className="u-modal-data-value">
-                          DBS-9900-XJ <span className="u-modal-badge-dbs">MANDATORY DBS</span>
+                    <div className="cp-data-row" style={{ borderBottom: 'none' }}>
+                      <div className="cp-data-group">
+                        <span className="cp-data-label">DBS/BACKGROUND CHECK REF</span>
+                        <span className="cp-data-value">
+                          DBS-9900-XJ <span className="cp-badge-dbs">MANDATORY DBS</span>
                         </span>
                       </div>
                     </div>
@@ -197,46 +197,46 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
                       Financial Framework
                     </div>
 
-                    <div className="u-modal-inner-grid">
-                      <div className="u-modal-data-group" style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '4px' }}>
-                        <span className="u-modal-data-label">CONTRACT TYPE</span>
-                        <span className="u-modal-data-value" style={{ color: 'var(--color-gold)' }}>Revenue Share</span>
+                    <div className="cp-inner-grid">
+                      <div className="cp-data-group" style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '4px' }}>
+                        <span className="cp-data-label">CONTRACT TYPE</span>
+                        <span className="cp-data-value" style={{ color: 'var(--color-gold)' }}>Revenue Share</span>
                       </div>
-                      <div className="u-modal-data-group" style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '4px' }}>
-                        <span className="u-modal-data-label">VALUE FIELD (%)</span>
-                        <span className="u-modal-data-value">60.00</span>
+                      <div className="cp-data-group" style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '4px' }}>
+                        <span className="cp-data-label">VALUE FIELD (%)</span>
+                        <span className="cp-data-value">60.00</span>
                       </div>
                     </div>
 
-                    <div className="u-modal-data-group" style={{ marginTop: '16px' }}>
-                      <span className="u-modal-data-label">SORT CODE</span>
-                      <span className="u-modal-data-value">18-XX-XX</span>
+                    <div className="cp-data-group" style={{ marginTop: '16px' }}>
+                      <span className="cp-data-label">SORT CODE</span>
+                      <span className="cp-data-value">18-XX-XX</span>
                     </div>
 
-                    <div className="u-modal-data-group" style={{ marginTop: '16px' }}>
-                      <span className="u-modal-data-label">ACCOUNT NUMBER</span>
-                      <span className="u-modal-data-value">****4490</span>
+                    <div className="cp-data-group" style={{ marginTop: '16px' }}>
+                      <span className="cp-data-label">ACCOUNT NUMBER</span>
+                      <span className="cp-data-value">****4490</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Footer Metrics */}
-              <div className="u-modal-metrics-footer">
-                <div className="u-modal-metric-card">
-                  <span className="u-modal-metric-label">RATING</span>
-                  <div className="u-modal-metric-value">
-                    4.98<span className="u-modal-metric-sub">★</span>
+              <div className="cp-metrics-footer">
+                <div className="cp-metric-card">
+                  <span className="cp-metric-label">RATING</span>
+                  <div className="cp-metric-value">
+                    4.98<span className="cp-metric-sub">★</span>
                   </div>
                 </div>
-                <div className="u-modal-metric-card">
-                  <span className="u-modal-metric-label">JOBS COMPLETED</span>
-                  <div className="u-modal-metric-value">2,412</div>
+                <div className="cp-metric-card">
+                  <span className="cp-metric-label">JOBS COMPLETED</span>
+                  <div className="cp-metric-value">2,412</div>
                 </div>
-                <div className="u-modal-metric-card">
-                  <span className="u-modal-metric-label">VELO TENURE</span>
-                  <div className="u-modal-metric-value">
-                    4.2<span className="u-modal-metric-sub-text">y</span>
+                <div className="cp-metric-card">
+                  <span className="cp-metric-label">VELO TENURE</span>
+                  <div className="cp-metric-value">
+                    4.2<span className="cp-metric-sub-text">y</span>
                   </div>
                 </div>
               </div>

@@ -146,8 +146,8 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
 
         <div className="u-modal-hero" style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '0' }}>
           <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-            <div className="u-modal-hero-logo-container">
-              <img src={corporateLogo} alt="Corporate Logo" className="u-modal-hero-logo" />
+            <div className="u-modal-hero-avatar-container">
+              <img src={corporateLogo} alt="Corporate Logo" className="u-modal-hero-avatar" />
               {isEditing && (
                 <button className="u-modal-hero-upload-btn">
                   <Camera size={16} />
