@@ -1,0 +1,343 @@
+.sp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+}
+
+.sp-modal-content {
+  width: 95vw;
+  max-width: 1400px;
+  height: 90vh;
+  max-height: 900px;
+  background-color: var(--color-obsidian);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.8);
+  overflow: hidden;
+  color: white;
+}
+
+/* Header Section */
+.sp-header {
+  padding: 32px 32px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sp-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.sp-profile-info {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.sp-avatar-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  background-color: rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sp-status-dot {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  background-color: #34C759;
+  border-radius: 50%;
+  border: 2px solid var(--color-obsidian);
+}
+
+.sp-name-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sp-name {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.sp-id {
+  color: var(--color-gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.sp-live-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #34C759;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.sp-map-thumbnail {
+  width: 200px;
+  height: 80px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.sp-map-location {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: white;
+}
+
+/* Action Bar */
+.sp-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sp-action-group {
+  display: flex;
+  gap: 12px;
+}
+
+.sp-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.sp-btn-primary {
+  background-color: var(--color-gold);
+  color: var(--color-obsidian);
+  border: none;
+}
+
+.sp-btn-outline {
+  background-color: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sp-btn-lock {
+  background-color: transparent;
+  color: #ffcccc;
+  border: 1px solid rgba(255, 59, 48, 0.3);
+}
+
+/* Tabs */
+.sp-tabs {
+  display: flex;
+  gap: 32px;
+  padding: 0 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sp-tab {
+  padding: 12px 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  text-transform: uppercase;
+}
+
+.sp-tab.active {
+  color: var(--color-gold);
+  border-bottom-color: var(--color-gold);
+}
+
+/* Body Content */
+.sp-modal-body {
+  padding: 32px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  flex: 1;
+}
+
+.sp-grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.sp-section {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sp-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.sp-section-header.gold {
+  color: var(--color-gold);
+}
+
+/* Data Rows */
+.sp-data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 8px;
+}
+
+.sp-data-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sp-data-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sp-data-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.sp-data-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+}
+
+.sp-update-link {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-gold);
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+
+/* Specific inner grid */
+.sp-inner-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sp-badge-dbs {
+  background-color: rgba(212, 175, 55, 0.1);
+  color: var(--color-gold);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 8px;
+  font-weight: 700;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* Metric Footer Cards */
+.sp-metrics-footer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.sp-metric-card {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sp-metric-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.sp-metric-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.sp-metric-sub {
+  font-size: 18px;
+  color: var(--color-gold);
+}
+
+.sp-metric-sub-text {
+  font-size: 18px;
+  color: var(--color-text-muted);
+}

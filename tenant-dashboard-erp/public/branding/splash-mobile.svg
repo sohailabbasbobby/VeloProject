@@ -1,0 +1,16 @@
+<svg width="1242" height="2688" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1242 2688">
+  <rect width="1242" height="2688" fill="#070708"/>
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F9F295"/>
+      <stop offset="50%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#AA7C11"/>
+    </linearGradient>
+  </defs>
+  
+  <g transform="translate(621, 1324)">
+    <path d="M-60,-40 L0,40 L60,-40 L30,-40 L0,0 L-30,-40 Z" fill="url(#goldGrad)"/>
+    <text y="80" font-family="Montserrat, Arial, sans-serif" font-weight="700" font-size="82.8" fill="#FFFFFF" text-anchor="middle" letter-spacing="4">VELO</text>
+    <text y="120" font-family="Montserrat, Arial, sans-serif" font-weight="400" font-size="31.05" fill="#D4AF37" text-anchor="middle" letter-spacing="2">Excellence in Motion.</text>
+  </g>
+</svg>

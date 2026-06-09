@@ -1,0 +1,130 @@
+{
+  "sidebar": {
+    "close": "✕  FECHAR",
+    "update_profile": "⚙️  Toque para atualizar o perfil",
+    "account_switcher": "TROCAR CONTA",
+    "personal_account": "Conta Pessoal",
+    "personal_sub": "Pagar com Cartão de Crédito/Débito",
+    "corporate_account": "Acme Corp Ltd",
+    "corporate_sub": "Faturamento Corporativo (Aprovado)",
+    "menu": "MENU",
+    "upcoming_bookings": "Próximas Reservas",
+    "trip_history": "Histórico de Viagens",
+    "saved_addresses": "Endereços Salvos",
+    "payment_method": "Método de Pagamento",
+    "app_settings": "Configurações do App",
+    "logout": "Sair",
+    "delete_account": "Excluir Conta"
+  },
+  "home": {
+    "itinerary_routing": "ROTA",
+    "book_a_ride": "Reservar uma Viagem",
+    "add_stop": "Adicionar Parada",
+    "pickup_time": "HORÁRIO DE PARTIDA",
+    "asap": "O mais rápido possível",
+    "schedule": "Agendar",
+    "time": "Horário:",
+    "confirm": "Confirmar",
+    "edit": "Editar",
+    "vehicle_requirements": "REQUISITOS DO VEÍCULO",
+    "trip_notes": "NOTAS DA VIAGEM",
+    "add_instructions": "Adicionar Instruções",
+    "get_quote": "Obter Cotação",
+    "select_account": "SELECIONAR CONTA",
+    "cancel": "Cancelar",
+    "trip_itinerary_summary": "RESUMO DO ITINERÁRIO",
+    "estimated_eta": "CHEGADA ESTIMADA (ETA)",
+    "total_fixed_quote": "PREÇO FIXO TOTAL",
+    "confirm_ride": "Confirmar Viagem",
+    "submit_admin_approval": "Enviar para Aprovação"
+  },
+  "active_trip": {
+    "finding_vehicle": "Buscando o veículo premium mais próximo...",
+    "driver": "Motorista:",
+    "car": "Carro:",
+    "eta": "ETA",
+    "cancel_trip": "Cancelar Viagem",
+    "cancel_trip_confirm": "CANCELAR VIAGEM?",
+    "cancel_trip_message": "Tem certeza que deseja cancelar a viagem?",
+    "cancel_trip_fee_notice": "Nota: Uma taxa de cancelamento de £10.00 (definida pela Empresa) pode ser cobrada na sua conta.",
+    "resume_trip": "Retomar Viagem",
+    "driver_waiting": "Seu motorista está esperando lá fora."
+  },
+  "vehicle_selection": {
+    "title": "SELECIONAR CLASSE DO VEÍCULO",
+    "passengers_required": "Passageiros (Obrigatório)",
+    "luggage_optional": "Bagagem (Opcional)",
+    "confirm_selection": "Confirmar Seleção",
+    "capacity_exceeded": "⚠️ Capacidade Excedida",
+    "standard_suitcases": "Malas padrão",
+    "max_per_vehicle": "Máx {{max}} por veículo"
+  },
+  "upcoming": {
+    "title": "PRÓXIMAS RESERVAS",
+    "manage_booking": "GERENCIAR RESERVA",
+    "manage_desc": "Precisa fazer alterações na sua próxima viagem?",
+    "modify": "Modificar"
+  },
+  "history": {
+    "title": "HISTÓRICO DE VIAGENS",
+    "past_trips": "VIAGENS ANTERIORES",
+    "post_job_assistance": "ASSISTÊNCIA PÓS-VIAGEM",
+    "post_job_desc": "Esqueceu um item no veículo ou precisa de ajuda?",
+    "chat_support": "Suporte via Chat",
+    "view_receipt": "Ver Recibo"
+  },
+  "addresses": {
+    "title": "ENDEREÇOS SALVOS",
+    "add_new": "+ Adicionar Novo",
+    "save_address": "Salvar Endereço"
+  },
+  "payment": {
+    "title": "MÉTODOS DE PAGAMENTO",
+    "add_new": "+ Adicionar Método de Pagamento",
+    "default": "Padrão"
+  },
+  "messaging": {
+    "title": "MENSAGENS",
+    "call_driver": "Ligar para o Motorista"
+  },
+  "settings": {
+    "title": "CONFIGURAÇÕES",
+    "preferences": "PREFERÊNCIAS",
+    "push_notifications": "Notificações Push",
+    "push_sub": "Atualizações e alertas da viagem",
+    "location_services": "Serviços de Localização",
+    "location_sub": "Necessário para precisão da rota",
+    "dark_mode": "Modo Escuro Forçado",
+    "dark_mode_sub": "VELO opera exclusivamente em modo escuro",
+    "language_region": "IDIOMA E REGIÃO",
+    "app_display_language": "Idioma da Interface do App",
+    "app_display_sub": "Altera o idioma de toda a interface do aplicativo.",
+    "communication_language": "Idioma de Comunicação Preferido",
+    "communication_sub": "O idioma que você digita e deseja receber mensagens. Tradução via IA.",
+    "security": "SEGURANÇA",
+    "two_factor": "Autenticação em Dois Fatores (2FA)",
+    "device_management": "Gerenciamento de Dispositivos"
+  },
+  "profile": {
+    "title": "PERFIL PESSOAL",
+    "first_name": "Nome",
+    "last_name": "Sobrenome",
+    "phone_number": "Número de Telefone",
+    "email_address": "Endereço de E-mail",
+    "home_address": "Endereço Residencial (Padrão)",
+    "office_address": "Endereço Comercial (Padrão)",
+    "save_changes": "Salvar Alterações",
+    "change_photo": "Alterar Foto"
+  },
+  "ledger": {
+    "title": "REGISTRO DE VIAGEM",
+    "outstanding_balance": "SALDO PENDENTE",
+    "paid_invoiced": "PAGO - FATURADO",
+    "download_statement": "Baixar Extrato Mensal de IVA"
+  },
+  "navigation": {
+    "account": "Conta",
+    "tenant": "Empresa",
+    "settings": "Configurações"
+  }
+}

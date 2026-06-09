@@ -3,15 +3,16 @@ import { ShieldCheck, Timer, AlertCircle, AlertTriangle, Plus, User } from 'luci
 import './ChauffeurHub.css';
 import './UniversalGrid.css';
 import { MOCK_CHAUFFEURS } from '../data/mockDatabase';
-import OnboardChauffeurModal from './OnboardChauffeurModal';
-import ChauffeurProfileModal from './ChauffeurProfileModal';
+import OnboardChauffeurModal from './modals/OnboardChauffeurModal';
+import { useEntityLinker } from '../contexts/EntityLinkerContext';
+import EntityLink from './EntityLink';
 
 
 const ChauffeurHub = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [isOnboardModalOpen, setIsOnboardModalOpen] = useState(false);
-  const [selectedChauffeur, setSelectedChauffeur] = useState(null);
   const [assignJobChauffeur, setAssignJobChauffeur] = useState(null);
+  const { openDriverProfile } = useEntityLinker();
 
   const getStars = (count) => {
     return Array(5).fill(0).map((_, i) => (
@@ -78,7 +79,7 @@ const ChauffeurHub = () => {
       <div className="ch-alert-banner">
         <div className="ch-alert-text">
           <AlertTriangle size={18} color="rgba(255, 59, 48, 0.8)" />
-          ACTION REQUIRED: PCO LICENSE EXPIRY PENDING FOR CHAUFFEUR C-902 (JULIAN STERLING) • 48 HOURS REMAINING
+          ACTION REQUIRED: PCO LICENSE EXPIRY PENDING FOR CHAUFFEUR C-902 (<EntityLink type="Driver">JULIAN STERLING</EntityLink>) • 48 HOURS REMAINING
         </div>
         <button className="ch-alert-btn">RENEW NOW</button>
       </div>
@@ -97,7 +98,7 @@ const ChauffeurHub = () => {
       {/* Chauffeur Grid */}
       <div className="u-grid">
         {MOCK_CHAUFFEURS.map((c, i) => (
-          <div key={i} className="u-card" onClick={() => setSelectedChauffeur(c)}>
+          <div key={i} className="u-card" onClick={() => openDriverProfile(c.name)} style={{ cursor: 'pointer' }}>
             <div className="u-card-header">
               <div className="u-card-header-left">
                 <span className="u-card-id">{c.id}</span>
@@ -178,7 +179,8 @@ const ChauffeurHub = () => {
         </div>
       )}
       <OnboardChauffeurModal isOpen={isOnboardModalOpen} onClose={() => setIsOnboardModalOpen(false)} />
-      <ChauffeurProfileModal chauffeur={selectedChauffeur} onClose={() => setSelectedChauffeur(null)} />
+
+      <div className="security-footer" style={{ marginTop: "auto" }}>Verified by Velo AI Security Protocol</div>
     </div>
   );
 };

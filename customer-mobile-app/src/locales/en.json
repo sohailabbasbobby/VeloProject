@@ -1,0 +1,130 @@
+{
+  "sidebar": {
+    "close": "✕  CLOSE",
+    "update_profile": "⚙️  Tap to update profile details",
+    "account_switcher": "ACCOUNT SWITCHER",
+    "personal_account": "Personal Account",
+    "personal_sub": "Pay via Credit/Debit Card",
+    "corporate_account": "Acme Corp Ltd",
+    "corporate_sub": "Corporate Billing (Admin Approved)",
+    "menu": "MENU",
+    "upcoming_bookings": "Upcoming Bookings",
+    "trip_history": "Trip History",
+    "saved_addresses": "Saved Addresses",
+    "payment_method": "Payment Method",
+    "app_settings": "App Settings",
+    "logout": "Log Out",
+    "delete_account": "Delete Account"
+  },
+  "home": {
+    "itinerary_routing": "ITINERARY ROUTING",
+    "book_a_ride": "Book a Ride",
+    "add_stop": "Add Stop",
+    "pickup_time": "PICKUP TIME",
+    "asap": "ASAP",
+    "schedule": "Schedule",
+    "time": "Time:",
+    "confirm": "Confirm",
+    "edit": "Edit",
+    "vehicle_requirements": "VEHICLE REQUIREMENTS",
+    "trip_notes": "TRIP NOTES",
+    "add_instructions": "Add Instructions",
+    "get_quote": "Get Quote",
+    "select_account": "SELECT ACCOUNT",
+    "cancel": "Cancel",
+    "trip_itinerary_summary": "TRIP ITINERARY SUMMARY",
+    "estimated_eta": "ESTIMATED ETA",
+    "total_fixed_quote": "TOTAL FIXED QUOTE",
+    "confirm_ride": "Confirm Ride",
+    "submit_admin_approval": "Submit for Admin Approval"
+  },
+  "active_trip": {
+    "finding_vehicle": "Finding the closest premium vehicle...",
+    "driver": "Driver:",
+    "car": "Car:",
+    "eta": "ETA",
+    "cancel_trip": "Cancel Trip",
+    "cancel_trip_confirm": "CANCEL TRIP?",
+    "cancel_trip_message": "Are you sure you want to cancel the trip?",
+    "cancel_trip_fee_notice": "Please note: A cancellation fee of £10.00 (as set by the Tenant) may be charged to your account.",
+    "resume_trip": "Resume Trip",
+    "driver_waiting": "Your driver is waiting outside."
+  },
+  "vehicle_selection": {
+    "title": "SELECT VEHICLE CLASS",
+    "passengers_required": "Passengers (Required)",
+    "luggage_optional": "Luggage (Optional)",
+    "confirm_selection": "Confirm Selection",
+    "capacity_exceeded": "⚠️ Capacity Exceeded",
+    "standard_suitcases": "Standard suitcases",
+    "max_per_vehicle": "Max {{max}} per vehicle"
+  },
+  "upcoming": {
+    "title": "UPCOMING BOOKINGS",
+    "manage_booking": "MANAGE BOOKING",
+    "manage_desc": "Need to make changes to your upcoming trip?",
+    "modify": "Modify"
+  },
+  "history": {
+    "title": "TRIP HISTORY",
+    "past_trips": "PAST TRIPS",
+    "post_job_assistance": "POST-JOB ASSISTANCE",
+    "post_job_desc": "Left an item in the vehicle or need support for this trip?",
+    "chat_support": "Chat Support",
+    "view_receipt": "View Receipt"
+  },
+  "addresses": {
+    "title": "SAVED ADDRESSES",
+    "add_new": "+ Add New",
+    "save_address": "Save Address"
+  },
+  "payment": {
+    "title": "PAYMENT METHODS",
+    "add_new": "+ Add New Payment Method",
+    "default": "Default"
+  },
+  "messaging": {
+    "title": "MESSAGING VAULT",
+    "call_driver": "Call Driver"
+  },
+  "settings": {
+    "title": "SETTINGS",
+    "preferences": "PREFERENCES",
+    "push_notifications": "Push Notifications",
+    "push_sub": "Trip updates and alerts",
+    "location_services": "Location Services",
+    "location_sub": "Required for precision routing",
+    "dark_mode": "Dark Mode Enforced",
+    "dark_mode_sub": "VELO strictly operates in dark mode",
+    "language_region": "LANGUAGE & REGION",
+    "app_display_language": "App Display Language",
+    "app_display_sub": "Changes the language of the entire app UI.",
+    "communication_language": "Preferred Communication Language",
+    "communication_sub": "The language you type messages in, and how you want to receive messages from drivers/company. Translates via AI.",
+    "security": "SECURITY",
+    "two_factor": "Two-Factor Authentication (2FA)",
+    "device_management": "Device Management"
+  },
+  "profile": {
+    "title": "PERSONAL PROFILE",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "phone_number": "Phone Number",
+    "email_address": "Email Address",
+    "home_address": "Home Address (Default)",
+    "office_address": "Office Address (Default)",
+    "save_changes": "Save Changes",
+    "change_photo": "Change Photo"
+  },
+  "ledger": {
+    "title": "TRAVEL LEDGER",
+    "outstanding_balance": "OUTSTANDING BALANCE",
+    "paid_invoiced": "PAID - INVOICED",
+    "download_statement": "Download Monthly VAT Statement"
+  },
+  "navigation": {
+    "account": "Account",
+    "tenant": "Tenant",
+    "settings": "Settings"
+  }
+}

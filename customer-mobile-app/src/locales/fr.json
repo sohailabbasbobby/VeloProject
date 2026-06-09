@@ -1,0 +1,130 @@
+{
+  "sidebar": {
+    "close": "✕  FERMER",
+    "update_profile": "⚙️  Appuyez pour mettre à jour le profil",
+    "account_switcher": "CHANGER DE COMPTE",
+    "personal_account": "Compte Personnel",
+    "personal_sub": "Payer par carte de crédit/débit",
+    "corporate_account": "Acme Corp Ltd",
+    "corporate_sub": "Facturation entreprise (Approuvé)",
+    "menu": "MENU",
+    "upcoming_bookings": "Réservations à Venir",
+    "trip_history": "Historique des Trajets",
+    "saved_addresses": "Adresses Enregistrées",
+    "payment_method": "Moyen de Paiement",
+    "app_settings": "Paramètres de l'App",
+    "logout": "Se Déconnecter",
+    "delete_account": "Supprimer le Compte"
+  },
+  "home": {
+    "itinerary_routing": "ITINÉRAIRE",
+    "book_a_ride": "Réserver un Trajet",
+    "add_stop": "Ajouter un Arrêt",
+    "pickup_time": "HEURE DE PRISE EN CHARGE",
+    "asap": "Dès que possible",
+    "schedule": "Programmer",
+    "time": "Heure:",
+    "confirm": "Confirmer",
+    "edit": "Modifier",
+    "vehicle_requirements": "EXIGENCES DU VÉHICULE",
+    "trip_notes": "NOTES DU TRAJET",
+    "add_instructions": "Ajouter des Instructions",
+    "get_quote": "Obtenir un Devis",
+    "select_account": "SÉLECTIONNER UN COMPTE",
+    "cancel": "Annuler",
+    "trip_itinerary_summary": "RÉSUMÉ DE L'ITINÉRAIRE",
+    "estimated_eta": "HEURE D'ARRIVÉE ESTIMÉE",
+    "total_fixed_quote": "PRIX FIXE TOTAL",
+    "confirm_ride": "Confirmer le Trajet",
+    "submit_admin_approval": "Soumettre à l'Administrateur"
+  },
+  "active_trip": {
+    "finding_vehicle": "Recherche du véhicule premium le plus proche...",
+    "driver": "Chauffeur:",
+    "car": "Voiture:",
+    "eta": "ETA",
+    "cancel_trip": "Annuler le Trajet",
+    "cancel_trip_confirm": "ANNULER LE TRAJET?",
+    "cancel_trip_message": "Êtes-vous sûr de vouloir annuler le trajet ?",
+    "cancel_trip_fee_notice": "Remarque : Des frais d'annulation de 10,00 £ (définis par l'Entreprise) peuvent être facturés sur votre compte.",
+    "resume_trip": "Reprendre le Trajet",
+    "driver_waiting": "Votre chauffeur attend à l'extérieur."
+  },
+  "vehicle_selection": {
+    "title": "SÉLECTIONNER LA CLASSE DU VÉHICULE",
+    "passengers_required": "Passagers (Requis)",
+    "luggage_optional": "Bagages (Optionnel)",
+    "confirm_selection": "Confirmer la Sélection",
+    "capacity_exceeded": "⚠️ Capacité Dépassée",
+    "standard_suitcases": "Valises standards",
+    "max_per_vehicle": "Max {{max}} par véhicule"
+  },
+  "upcoming": {
+    "title": "RÉSERVATIONS À VENIR",
+    "manage_booking": "GÉRER LA RÉSERVATION",
+    "manage_desc": "Besoin d'apporter des modifications à votre prochain voyage ?",
+    "modify": "Modifier"
+  },
+  "history": {
+    "title": "HISTORIQUE DES TRAJETS",
+    "past_trips": "TRAJETS PASSÉS",
+    "post_job_assistance": "ASSISTANCE APRÈS TRAJET",
+    "post_job_desc": "Vous avez oublié un objet dans le véhicule ou besoin d'assistance pour ce trajet ?",
+    "chat_support": "Assistance par Chat",
+    "view_receipt": "Voir le Reçu"
+  },
+  "addresses": {
+    "title": "ADRESSES ENREGISTRÉES",
+    "add_new": "+ Ajouter",
+    "save_address": "Enregistrer l'Adresse"
+  },
+  "payment": {
+    "title": "MOYENS DE PAIEMENT",
+    "add_new": "+ Ajouter un Moyen de Paiement",
+    "default": "Par défaut"
+  },
+  "messaging": {
+    "title": "BOÎTE DE MESSAGERIE",
+    "call_driver": "Appeler le Chauffeur"
+  },
+  "settings": {
+    "title": "PARAMÈTRES",
+    "preferences": "PRÉFÉRENCES",
+    "push_notifications": "Notifications Push",
+    "push_sub": "Mises à jour et alertes du trajet",
+    "location_services": "Services de Localisation",
+    "location_sub": "Requis pour un itinéraire précis",
+    "dark_mode": "Mode Sombre Forcé",
+    "dark_mode_sub": "VELO fonctionne strictement en mode sombre",
+    "language_region": "LANGUE ET RÉGION",
+    "app_display_language": "Langue d'Affichage",
+    "app_display_sub": "Modifie la langue de toute l'interface.",
+    "communication_language": "Langue de Communication Préférée",
+    "communication_sub": "La langue dans laquelle vous écrivez et souhaitez recevoir les messages. Traduction par l'IA.",
+    "security": "SÉCURITÉ",
+    "two_factor": "Authentification à Deux Facteurs (2FA)",
+    "device_management": "Gestion des Appareils"
+  },
+  "profile": {
+    "title": "PROFIL PERSONNEL",
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "phone_number": "Numéro de Téléphone",
+    "email_address": "Adresse E-mail",
+    "home_address": "Adresse Domicile (Par défaut)",
+    "office_address": "Adresse Bureau (Par défaut)",
+    "save_changes": "Enregistrer les Modifications",
+    "change_photo": "Changer la Photo"
+  },
+  "ledger": {
+    "title": "REGISTRE DE VOYAGE",
+    "outstanding_balance": "SOLDE IMPAYÉ",
+    "paid_invoiced": "PAYÉ - FACTURÉ",
+    "download_statement": "Télécharger le Relevé Mensuel de TVA"
+  },
+  "navigation": {
+    "account": "Compte",
+    "tenant": "Entreprise",
+    "settings": "Paramètres"
+  }
+}

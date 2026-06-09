@@ -1,0 +1,130 @@
+{
+  "sidebar": {
+    "close": "✕ إغلاق",
+    "update_profile": "⚙️ اضغط لتحديث تفاصيل الملف الشخصي",
+    "account_switcher": "تبديل الحساب",
+    "personal_account": "حساب شخصي",
+    "personal_sub": "الدفع عبر بطاقة الائتمان / الخصم",
+    "corporate_account": "حساب الشركة",
+    "corporate_sub": "فواتير الشركة (بموافقة الإدارة)",
+    "menu": "القائمة",
+    "upcoming_bookings": "الحجوزات القادمة",
+    "trip_history": "سجل الرحلات",
+    "saved_addresses": "العناوين المحفوظة",
+    "payment_method": "طريقة الدفع",
+    "app_settings": "إعدادات التطبيق",
+    "logout": "تسجيل الخروج",
+    "delete_account": "حذف الحساب"
+  },
+  "home": {
+    "itinerary_routing": "توجيه خط سير الرحلة",
+    "book_a_ride": "احجز رحلة",
+    "add_stop": "إضافة توقف",
+    "pickup_time": "وقت الاصطحاب",
+    "asap": "في أسرع وقت ممكن",
+    "schedule": "جدولة",
+    "time": "الوقت:",
+    "confirm": "تأكيد",
+    "edit": "تعديل",
+    "vehicle_requirements": "متطلبات المركبة",
+    "trip_notes": "ملاحظات الرحلة",
+    "add_instructions": "إضافة تعليمات",
+    "get_quote": "احصل على عرض سعر",
+    "select_account": "اختر الحساب",
+    "cancel": "إلغاء",
+    "trip_itinerary_summary": "ملخص خط سير الرحلة",
+    "estimated_eta": "الوقت المقدر للوصول",
+    "total_fixed_quote": "إجمالي السعر الثابت",
+    "confirm_ride": "تأكيد الرحلة",
+    "submit_admin_approval": "إرسال لموافقة الإدارة"
+  },
+  "active_trip": {
+    "finding_vehicle": "جارٍ البحث عن أقرب مركبة مميزة...",
+    "driver": "السائق:",
+    "car": "السيارة:",
+    "eta": "الوقت المقدر للوصول",
+    "cancel_trip": "إلغاء الرحلة",
+    "cancel_trip_confirm": "إلغاء الرحلة؟",
+    "cancel_trip_message": "هل أنت متأكد أنك تريد إلغاء الرحلة؟",
+    "cancel_trip_fee_notice": "يرجى الملاحظة: قد يتم فرض رسوم إلغاء قدرها 10.00 جنيهات إسترلينية (كما حددها المستأجر) على حسابك.",
+    "resume_trip": "استئناف الرحلة",
+    "driver_waiting": "سائقك ينتظر بالخارج."
+  },
+  "vehicle_selection": {
+    "title": "اختيار فئة المركبة",
+    "passengers_required": "الركاب (مطلوب)",
+    "luggage_optional": "الأمتعة (اختياري)",
+    "confirm_selection": "تأكيد الاختيار",
+    "capacity_exceeded": "⚠️ تم تجاوز السعة",
+    "standard_suitcases": "حقائب سفر عادية",
+    "max_per_vehicle": "الحد الأقصى {{max}} لكل مركبة"
+  },
+  "upcoming": {
+    "title": "الحجوزات القادمة",
+    "manage_booking": "إدارة الحجز",
+    "manage_desc": "هل تحتاج إلى إجراء تغييرات على رحلتك القادمة؟",
+    "modify": "تعديل"
+  },
+  "history": {
+    "title": "سجل الرحلات",
+    "past_trips": "الرحلات السابقة",
+    "post_job_assistance": "المساعدة بعد الرحلة",
+    "post_job_desc": "هل تركت عنصرًا في السيارة أو تحتاج إلى دعم لهذه الرحلة؟",
+    "chat_support": "دعم الدردشة",
+    "view_receipt": "عرض الإيصال"
+  },
+  "addresses": {
+    "title": "العناوين المحفوظة",
+    "add_new": "+ إضافة جديد",
+    "save_address": "حفظ العنوان"
+  },
+  "payment": {
+    "title": "طرق الدفع",
+    "add_new": "+ إضافة طريقة دفع جديدة",
+    "default": "افتراضي"
+  },
+  "messaging": {
+    "title": "قبو الرسائل",
+    "call_driver": "الاتصال بالسائق"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "preferences": "التفضيلات",
+    "push_notifications": "الإشعارات",
+    "push_sub": "تحديثات الرحلة والتنبيهات",
+    "location_services": "خدمات الموقع",
+    "location_sub": "مطلوب للتوجيه الدقيق",
+    "dark_mode": "الوضع الداكن الإلزامي",
+    "dark_mode_sub": "فيلو تعمل بشكل صارم في الوضع الداكن",
+    "language_region": "اللغة والمنطقة",
+    "app_display_language": "لغة عرض التطبيق",
+    "app_display_sub": "يغير لغة واجهة مستخدم التطبيق بأكملها.",
+    "communication_language": "لغة التواصل المفضلة",
+    "communication_sub": "اللغة التي تكتب بها الرسائل، وكيف تريد تلقي الرسائل من السائقين/الشركة. يتم الترجمة عبر الذكاء الاصطناعي.",
+    "security": "الأمان",
+    "two_factor": "المصادقة الثنائية (2FA)",
+    "device_management": "إدارة الأجهزة"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "first_name": "الاسم الأول",
+    "last_name": "اسم العائلة",
+    "phone_number": "رقم الهاتف",
+    "email_address": "عنوان البريد الإلكتروني",
+    "home_address": "عنوان المنزل (الافتراضي)",
+    "office_address": "عنوان المكتب (الافتراضي)",
+    "save_changes": "حفظ التغييرات",
+    "change_photo": "تغيير الصورة"
+  },
+  "ledger": {
+    "title": "دفتر السفر",
+    "outstanding_balance": "الرصيد المستحق",
+    "paid_invoiced": "المدفوع - المفوتر",
+    "download_statement": "تنزيل بيان ضريبة القيمة المضافة الشهري"
+  },
+  "navigation": {
+    "account": "الحساب",
+    "tenant": "المستأجر",
+    "settings": "الإعدادات"
+  }
+}

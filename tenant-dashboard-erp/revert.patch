@@ -1,0 +1,62 @@
+--- src/components/modals/AddVehicleModal.jsx
++++ src/components/modals/AddVehicleModal.jsx
+@@ -3,7 +3,6 @@
+ import { HelpCircle, X, Camera, AlertCircle, Award, Shield, Upload, Building2, MapPin, User, FileText, ShieldCheck } from 'lucide-react';
+ import '../FleetVault.css';
+-import '../UniversalModal.css';
+ 
+ const AddVehicleModal = ({ isOpen, onClose }) => {
+   const [onboardType, setOnboardType] = useState('Fleet');
+@@ -9,16 +8,16 @@
+   if (!isOpen) return null;
+ 
+   return (
+-    <div className="u-modal-overlay" onClick={onClose}>
+-      <div className="u-modal-container" onClick={e => e.stopPropagation()} style={{ maxWidth: '1000px', height: 'auto', maxHeight: '90vh' }}>
++    <div className="modal-overlay">
++      <div className="modal-content add-vehicle-modal surface-panel" style={{ padding: 0 }}>
+          {/* Sticky Header */}
+-         <div className="u-modal-header">
+-           <div className="u-modal-header-left">
+-             <h2 className="u-modal-title">Add New Vehicle</h2>
++         <div className="flex-row space-between px-xl py-lg border-bottom-subtle" style={{ position: 'sticky', top: 0, backgroundColor: 'var(--color-surface)', zIndex: 10, borderTopLeftRadius: 'var(--border-radius-md)', borderTopRightRadius: 'var(--border-radius-md)' }}>
++           <div>
++             <h2 className="text-white m-0">Add New Vehicle</h2>
+            </div>
+-           <div className="u-modal-header-actions">
+-             <button className="text-muted hover-white" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><HelpCircle size={20}/></button>
+-             <button className="u-modal-btn-close" onClick={onClose}>
++           <div className="flex-row gap-md">
++             <button className="text-muted hover-white" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><HelpCircle size={20}/></button>
++             <button className="text-muted hover-white" onClick={onClose} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+@@ -25,6 +24,6 @@
+          
+          {/* Scrollable Body */}
+-         <div className="u-modal-body">
++         <div className="modal-body add-vehicle-body px-xl py-lg">
+            <div className="modal-split-layout" style={{ margin: 0 }}>
+              
+              {/* LEFT COLUMN */}
+@@ -199,12 +198,12 @@
+          </div>
+ 
+          {/* Sticky Footer */}
+-         <div className="u-modal-footer">
+-            <div className="flex-row align-center gap-sm text-muted text-xs font-bold tracking-wider">
++         <div className="px-xl py-lg border-top-subtle flex-row space-between align-center" style={{ position: 'sticky', bottom: 0, backgroundColor: 'var(--color-surface)', zIndex: 10, borderBottomLeftRadius: 'var(--border-radius-md)', borderBottomRightRadius: 'var(--border-radius-md)' }}>
++            <div className="flex-row align-center gap-sm text-muted text-xs font-bold tracking-wider">
+               <ShieldCheck size={16} color="var(--color-gold)" />
+               VERIFIED BY VELO AI SECURITY PROTOCOL
+             </div>
+-            <div className="u-modal-footer-actions">
+-              <button className="p-md rounded border-subtle text-white font-bold" style={{ backgroundColor: 'rgba(255,255,255,0.05)', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)' }}>SAVE DRAFT</button>
+-              <button className="u-modal-btn-primary" onClick={onClose}>REGISTER ASSET TO VAULT</button>
++            <div className="flex-row gap-md">
++              <button className="p-md rounded border-subtle text-white font-bold" style={{ backgroundColor: 'rgba(255,255,255,0.05)', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)' }}>SAVE DRAFT</button>
++              <button className="btn-primary font-bold" onClick={onClose}>REGISTER ASSET TO VAULT</button>
+             </div>
+          </div>
+        </div>

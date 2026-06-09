@@ -1,0 +1,80 @@
+{
+  "sidebar": {
+    "close": "✕  XIR",
+    "update_profile": "⚙️  Taabo si aad u cusbooneysiiso profile-ka",
+    "status_active": "• WUU FIRFIRCOON YAHAY & WUU QAADANAYAA DALABAADKA",
+    "dispatch_radar": "Raadaarka Dalabaadka",
+    "upcoming_runs": "Safarrada Soo Socda",
+    "shift_journal": "Diiwaanka Shaqada",
+    "payroll_wallet": "Mushaharka iyo Jeebka",
+    "fleet_settings": "Xeerarka Gaadiidka",
+    "logout": "Ka Bax"
+  },
+  "radar": {
+    "conflict_detected": "⚠️ KHILAAF JADWAL AYAA LA HELAY",
+    "conflict_desc": "Fadlan dib u eeg dalabaadka iska hor imaanaya ee hoose. Aqbalida mid waxay si toos ah u tirtiri doontaa kuwa kale.",
+    "pickup_time": "WAQTIGA QAADIDA EE LA CODSADAY",
+    "trip_request": "CODSIGA SAFARKA"
+  },
+  "active_trip": {
+    "map_initialising": "📍 KHARIIDADA AYAA BILAABANEYSA",
+    "pickup_address_payout": "📍 CINWAANKA QAADIDA | LACAGTA LA BIXINAYO: £{{payout}}",
+    "en_route": "Waddada: {{time}} ({{distance}})",
+    "in_transit": "Wuu Socdaa: {{time}} ({{distance}})",
+    "grace_period": "⏱️  WAQTIGA SUGITAANKA RAKAABKA",
+    "grace_remaining": "Inta Harsan:",
+    "paging_board": "☆   TAABO SI AAD U FURTO BOORKA SOO DHAWEYNTA",
+    "cabin_presentation": "📷   TAABO SI AAD U QAADO SAWIRKA KURSIYADA DAMBE",
+    "cabin_captured": "✓ SAWIRKA WAA LA QAADAY",
+    "request_cancellation": "🛑   CODSADA JOOJINTA",
+    "execute_no_show": "🟥   FULI JOOJINTA QOFKA YIMAA WAAYEY"
+  },
+  "cancellation": {
+    "title": "JOOJI SAFARKA",
+    "select_reason": "Fadlan dooro sababta aad u joojinayso safarkan.",
+    "reason_vehicle_issue": "Cilad Gaari",
+    "reason_too_small": "Gaariga oo aad u yar",
+    "reason_too_many_bags": "Shandadaha oo aad u badan",
+    "reason_other": "Mid kale (Fadlan sheeg)",
+    "optional_notes": "Qoraalo Dheeraad ah...",
+    "confirm_cancellation": "Xaqiiji Joojinta",
+    "close": "Xir"
+  },
+  "post_trip": {
+    "completed": "SAFARKA WAA LAA DHAMEYSTIRAY SI GUUL AH",
+    "payout": "LACAG BIXINTA",
+    "rate_customer": "QIIMEE MACMIILKA",
+    "optional_feedback": "Fikrad Dheeraad ah...",
+    "journal_title": "DIIWAANKA DAKHLIGA SAAFIGA AH EE SHAQADA",
+    "base_earnings": "Dakhliga Asaasiga ah",
+    "gratuity": "Bakhshiishka Macmiilka",
+    "total_payout": "Wadarta Lacagta Shaqada lagu Daray",
+    "trip_duration": "Muddada Safarka",
+    "distance_driven": "Masaafada la kaxeeyay",
+    "submit": "GUDBI",
+    "add_expense": "[ KU DAR KHARASHKA SAFARKA ]"
+  },
+  "settings": {
+    "title": "XEERARKA GAADIIDKA",
+    "personalisation": "DORASHADA SHAKHSIGA AH",
+    "auto_accept": "Si toos ah u aqbal dalabaadka",
+    "turn_by_turn": "Codsiyada Codka Tallaabo-Tallaabo",
+    "force_dark": "Ku qasab Khariidada Habka Madow",
+    "multi_tenant": "NIDAAMKA DALABAADKA BADAN",
+    "language": "LUQADDA APP-KA",
+    "language_sub": "Beddel luqadda. Waxay taageertaa qaabaynta RTL."
+  },
+  "profile": {
+    "account_details": "FAAHFAAHINTA AKOONKA",
+    "chauffeur_id": "AQOONSIGA DARAWAALKA: ",
+    "wage_contract": "QANDARAASKA MUSHAHARKA",
+    "percentage": "BOQOLKIBA (80/20)",
+    "salaried": "MUSHAHAR GO'AN",
+    "name": "MAGACA (MAAMULKA AYAA XIRAY)",
+    "phone": "LAMBARKA TELEFOONKA",
+    "address": "CINWAANKA SHAQADA",
+    "update_photo": "[ CUSBOONEYSII SAWIRKA ]",
+    "save": "[ KEYDI ]",
+    "back": "◀  KUSOO NOQO MENU-GA"
+  }
+}

@@ -1,24 +1,20 @@
 import React, { useState } from 'react';
 import { Filter, Search, Mail, Plus, AlertTriangle, ShieldCheck, Shield, User } from 'lucide-react';
-import PrivateClientProfileModal from './PrivateClientProfileModal';
+import { useEntityLinker } from '../contexts/EntityLinkerContext';
+import EntityLink from './EntityLink';
 import './PrivateClientRegistry.css';
 import './UniversalGrid.css';
 import { MOCK_PRIV_CLIENTS as MOCK_CLIENTS } from '../data/mockDatabase';
 
 
 const PrivateClientRegistry = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isNew, setIsNew] = useState(false);
-
-  const handleOpenProfile = () => {
-    setIsNew(false);
-    setIsModalOpen(true);
-  };
+  const { openClientProfile, openSummaryModal } = useEntityLinker();
 
   const handleOnboardClient = () => {
-    setIsNew(true);
-    setIsModalOpen(true);
+    openClientProfile('New Client');
   };
+
+
 
   return (
     <div className="pcr-container">
@@ -72,7 +68,7 @@ const PrivateClientRegistry = () => {
 
       <div className="u-grid">
         {MOCK_CLIENTS.map((c, i) => (
-          <div key={i} className="u-card" onClick={handleOpenProfile} style={{ cursor: 'pointer' }}>
+          <div key={i} className="u-card" onClick={() => openClientProfile(c.name)} style={{ cursor: 'pointer' }}>
             <div className="u-card-header">
               <div className="u-card-header-left">
                 <span className="u-card-id" style={{ fontSize: '10px' }}>{c.type || 'Private Client'}</span>
@@ -150,14 +146,22 @@ const PrivateClientRegistry = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Alexander Sterling</td>
+              <tr className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
+                title: 'Booking Audit', subtitle: 'Alexander Sterling', status: 'Completed', icon: 'file',
+                primaryMetric: { label: 'CLASS', value: 'First Class' },
+                fields: [{label: 'Route', value: 'LHR ➔ Mayfair'}, {label: 'Security', value: 'CLEARED'}]
+              })}>
+                <td><EntityLink type="Client">Alexander Sterling</EntityLink></td>
                 <td style={{ color: 'var(--color-text-secondary)' }}>LHR ➔ Mayfair</td>
                 <td className="pcr-val-gold">First Class</td>
                 <td><span className="pcr-val-encrypted">CLEARED</span></td>
               </tr>
-              <tr>
-                <td>Lady Victoria Hughes</td>
+              <tr className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
+                title: 'Booking Audit', subtitle: 'Lady Victoria Hughes', status: 'Completed', icon: 'file',
+                primaryMetric: { label: 'CLASS', value: 'First Class' },
+                fields: [{label: 'Route', value: 'Kensington ➔ Farnborough'}, {label: 'Security', value: 'CLEARED'}]
+              })}>
+                <td><EntityLink type="Client">Lady Victoria Hughes</EntityLink></td>
                 <td style={{ color: 'var(--color-text-secondary)' }}>Kensington ➔ Farnborough</td>
                 <td className="pcr-val-gold">First Class</td>
                 <td><span className="pcr-val-encrypted">CLEARED</span></td>
@@ -202,8 +206,6 @@ const PrivateClientRegistry = () => {
           <span>Compliance</span>
         </div>
       </div>
-
-      <PrivateClientProfileModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} isNew={isNew} />
     </div>
   );
 };

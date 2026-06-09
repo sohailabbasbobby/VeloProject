@@ -16,8 +16,10 @@
 }
 
 .u-modal-container {
-  width: 900px;
-  height: 750px;
+  width: 95vw;
+  max-width: 1400px;
+  height: 90vh;
+  max-height: 900px;
   background-color: var(--color-onyx, #070708);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--border-radius-lg, 12px);
@@ -101,11 +103,92 @@
 }
 
 .u-modal-body {
-  flex: 1; /* Automatically takes remaining space (~600px) */
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 24px;
   background-color: var(--color-onyx, #070708);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
+
+/* =========================================
+   UNIVERSAL DATA TABLE — Anti-Blank Policy
+   Used across ALL modals. Tables ALWAYS fill
+   100% width with equal column distribution.
+   ========================================= */
+
+.u-modal-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 2px;
+  table-layout: fixed;
+}
+
+.u-modal-table thead th {
+  padding: 10px 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--color-text-muted, #888);
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background-color: rgba(255,255,255,0.03);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.u-modal-table tbody tr {
+  background-color: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.u-modal-table tbody tr:hover {
+  background-color: rgba(255,255,255,0.05);
+  border-color: rgba(212,175,55,0.15);
+}
+
+.u-modal-table tbody td {
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #ccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.u-modal-table tbody td:first-child {
+  color: var(--color-text-secondary, #aaa);
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 11px;
+}
+
+.u-modal-table .col-gold { color: #34c759; font-weight: 600; }
+.u-modal-table .col-warn { color: #f59e0b; }
+.u-modal-table .col-danger { color: #ef4444; }
+.u-modal-table .col-muted { color: var(--color-text-muted, #666); font-size: 11px; }
+
+/* Table wrapper: always fills available vertical space */
+.u-table-wrapper {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 6px;
+  overflow-x: hidden;
+}
+
+.u-table-wrapper::-webkit-scrollbar { width: 4px; }
+.u-table-wrapper::-webkit-scrollbar-track { background: transparent; }
+.u-table-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
 /* Custom scrollbar for modal body */
 .u-modal-body::-webkit-scrollbar {
@@ -392,10 +475,42 @@
 }
 
 .u-metric-label {
-  font-size: 11px;
+  font-size: 14px;
   color: #fff;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   font-weight: 700;
   text-transform: uppercase;
   text-align: center;
+}
+
+/* ── Universal Profile Link ────────────────────────────────────────────────
+   .velo-profile-link: apply to any span/button that opens a profile modal.
+   Variants: .gold (driver names), .subtle (vehicle, secondary data)
+   ────────────────────────────────────────────────────────────────────────── */
+.velo-profile-link {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(212, 175, 55, 0.35);
+  text-underline-offset: 3px;
+  transition: color 0.18s, text-decoration-color 0.18s;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+}
+.velo-profile-link:hover {
+  color: var(--color-gold, #D4AF37);
+  text-decoration-color: var(--color-gold, #D4AF37);
+}
+.velo-profile-link.gold {
+  color: var(--color-gold, #D4AF37);
+}
+.velo-profile-link.subtle {
+  color: var(--color-text-secondary, #aaa);
+  text-decoration-color: rgba(255, 255, 255, 0.15);
+}
+.velo-profile-link.subtle:hover {
+  color: #fff;
+  text-decoration-color: rgba(255, 255, 255, 0.5);
 }

@@ -1,0 +1,80 @@
+{
+  "sidebar": {
+    "close": "✕  ÎNCHIDE",
+    "update_profile": "⚙️  Atingeți pentru a actualiza profilul",
+    "status_active": "• ACTIV ȘI PRIMEȘTE COMENZI",
+    "dispatch_radar": "Radar Comenzi",
+    "upcoming_runs": "Curse Viitoare",
+    "shift_journal": "Jurnalul Turei",
+    "payroll_wallet": "Salarizare și Portofel",
+    "fleet_settings": "Setări Flotă",
+    "logout": "Deconectare"
+  },
+  "radar": {
+    "conflict_detected": "⚠️ CONFLICT DE PROGRAM DETECTAT",
+    "conflict_desc": "Vă rugăm să revizuiți solicitările conflictuale de mai jos. Acceptarea uneia le va anula automat pe celelalte.",
+    "pickup_time": "ORA DE PRELUARE SOLICITATĂ",
+    "trip_request": "CERERE DE CURSĂ"
+  },
+  "active_trip": {
+    "map_initialising": "📍 SE INIȚIALIZEAZĂ HARTA",
+    "pickup_address_payout": "📍 ADRESĂ PRELUARE | PLATĂ NETĂ ALOCATĂ: £{{payout}}",
+    "en_route": "Pe drum: {{time}} ({{distance}})",
+    "in_transit": "În tranzit: {{time}} ({{distance}})",
+    "grace_period": "⏱️  PERIOADA DE GRAȚIE PENTRU PASAGER",
+    "grace_remaining": "Grație rămasă:",
+    "paging_board": "☆   ATINGEȚI PENTRU A DESCHIDE TABLA DIGITALĂ DE ÎNTÂMPINARE",
+    "cabin_presentation": "📷   ATINGEȚI PENTRU A FOTOGRAFIA CABINA DIN SPATE",
+    "cabin_captured": "✓ CABINA A FOST FOTOGRAFIATĂ CU SUCCES",
+    "request_cancellation": "🛑   SOLICITARE ANULARE",
+    "execute_no_show": "🟥   EXECUTĂ ANULAREA (CLIENT NEPREZENTAT)"
+  },
+  "cancellation": {
+    "title": "ANULEAZĂ CURSA",
+    "select_reason": "Vă rugăm să selectați un motiv pentru anularea acestei curse.",
+    "reason_vehicle_issue": "Problemă la Vehicul",
+    "reason_too_small": "Vehicul Prea Mic",
+    "reason_too_many_bags": "Prea Multe Bagaje",
+    "reason_other": "Altele (Vă rugăm să specificați)",
+    "optional_notes": "Note Opționale...",
+    "confirm_cancellation": "Confirmă Anularea",
+    "close": "Închide"
+  },
+  "post_trip": {
+    "completed": "CURSA A FOST FINALIZATĂ CU SUCCES",
+    "payout": "PLATĂ",
+    "rate_customer": "EVALUEAZĂ CLIENTUL",
+    "optional_feedback": "Feedback Opțional...",
+    "journal_title": "JURNAL VENIT NET PE TURĂ",
+    "base_earnings": "Câștiguri Nete de Bază",
+    "gratuity": "Bacșiș Client",
+    "total_payout": "Total Plăți Adăugate pe Tură",
+    "trip_duration": "Durata Cursei",
+    "distance_driven": "Distanța Parcursă",
+    "submit": "TRIMITE",
+    "add_expense": "[ ADAUGĂ CHELTUIELI DE CURSĂ ]"
+  },
+  "settings": {
+    "title": "SETĂRI FLOTĂ",
+    "personalisation": "OPȚIUNI DE PERSONALIZARE",
+    "auto_accept": "Acceptă Automat Comenzile din Radar",
+    "turn_by_turn": "Indicații Vocale Pas cu Pas",
+    "force_dark": "Forțează Modul Întunecat pe Hartă",
+    "multi_tenant": "CANALE DE DISTRIBUȚIE MULTI-CLIENT",
+    "language": "LIMBA APLICAȚIEI",
+    "language_sub": "Schimbați limba interfeței. Suportă formate de la dreapta la stânga (RTL)."
+  },
+  "profile": {
+    "account_details": "DETALII CONT",
+    "chauffeur_id": "ID ȘOFER: ",
+    "wage_contract": "CONTRACT DE SALARIZARE",
+    "percentage": "PROCENTAJ (80/20)",
+    "salaried": "SALARIAT",
+    "name": "NUME (BLOCAT DE ADMIN)",
+    "phone": "NUMĂR DE TELEFON MOBIL",
+    "address": "ADRESA OPERAȚIONALĂ",
+    "update_photo": "[ ACTUALIZARE FOTO ]",
+    "save": "[ SALVEAZĂ ]",
+    "back": "◀  ÎNAPOI LA MENIU"
+  }
+}

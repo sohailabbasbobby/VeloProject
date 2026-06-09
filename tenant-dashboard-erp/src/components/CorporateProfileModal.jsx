@@ -4,7 +4,10 @@ import corporateLogo from '../assets/corporate-logo-placeholder.png';
 import './CorporateProfileModal.css';
 import './UniversalModal.css';
 import './CommandCenter.css';
-import ConciergeFeed from './ConciergeFeed'; // Import for cc-table styles
+import ConciergeFeed from './ConciergeFeed';
+import LiveTripModal from './LiveTripModal';
+import UniversalTripTable from './UniversalTripTable';
+import { useEntityLinker } from '../contexts/EntityLinkerContext';
 
 const FastCarIcon = ({ size = 20, className = "" }) => (
   <svg width={size} height={size * 0.4} viewBox="0 0 100 40" className={className} xmlns="http://www.w3.org/2000/svg">
@@ -31,9 +34,11 @@ const FastCarIcon = ({ size = 20, className = "" }) => (
 );
 
 const MOCK_ACTIVE_BOOKINGS = [
-  { id: '#VELO-9842', channel: 'Velo Black', status: 'On Trip', driver: 'James Smith', vehicle: 'RR Phantom', route: 'Heathrow T5 to Mayfair', progress: 75, timeToFree: '12m' },
-  { id: '#VELO-9844', channel: 'Velo Core', status: 'Completed', driver: 'Marcus F.', vehicle: 'S-Class', route: 'Luton to Canary Wharf', progress: 100, timeToFree: 'Now' },
-  { id: '#VELO-9848', channel: 'Velo Black', status: 'On Trip', driver: 'Tom W.', vehicle: 'RR Ghost', route: 'City Airport to O2 Arena', progress: 90, timeToFree: '4m' },
+  { id: '#VELO-9842', channel: 'Velo Black', status: 'On Trip',              driver: 'James Smith',  vehicle: 'RR Phantom (KX21)',  passenger: 'C. Harrington',   client: 'J.P. Morgan',    route: 'Heathrow T5 to Mayfair',      progress: 75,  timeToFree: '12m'  },
+  { id: '#VELO-9844', channel: 'Velo Core',  status: 'Completed',            driver: 'Marcus F.',    vehicle: 'S-Class (Black)',    passenger: 'R. Goldman',      client: 'Goldman Sachs',  route: 'Luton to Canary Wharf',        progress: 100, timeToFree: 'Now'  },
+  { id: '#VELO-9848', channel: 'Velo Black', status: 'On Trip',              driver: 'Tom W.',       vehicle: 'RR Ghost',           passenger: 'L. Morgan',       client: 'Morgan Stanley', route: 'City Airport to O2 Arena',    progress: 90,  timeToFree: '4m'   },
+  { id: '#VELO-9851', channel: 'Pool',       status: 'Assigned',             driver: 'Elena R.',     vehicle: 'Bentley Bentayga',   passenger: 'Sir J. Whitmore', client: 'HSBC Capital',   route: 'Canary Wharf to LHR T5',      progress: 0,   timeToFree: '35m'  },
+  { id: '#VELO-9852', channel: 'Velo Core',  status: 'On the way to Pickup', driver: 'A. Patel',     vehicle: 'S-Class (Midnight)', passenger: 'P. Chen',         client: 'Barclays Corp',  route: 'St. James to Heathrow T4',    progress: 20,  timeToFree: '18m'  },
 ];
 
 const MOCK_INVOICES = [
@@ -114,11 +119,13 @@ const SpendTrendSparkline = ({ data }) => {
   );
 };
 
-const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
+const CorporateProfileModal = ({ isOpen, onClose, isNew, client }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(isNew || false);
   const [expandedInvoices, setExpandedInvoices] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedTrip, setSelectedTrip] = useState(null);
+  const { openSummaryModal } = useEntityLinker();
 
   const toggleInvoice = (id) => {
     setExpandedInvoices(prev => ({ ...prev, [id]: !prev[id] }));
@@ -126,8 +133,28 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
 
   if (!isOpen) return null;
 
+  const name = isNew ? "New Corporate Client" : (client?.name || "Corporate Account");
+  const logo = isNew ? corporateLogo : (client?.logo || corporateLogo);
+  const sector = client?.sector || 'Corporate';
+  const tier = client?.tier || 'EXECUTIVE ELITE';
+  const balance = client?.balance || "$0.00";
+  const manager = client?.manager || "Unassigned";
+  const status = client?.status || "ACTIVE";
+  const statusClass = client?.statusClass || "active-acc";
+  
+  const primaryPhone = client?.contact?.primaryPhone || "+44 20 7946 0000";
+  const financePhone = client?.contact?.financePhone || "+44 20 7946 0885";
+  const primaryContact = client?.contact?.primaryContact || "Unassigned";
+  const financeEmail = client?.contact?.financeEmail || "finance@example.com";
+  
+  const authorizedUsers = client?.authorizedUsers || [];
+  const invoices = client?.invoices?.length ? client.invoices : (MOCK_CORP_CLIENTS?.[0]?.invoices || MOCK_INVOICES || []);
+
   return (
     <div className="u-modal-overlay" onClick={onClose}>
+      {selectedTrip && (
+        <LiveTripModal trip={selectedTrip} onClose={() => setSelectedTrip(null)} />
+      )}
       <div className="u-modal-container" onClick={e => e.stopPropagation()}>
         
         {/* Header */}
@@ -146,9 +173,9 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
         </div>
 
         <div className="u-modal-hero" style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '0' }}>
-          <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
             <div className="u-modal-hero-avatar-container">
-              <img src={corporateLogo} alt="Corporate Logo" className="u-modal-hero-avatar" />
+              <img src={logo} alt="Corporate Logo" className="u-modal-hero-avatar" />
               {isEditing && (
                 <button className="u-modal-hero-upload-btn">
                   <Camera size={16} />
@@ -156,27 +183,27 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
               )}
             </div>
             <div className="u-modal-hero-info" style={{ flexGrow: 1 }}>
-              <h1 className="u-modal-hero-title" style={{ fontSize: '28px', marginBottom: '8px' }}>{isNew ? "New Corporate Client" : "Aetheris Global Holdings"}</h1>
-              <p className="u-modal-hero-subtitle" style={{ fontSize: '14px', letterSpacing: '1px' }}>Hedge Fund / Private Equity • <span style={{color: 'var(--color-gold)'}}>EXECUTIVE ELITE</span></p>
+              <h1 className="u-modal-hero-title" style={{ fontSize: '28px', marginBottom: '8px' }}>{name}</h1>
+              <p className="u-modal-hero-subtitle" style={{ fontSize: '14px', letterSpacing: '1px' }}>{sector} • <span style={{color: 'var(--color-gold)'}}>{tier}</span></p>
             </div>
           </div>
           
           <div className="u-modal-hero-persistent-info" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Primary Phone</span>
-                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>+44 20 7946 0881</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>{primaryPhone}</span>
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Finance Email</span>
-                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>finance@aetheris-global.com</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>{financeEmail}</span>
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Primary Contact</span>
-                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>Julian Thorne</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>{primaryContact}</span>
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Account Status</span>
-                <span style={{ fontSize: '13px', color: 'var(--status-completed)', fontWeight: 'bold' }}>ACTIVE</span>
+                <span style={{ fontSize: '13px', color: 'var(--status-completed)', fontWeight: 'bold' }}>{status}</span>
              </div>
           </div>
         </div>
@@ -353,61 +380,29 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
           )}
 
           {activeTab === 'bookings' && (
-            <div className="u-modal-tab-content u-modal-bookings-tab">
-              <div className="u-metric-row" style={{ marginBottom: '24px', display: 'flex', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px', minHeight: 0 }}>
+              {/* KPI bar */}
+              <div style={{ flex: '0 0 auto', display: 'flex', gap: '16px' }}>
                 <div className="u-metric-massive" style={{ borderColor: 'var(--color-gold)', backgroundColor: 'rgba(212,175,55,0.05)' }}>
-                  <div className="u-metric-number"><CarFront size={32} />2</div>
+                  <div className="u-metric-number"><CarFront size={28} />2</div>
                   <div className="u-metric-label">ACTIVE BOOKINGS</div>
                 </div>
                 <div className="u-metric-massive">
-                  <div className="u-metric-number"><CheckCircle size={32} />1</div>
+                  <div className="u-metric-number"><CheckCircle size={28} />1</div>
                   <div className="u-metric-label">COMPLETED</div>
                 </div>
                 <div className="u-metric-massive">
-                  <div className="u-metric-number"><Calendar size={32} />4</div>
+                  <div className="u-metric-number"><Calendar size={28} />4</div>
                   <div className="u-metric-label">UPCOMING</div>
                 </div>
               </div>
-
-              <div className="cc-table-container">
-                <table className="cc-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: '10%' }}>TASK ID</th>
-                      <th style={{ width: '15%' }}>STATUS</th>
-                      <th style={{ width: '15%' }}>DRIVER</th>
-                      <th style={{ width: '15%' }}>VEHICLE</th>
-                      <th style={{ width: '25%' }}>ROUTE DETAIL</th>
-                      <th className="text-right" style={{ width: '15%' }}>TIME-TO-FREE</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {MOCK_ACTIVE_BOOKINGS.map(task => (
-                      <tr key={task.id} className="cc-card-row">
-                        <td className="text-gold font-bold">{task.id}</td>
-                        <td><span className={`cc-status-badge ${getStatusClass(task.status)}`}>{task.status}</span></td>
-                        <td><span className="cc-mock-link">{task.driver}</span></td>
-                        <td><span className="cc-mock-link">{task.vehicle}</span></td>
-                        <td className="text-white">{task.route}</td>
-                        <td className="text-right" style={{ paddingRight: '24px' }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                            <span className="cc-metric" style={{ color: 'var(--color-gold)' }}>{task.timeToFree}</span>
-                            <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>Mins</span>
-                          </div>
-                        </td>
-                        <div className="cc-row-progress-bar">
-                           <div className={`cc-row-progress-fill ${getStatusClass(task.status)}`} style={{ width: `${task.progress}%` }}>
-                              <div className="cc-progress-content">
-                                 <FastCarIcon size={32} className="cc-progress-car-icon" />
-                                 <span className="cc-progress-text">{task.progress > 0 ? `${task.progress}%` : ''}</span>
-                              </div>
-                           </div>
-                        </div>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              {/* Universal trip table — same layout as home screen */}
+              <UniversalTripTable
+                trips={MOCK_ACTIVE_BOOKINGS}
+                onTripClick={trip => setSelectedTrip(trip)}
+                showChannel={true}
+                emptyMessage="No active bookings for this account."
+              />
             </div>
           )}
 
@@ -504,52 +499,26 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                       <th style={{ width: '20%' }}>STATUS</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {MOCK_INVOICES.map(inv => (
-                      <React.Fragment key={inv.id}>
-                        <tr className="cc-card-row" onClick={() => toggleInvoice(inv.id)}>
-                          <td style={{ textAlign: 'center' }}>
-                            {expandedInvoices[inv.id] ? <ChevronUp size={16} color="var(--color-gold)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
-                          </td>
-                          <td className="text-gold font-bold">{inv.id}</td>
-                          <td className="text-white">{inv.date}</td>
-                          <td className="text-white">{inv.trips}</td>
-                          <td className="text-white font-bold">{inv.amount}</td>
-                          <td><span className={`cc-status-badge ${getStatusClass(inv.status)}`}>{inv.status}</span></td>
-                        </tr>
-                        {expandedInvoices[inv.id] && (
-                          <tr className="u-modal-nested-row">
-                            <td colSpan="6" style={{ padding: '0 24px 16px 24px', backgroundColor: 'rgba(255,255,255,0.01)' }}>
-                              <div className="u-modal-nested-table-container">
-                                <table className="cc-table" style={{ marginTop: '8px' }}>
-                                  <thead>
-                                    <tr>
-                                      <th style={{ width: '20%' }}>TRIP ID</th>
-                                      <th style={{ width: '40%' }}>ROUTE</th>
-                                      <th style={{ width: '20%' }}>DATE</th>
-                                      <th style={{ width: '20%' }}>AMOUNT</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr className="cc-card-row" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                                      <td className="text-gold font-bold">#VELO-9801</td>
-                                      <td className="text-white">Heathrow to Mayfair</td>
-                                      <td className="text-white">{inv.date}</td>
-                                      <td className="text-white font-bold">$450</td>
-                                    </tr>
-                                    <tr className="cc-card-row" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                                      <td className="text-gold font-bold">#VELO-9802</td>
-                                      <td className="text-white">Mayfair to Gatwick</td>
-                                      <td className="text-white">{inv.date}</td>
-                                      <td className="text-white font-bold">$550</td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
+                                    <tbody>
+                    {invoices.map((inv) => (
+                      <tr key={inv.id} className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
+                        title: 'Corporate Invoice Detail', subtitle: inv.id, status: inv.status, icon: 'financial',
+                        primaryMetric: { label: 'TOTAL AMOUNT', value: inv.amount },
+                        fields: [
+                          { label: 'Date Issued', value: inv.date },
+                          { label: 'Total Trips', value: inv.trips?.length || inv.trips },
+                          { label: 'Status', value: inv.status }
+                        ]
+                      })}>
+                        <td style={{ textAlign: 'center' }}>
+                          <Receipt size={16} color="var(--color-text-muted)" />
+                        </td>
+                        <td className="text-gold font-bold">{inv.id}</td>
+                        <td className="text-white">{inv.date}</td>
+                        <td className="text-white">{inv.trips?.length || inv.trips}</td>
+                        <td className="text-white font-bold">{inv.amount}</td>
+                        <td><span className={`cc-status-badge cc-status-${inv.status.toLowerCase()}`}>{inv.status}</span></td>
+                      </tr>
                     ))}
                   </tbody>
                 </table>
@@ -595,13 +564,21 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr className="cc-card-row">
+                        <tr className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
+                          title: 'User Booking Detail', subtitle: '#VELO-8801', status: 'Completed', icon: 'file',
+                          primaryMetric: { label: 'FARE', value: '$250' },
+                          fields: [{label: 'Route', value: 'Heathrow to City'}, {label: 'Date', value: '14 Jun 2026'}]
+                        })}>
                           <td className="text-gold font-bold">#VELO-8801</td>
                           <td className="text-white">Heathrow to City</td>
                           <td className="text-white">14 Jun 2026</td>
                           <td className="text-white font-bold">$250</td>
                         </tr>
-                        <tr className="cc-card-row">
+                        <tr className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
+                          title: 'User Booking Detail', subtitle: '#VELO-8815', status: 'Completed', icon: 'file',
+                          primaryMetric: { label: 'FARE', value: '$120' },
+                          fields: [{label: 'Route', value: 'City to Mayfair'}, {label: 'Date', value: '16 Jun 2026'}]
+                        })}>
                           <td className="text-gold font-bold">#VELO-8815</td>
                           <td className="text-white">City to Mayfair</td>
                           <td className="text-white">16 Jun 2026</td>
@@ -617,78 +594,45 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew }) => {
                     <UserCheck size={16} /> AUTHORIZED PERSONNEL
                   </div>
                   <div className="cpm-user-grid">
-                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Eleanor Vance', role: 'Executive Assistant', email: 'eleanor@aetheris-global.com', phone: '+44 7700 900077'})}>
-                      <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-gold)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
-                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
-                        <div className="cpm-user-avatar">
-                          <User size={20} />
+                    {authorizedUsers.map((user, idx) => (
+                      <div key={idx} className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser(user)}>
+                        <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-gold)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
+                        <div className="cpm-user-header" style={{ marginTop: '16px' }}>
+                          <div className="cpm-user-avatar">
+                            <User size={20} />
+                          </div>
+                          <div className="cpm-user-info">
+                            <div className="cpm-user-name">{user.name}</div>
+                            <div className="cpm-user-role">{user.role}</div>
+                          </div>
                         </div>
-                        <div className="cpm-user-info">
-                          <div className="cpm-user-name">Eleanor Vance</div>
-                          <div className="cpm-user-role">Executive Assistant</div>
+                        <div className="cpm-user-contact">
+                          <div>{user.email}</div>
+                          <div>{user.phone}</div>
                         </div>
-                      </div>
-                      <div className="cpm-user-contact">
-                        <div>eleanor@aetheris-global.com</div>
-                        <div>+44 7700 900077</div>
-                      </div>
-                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
-                        <span className="cpm-user-status active">Booking Permitted</span>
-                        <button className="cpm-toggle-btn active">
-                          <div className="cpm-toggle-knob"></div>
-                        </button>
-                      </div>
-                    </div>
-                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid var(--color-gold)'}} onClick={() => setSelectedUser({name: 'Marcus Thorne', role: 'Managing Director', email: 'marcus@aetheris-global.com', phone: '+44 7700 900124'})}>
-                      <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-gold)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
-                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
-                        <div className="cpm-user-avatar">
-                          <User size={20} />
-                        </div>
-                        <div className="cpm-user-info">
-                          <div className="cpm-user-name">Marcus Thorne</div>
-                          <div className="cpm-user-role">Managing Director</div>
+                        <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
+                          <span className={`cpm-user-status ${user.status === 'Booking Permitted' ? 'active' : 'inactive'}`}>{user.status}</span>
+                          <button className={`cpm-toggle-btn ${user.status === 'Booking Permitted' ? 'active' : 'inactive'}`}>
+                            <div className="cpm-toggle-knob"></div>
+                          </button>
                         </div>
                       </div>
-                      <div className="cpm-user-contact">
-                        <div>marcus@aetheris-global.com</div>
-                        <div>+44 7700 900124</div>
-                      </div>
-                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
-                        <span className="cpm-user-status active">Booking Permitted</span>
-                        <button className="cpm-toggle-btn active">
-                          <div className="cpm-toggle-knob"></div>
-                        </button>
-                      </div>
-                    </div>
-                    <div className="cpm-user-card" style={{cursor: 'pointer', border: '1px solid rgba(255,255,255,0.2)'}} onClick={() => setSelectedUser({name: 'Sarah Jenkins', role: 'Former Employee', email: 'sarah@aetheris-global.com', phone: '+44 7700 900888'})}>
-                      <div style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '9px', color: 'var(--color-text-muted)', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>Click to View Profile</div>
-                      <div className="cpm-user-header" style={{ marginTop: '16px' }}>
-                        <div className="cpm-user-avatar" style={{backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d'}}>
-                          <UserX size={20} />
-                        </div>
-                        <div className="cpm-user-info">
-                          <div className="cpm-user-name">Sarah Jenkins</div>
-                          <div className="cpm-user-role">Former Employee</div>
-                        </div>
-                      </div>
-                      <div className="cpm-user-contact">
-                        <div>sarah@aetheris-global.com</div>
-                        <div>+44 7700 900888</div>
-                      </div>
-                      <div className="cpm-user-actions" onClick={e => e.stopPropagation()}>
-                        <span className="cpm-user-status inactive">Booking Revoked</span>
-                        <button className="cpm-toggle-btn inactive">
-                          <div className="cpm-toggle-knob"></div>
-                        </button>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </>
               )}
             </div>
           )}
         </div>
+
+        
+          {activeTab === 'engagement' && (
+            <div className="u-modal-tab-content" style={{ padding: 0 }}>
+              <ConciergeFeed clientName={name} />
+            </div>
+          )}
+
+
 
         {/* Persistent Footer */}
         <div className="u-modal-footer">

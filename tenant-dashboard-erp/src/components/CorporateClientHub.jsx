@@ -1,32 +1,28 @@
 import React, { useState } from 'react';
 import { Filter, Search, Mail, Plus, AlertTriangle, ShieldCheck, Shield, Building2 } from 'lucide-react';
-import CorporateProfileModal from './CorporateProfileModal';
+import { useEntityLinker } from '../contexts/EntityLinkerContext';
+import EntityLink from './EntityLink';
 import './CorporateClientHub.css';
 import './UniversalGrid.css';
 import { MOCK_CORP_CLIENTS as MOCK_CORPORATE } from '../data/mockDatabase';
 
 
 const CorporateClientHub = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isNew, setIsNew] = useState(false);
-
-  const handleOpenProfile = () => {
-    setIsNew(false);
-    setIsModalOpen(true);
-  };
+  const { openClientProfile, openSummaryModal } = useEntityLinker();
 
   const handleOnboardClient = () => {
-    setIsNew(true);
-    setIsModalOpen(true);
+    openClientProfile('New Client');
   };
+
+
 
   return (
     <div className="cch-container">
       {/* Header & Metrics */}
       <div className="cch-header">
         <div className="cch-title-group">
-          <h1 className="cch-title">Corporate Client Hub</h1>
-          <span className="cch-subtitle">Centralized oversight for Tier-1 corporate account management.</span>
+          <h1 className="cch-title">Corporate Account Portal</h1>
+          <span className="cch-subtitle">Excellence in Motion. | Centralized oversight for Tier-1 corporate account management.</span>
         </div>
         <div className="cch-alert-badge">
           <AlertTriangle size={14} />
@@ -77,7 +73,7 @@ const CorporateClientHub = () => {
 
       <div className="u-grid">
         {MOCK_CORPORATE.map((c, i) => (
-          <div key={i} className="u-card" onClick={handleOpenProfile} style={{ cursor: 'pointer' }}>
+          <div key={i} className="u-card" onClick={() => openClientProfile(c.name)} style={{ cursor: 'pointer' }}>
             <div className="u-card-header">
               <div className="u-card-header-left">
                 <span className="u-card-id" style={{ fontSize: '10px' }}>{c.sector || 'Corporate'}</span>
@@ -155,14 +151,22 @@ const CorporateClientHub = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Aetheris Global</td>
+              <tr className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
+                title: 'Transaction Audit', subtitle: 'Aetheris Global', status: 'Completed', icon: 'financial',
+                primaryMetric: { label: 'VALUE', value: '$45,000.00' },
+                fields: [{label: 'Method', value: 'Wire Transfer'}, {label: 'Security', value: 'ENCRYPTED'}]
+              })}>
+                <td><EntityLink type="Client">Aetheris Global</EntityLink></td>
                 <td className="cch-val-gold">$45,000.00</td>
                 <td style={{ color: 'var(--color-text-secondary)' }}>Wire Transfer</td>
                 <td><span className="cch-val-encrypted">ENCRYPTED</span></td>
               </tr>
-              <tr>
-                <td>Veridian Systems</td>
+              <tr className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
+                title: 'Transaction Audit', subtitle: 'Veridian Systems', status: 'Completed', icon: 'financial',
+                primaryMetric: { label: 'VALUE', value: '$120,400.00' },
+                fields: [{label: 'Method', value: 'Corporate Credit'}, {label: 'Security', value: 'ENCRYPTED'}]
+              })}>
+                <td><EntityLink type="Client">Veridian Systems</EntityLink></td>
                 <td className="cch-val-gold">$120,400.00</td>
                 <td style={{ color: 'var(--color-text-secondary)' }}>Corporate Credit</td>
                 <td><span className="cch-val-encrypted">ENCRYPTED</span></td>
@@ -207,8 +211,6 @@ const CorporateClientHub = () => {
           <span>Compliance</span>
         </div>
       </div>
-
-      <CorporateProfileModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} isNew={isNew} />
     </div>
   );
 };

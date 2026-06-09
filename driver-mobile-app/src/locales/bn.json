@@ -1,0 +1,80 @@
+{
+  "sidebar": {
+    "close": "✕  বন্ধ করুন",
+    "update_profile": "⚙️  প্রোফাইল আপডেট করতে ট্যাপ করুন",
+    "status_active": "• সক্রিয় এবং ডিসপ্যাচ গ্রহণ করছেন",
+    "dispatch_radar": "ডিসপ্যাচ রাডার",
+    "upcoming_runs": "আসন্ন ট্রিপ",
+    "shift_journal": "শিফট জার্নাল",
+    "payroll_wallet": "পে-রোল এবং ওয়ালেট",
+    "fleet_settings": "ফ্লিট সেটিংস",
+    "logout": "লগ আউট"
+  },
+  "radar": {
+    "conflict_detected": "⚠️ শিডিউল কনফ্লিক্ট ধরা পড়েছে",
+    "conflict_desc": "অনুগ্রহ করে নিচের সাংঘর্ষিক অনুরোধগুলো পর্যালোচনা করুন। একটি গ্রহণ করলে অন্যগুলো স্বয়ংক্রিয়ভাবে বাতিল হয়ে যাবে।",
+    "pickup_time": "পিকআপের সময় অনুরোধ করা হয়েছে",
+    "trip_request": "ট্রিপের অনুরোধ"
+  },
+  "active_trip": {
+    "map_initialising": "📍 ম্যাপ চালু হচ্ছে",
+    "pickup_address_payout": "📍 পিকআপ ঠিকানা | নিট নির্ধারিত পেআউট: £{{payout}}",
+    "en_route": "পথে: {{time}} ({{distance}})",
+    "in_transit": "ভ্রমণে: {{time}} ({{distance}})",
+    "grace_period": "⏱️  যাত্রীর জন্য অপেক্ষার সময়",
+    "grace_remaining": "বাকি সময়:",
+    "paging_board": "☆   ডিজিটাল পেজিং বোর্ড চালু করতে ট্যাপ করুন",
+    "cabin_presentation": "📷   পিছনের কেবিনের ছবি তুলতে ট্যাপ করুন",
+    "cabin_captured": "✓ কেবিনের ছবি সফলভাবে তোলা হয়েছে",
+    "request_cancellation": "🛑   বাতিল করার অনুরোধ করুন",
+    "execute_no_show": "🟥   নো-শো বাতিলকরণ কার্যকর করুন"
+  },
+  "cancellation": {
+    "title": "ট্রিপ বাতিল করুন",
+    "select_reason": "অনুগ্রহ করে এই ট্রিপটি বাতিল করার একটি কারণ নির্বাচন করুন।",
+    "reason_vehicle_issue": "গাড়ির সমস্যা",
+    "reason_too_small": "গাড়ি খুব ছোট",
+    "reason_too_many_bags": "অনেক বেশি ব্যাগ",
+    "reason_other": "অন্যান্য (অনুগ্রহ করে নির্দিষ্ট করুন)",
+    "optional_notes": "ঐচ্ছিক নোট...",
+    "confirm_cancellation": "বাতিল নিশ্চিত করুন",
+    "close": "বন্ধ করুন"
+  },
+  "post_trip": {
+    "completed": "ট্রিপ সফলভাবে সম্পন্ন হয়েছে",
+    "payout": "পেআউট",
+    "rate_customer": "গ্রাহককে রেট দিন",
+    "optional_feedback": "ঐচ্ছিক মতামত...",
+    "journal_title": "শিফট নিট আয় জার্নাল",
+    "base_earnings": "ভিত্তি নিট উপার্জন",
+    "gratuity": "গ্রাহকের বখশিশ (টিপ)",
+    "total_payout": "মোট শিফট পেআউট যোগ",
+    "trip_duration": "ট্রিপের সময়কাল",
+    "distance_driven": "চালিত দূরত্ব",
+    "submit": "জমা দিন",
+    "add_expense": "[ ট্রিপের খরচ যোগ করুন ]"
+  },
+  "settings": {
+    "title": "ফ্লিট সেটিংস",
+    "personalisation": "পার্সোনালাইজেশন টগলস",
+    "auto_accept": "রাডার ডিসপ্যাচ স্বয়ংক্রিয়ভাবে গ্রহণ করুন",
+    "turn_by_turn": "টার্ন-বাই-টার্ন ভয়েস নির্দেশাবলী",
+    "force_dark": "ম্যাপে ডার্ক মোড বাধ্য করুন",
+    "multi_tenant": "মাল্টি-টিন্যান্ট ডিসপ্যাচ চ্যানেল",
+    "language": "অ্যাপের ভাষা",
+    "language_sub": "ইন্টারফেসের ভাষা পরিবর্তন করুন। ডান-থেকে-বাম (RTL) লেআউট সমর্থন করে।"
+  },
+  "profile": {
+    "account_details": "অ্যাকাউন্টের বিবরণ",
+    "chauffeur_id": "চালক আইডি: ",
+    "wage_contract": "মজুরি চুক্তি",
+    "percentage": "শতাংশ (৮০/২০)",
+    "salaried": "বেতনভুক্ত",
+    "name": "নাম (অ্যাডমিন দ্বারা লক করা)",
+    "phone": "মোবাইল ফোন নম্বর",
+    "address": "অপারেশনাল ঠিকানা",
+    "update_photo": "[ ছবি আপডেট করুন ]",
+    "save": "[ সংরক্ষণ করুন ]",
+    "back": "◀  মেনুতে ফিরে যান"
+  }
+}

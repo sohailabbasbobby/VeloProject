@@ -1,0 +1,80 @@
+{
+  "sidebar": {
+    "close": "✕  KAPAT",
+    "update_profile": "⚙️  Profili güncellemek için dokunun",
+    "status_active": "• AKTİF & TALEPLERİ ALIYOR",
+    "dispatch_radar": "Görev Radarı",
+    "upcoming_runs": "Yaklaşan Seferler",
+    "shift_journal": "Vardiya Günlüğü",
+    "payroll_wallet": "Bordro ve Cüzdan",
+    "fleet_settings": "Filo Ayarları",
+    "logout": "Çıkış Yap"
+  },
+  "radar": {
+    "conflict_detected": "⚠️ PROGRAM ÇAKIŞMASI TESPİT EDİLDİ",
+    "conflict_desc": "Lütfen aşağıdaki çakışan talepleri inceleyin. Birini kabul etmek diğerlerini otomatik olarak iptal edecektir.",
+    "pickup_time": "İSTENEN ALIM ZAMANI",
+    "trip_request": "YOLCULUK TALEBİ"
+  },
+  "active_trip": {
+    "map_initialising": "📍 HARİTA BAŞLATILIYOR",
+    "pickup_address_payout": "📍 ALIM ADRESİ | NET ATANAN ÖDEME: £{{payout}}",
+    "en_route": "Yolda: {{time}} ({{distance}})",
+    "in_transit": "Seyir Halinde: {{time}} ({{distance}})",
+    "grace_period": "⏱️  YOLCU BEKLEME SÜRESİ",
+    "grace_remaining": "Kalan Süre:",
+    "paging_board": "☆   DİJİTAL KARŞILAMA PANOSUNU AÇMAK İÇİN DOKUNUN",
+    "cabin_presentation": "📷   ARKA KABİN DURUMUNU ÇEKMEK İÇİN DOKUNUN",
+    "cabin_captured": "✓ KABİN BAŞARIYLA ÇEKİLDİ",
+    "request_cancellation": "🛑   İPTAL TALEBİ",
+    "execute_no_show": "🟥   GELMEDİ (NO-SHOW) İPTALİNİ UYGULA"
+  },
+  "cancellation": {
+    "title": "YOLCULUĞU İPTAL ET",
+    "select_reason": "Lütfen bu yolculuğu iptal etmek için bir neden seçin.",
+    "reason_vehicle_issue": "Araç Sorunu",
+    "reason_too_small": "Araç Çok Küçük",
+    "reason_too_many_bags": "Çok Fazla Bagaj",
+    "reason_other": "Diğer (Lütfen belirtin)",
+    "optional_notes": "İsteğe Bağlı Notlar...",
+    "confirm_cancellation": "İptali Onayla",
+    "close": "Kapat"
+  },
+  "post_trip": {
+    "completed": "YOLCULUK BAŞARIYLA TAMAMLANDI",
+    "payout": "ÖDEME",
+    "rate_customer": "MÜŞTERİYİ DEĞERLENDİR",
+    "optional_feedback": "İsteğe Bağlı Geri Bildirim...",
+    "journal_title": "VARDİYA NET GELİR GÜNLÜĞÜ",
+    "base_earnings": "Temel Net Kazanç",
+    "gratuity": "Müşteri Bahşişi",
+    "total_payout": "Toplam Vardiya Ödemesi Eklemesi",
+    "trip_duration": "Yolculuk Süresi",
+    "distance_driven": "Gidilen Mesafe",
+    "submit": "GÖNDER",
+    "add_expense": "[ YOLCULUK MASRAFI EKLE ]"
+  },
+  "settings": {
+    "title": "FİLO AYARLARI",
+    "personalisation": "KİŞİSELLEŞTİRME SEÇENEKLERİ",
+    "auto_accept": "Radar Taleplerini Otomatik Kabul Et",
+    "turn_by_turn": "Adım Adım Sesli Yönlendirme",
+    "force_dark": "Haritada Karanlık Modu Zorla",
+    "multi_tenant": "ÇOK KİRACILI DAĞITIM KANALLARI",
+    "language": "UYGULAMA DİLİ",
+    "language_sub": "Arayüz dilini değiştirin. Sağdan Sola (RTL) düzenleri destekler."
+  },
+  "profile": {
+    "account_details": "HESAP DETAYLARI",
+    "chauffeur_id": "ŞOFÖR KİMLİĞİ: ",
+    "wage_contract": "ÜCRET SÖZLEŞMESİ",
+    "percentage": "YÜZDE (80/20)",
+    "salaried": "MAAŞLI",
+    "name": "İSİM (YÖNETİCİ TARAFINDAN KİLİTLENDİ)",
+    "phone": "CEP TELEFONU NUMARASI",
+    "address": "OPERASYONEL ADRES",
+    "update_photo": "[ FOTOĞRAFI GÜNCELLE ]",
+    "save": "[ KAYDET ]",
+    "back": "◀  MENÜYE DÖN"
+  }
+}

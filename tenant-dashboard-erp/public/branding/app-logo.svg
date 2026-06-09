@@ -1,0 +1,16 @@
+<svg width="500" height="150" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 150">
+  
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F9F295"/>
+      <stop offset="50%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#AA7C11"/>
+    </linearGradient>
+  </defs>
+  
+  <g transform="translate(250, 55)">
+    <path d="M-60,-40 L0,40 L60,-40 L30,-40 L0,0 L-30,-40 Z" fill="url(#goldGrad)"/>
+    <text y="80" font-family="Montserrat, Arial, sans-serif" font-weight="700" font-size="33.333333333333336" fill="#FFFFFF" text-anchor="middle" letter-spacing="4">VELO</text>
+    <text y="120" font-family="Montserrat, Arial, sans-serif" font-weight="400" font-size="12.5" fill="#D4AF37" text-anchor="middle" letter-spacing="2">EXECUTIVE SERVICES</text>
+  </g>
+</svg>

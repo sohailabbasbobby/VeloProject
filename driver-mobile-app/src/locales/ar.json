@@ -1,0 +1,80 @@
+{
+  "sidebar": {
+    "close": "✕  إغلاق",
+    "update_profile": "⚙️  اضغط لتحديث تفاصيل الملف الشخصي",
+    "status_active": "• نشط ويتلقى الطلبات",
+    "dispatch_radar": "رادار الطلبات",
+    "upcoming_runs": "الرحلات القادمة",
+    "shift_journal": "سجل المناوبة",
+    "payroll_wallet": "الرواتب والمحفظة",
+    "fleet_settings": "إعدادات الأسطول",
+    "logout": "تسجيل الخروج"
+  },
+  "radar": {
+    "conflict_detected": "⚠️ تم اكتشاف تعارض في الجدول الزمن",
+    "conflict_desc": "يرجى مراجعة الطلبات المتعارضة أدناه. قبول أحدهما سيلغي الآخر تلقائياً.",
+    "pickup_time": "وقت الركوب المطلوب",
+    "trip_request": "طلب رحلة"
+  },
+  "active_trip": {
+    "map_initialising": "📍 جارٍ تهيئة الخريطة",
+    "pickup_address_payout": "📍 عنوان الركوب | صافي الدفع المخصص: £{{payout}}",
+    "en_route": "في الطريق: {{time}} ({{distance}})",
+    "in_transit": "أثناء الرحلة: {{time}} ({{distance}})",
+    "grace_period": "⏱️  فترة السماح للراكب",
+    "grace_remaining": "السماح المتبقي:",
+    "paging_board": "☆   اضغط لتشغيل لوحة الترحيب الرقمية",
+    "cabin_presentation": "📷   اضغط لتصوير حالة المقصورة الخلفية",
+    "cabin_captured": "✓ تم تصوير المقصورة بنجاح",
+    "request_cancellation": "🛑   طلب إلغاء",
+    "execute_no_show": "🟥   تنفيذ إلغاء بسبب عدم الحضور"
+  },
+  "cancellation": {
+    "title": "إلغاء الرحلة",
+    "select_reason": "يرجى تحديد سبب لإلغاء هذه الرحلة.",
+    "reason_vehicle_issue": "مشكلة في المركبة",
+    "reason_too_small": "المركبة صغيرة جداً",
+    "reason_too_many_bags": "أمتعة كثيرة جداً",
+    "reason_other": "أخرى (يرجى التحديد)",
+    "optional_notes": "ملاحظات اختيارية...",
+    "confirm_cancellation": "تأكيد الإلغاء",
+    "close": "إغلاق"
+  },
+  "post_trip": {
+    "completed": "تم إنجاز الرحلة بنجاح",
+    "payout": "الدفعة",
+    "rate_customer": "تقييم العميل",
+    "optional_feedback": "ملاحظات اختيارية...",
+    "journal_title": "سجل صافي إيرادات المناوبة",
+    "base_earnings": "صافي الأرباح الأساسية",
+    "gratuity": "إكرامية العميل",
+    "total_payout": "إجمالي إضافة دفعات المناوبة",
+    "trip_duration": "مدة الرحلة",
+    "distance_driven": "المسافة المقطوعة",
+    "submit": "إرسال",
+    "add_expense": "[ إضافة مصروف الرحلة ]"
+  },
+  "settings": {
+    "title": "إعدادات الأسطول",
+    "personalisation": "مفاتيح التخصيص",
+    "auto_accept": "القبول التلقائي لطلبات الرادار",
+    "turn_by_turn": "المطالبات الصوتية خطوة بخطوة",
+    "force_dark": "فرض الوضع الداكن للخريطة",
+    "multi_tenant": "قنوات طلبات متعددة المستأجرين",
+    "language": "لغة التطبيق",
+    "language_sub": "تغيير لغة الواجهة. يدعم التخطيطات من اليمين إلى اليسار (RTL)."
+  },
+  "profile": {
+    "account_details": "تفاصيل الحساب",
+    "chauffeur_id": "رقم السائق: ",
+    "wage_contract": "عقد الأجر",
+    "percentage": "النسبة المئوية (80/20)",
+    "salaried": "براتب",
+    "name": "الاسم (مقفل من قبل الإدارة)",
+    "phone": "رقم الهاتف المحمول",
+    "address": "العنوان التشغيلي",
+    "update_photo": "[ تحديث الصورة ]",
+    "save": "[ حفظ ]",
+    "back": "◀  العودة للقائمة"
+  }
+}

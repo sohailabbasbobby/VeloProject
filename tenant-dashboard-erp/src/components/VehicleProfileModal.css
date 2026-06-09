@@ -15,9 +15,10 @@
 
 .vp-modal-content {
   background-color: #070708;
-  width: 900px;
-  max-width: 95vw;
-  max-height: 90vh;
+  width: 95vw;
+  max-width: 1400px;
+  height: 90vh;
+  max-height: 900px;
   border-radius: 8px;
   border: 1px solid rgba(212, 175, 55, 0.2);
   display: flex;

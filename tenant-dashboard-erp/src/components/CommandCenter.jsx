@@ -5,7 +5,6 @@ import {
   Settings, X, Globe, MapPin, PieChart
 } from 'lucide-react';
 import LiveTripModal from './LiveTripModal';
-import FleetVault from './FleetVault';
 import ChauffeurHub from './ChauffeurHub';
 import CorporateClientHub from './CorporateClientHub';
 import PrivateClientRegistry from './PrivateClientRegistry';
@@ -13,8 +12,11 @@ import OperationalStaffDirectory from './OperationalStaffDirectory';
 import WorkforceScheduler from './WorkforceScheduler';
 import FinancialDashboard from './FinancialDashboard';
 import WhiteLabelPortal from './WhiteLabelPortal';
+import UniversalTripTable from './UniversalTripTable';
 import './CommandCenter.css';
-import { MOCK_ACTIVE_TASKS as activeTasks, MOCK_LEDGER } from '../data/mockDatabase';
+import { MOCK_CHAUFFEURS, MOCK_CORP_CLIENTS, MOCK_PRIV_CLIENTS, MOCK_VEHICLES, MOCK_ACTIVE_TASKS as activeTasks, MOCK_LEDGER } from '../data/mockDatabase';
+import { useEntityLinker } from '../contexts/EntityLinkerContext';
+import FleetVault from './FleetVault';
 
 const LiveFleetMapModal = React.lazy(() => import('./LiveFleetMapModal'));
 
@@ -44,11 +46,21 @@ const FastCarIcon = ({ size = 20, className = "" }) => (
 
 const CommandCenter = ({ onNavigate }) => {
   const [selectedTrip, setSelectedTrip] = useState(null);
-  const [activeFilter, setActiveFilter] = useState('ALL');
+  const [activeFilter, setActiveFilter] = useState('ACTIVE');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [mapFocusedTrip, setMapFocusedTrip] = useState(null);
   const [activeSubView, setActiveSubView] = useState('operations');
+
+  const { openDriverProfile, openClientProfile, openVehicleProfile } = useEntityLinker();
+
+  // Legacy mock-link handler (kept for map modal) – now opens real profiles
+  const handleLinkClick = (e, type, value) => {
+    e.stopPropagation();
+    if (type === 'Driver') openDriverProfile(value);
+    else if (type === 'Client') openClientProfile(value);
+    else if (type === 'Vehicle') openVehicleProfile(value);
+  };
 
   const primaryNav = [
     { id: 'fleet', icon: <CarFront size={14} />, label: 'Fleet Asset Management', active: activeSubView === 'fleet' },
@@ -66,15 +78,15 @@ const CommandCenter = ({ onNavigate }) => {
   ];
 
   const allTasks = [
-    { id: '#VELO-9842', channel: 'Velo Black', status: 'On Trip', driver: 'James Smith', vehicle: 'RR Phantom (KX21)', client: 'J.P. Morgan', route: 'Heathrow T5 to Mayfair', progress: 75, timeToFree: '12m' },
-    { id: '#VELO-9843', channel: 'Pool', status: 'On the way to Pickup', driver: 'Sarah Jenkins', vehicle: 'Bentley Bentayga', client: 'Private (VIP)', route: 'Gatwick South to The Shard', progress: 15, timeToFree: '1h 15m' },
-    { id: '#VELO-9844', channel: 'Velo Core', status: 'Completed', driver: 'Marcus F.', vehicle: 'S-Class (Black)', client: 'Goldman Sachs', route: 'Luton Private to Canary Wharf', progress: 100, timeToFree: 'Now' },
-    { id: '#VELO-9845', channel: 'Pool', status: 'Waiting for customer', driver: 'David O.', vehicle: 'Range Rover SV', client: 'Soho House', route: 'Soho House to Heathrow T2', progress: 40, timeToFree: '45m' },
-    { id: '#VELO-9846', channel: 'Velo Core', status: 'Unassigned', driver: 'Unassigned', vehicle: 'V-Class (Silver)', client: 'Internal', route: 'Service Center Return', progress: 0, timeToFree: 'EST 48h' },
-    { id: '#VELO-9847', channel: 'Pool', status: 'Assigned', driver: 'Elena R.', vehicle: 'i7 xDrive', client: 'Private', route: 'St. Pancras to Kensington', progress: 0, timeToFree: '2h 30m' },
-    { id: '#VELO-9848', channel: 'Velo Black', status: 'On Trip', driver: 'Tom W.', vehicle: 'RR Ghost', client: 'Morgan Stanley', route: 'City Airport to O2 Arena', progress: 90, timeToFree: '4m' },
-    { id: '#VELO-9849', channel: 'Velo Core', status: 'Arrived at pickup', driver: 'A. Patel', vehicle: 'S-Class (Blue)', client: 'Private (VIP)', route: 'Battersea to Heathrow T5', progress: 25, timeToFree: '22m' },
-    { id: '#VELO-9850', channel: 'Pool', status: 'Unassigned', driver: 'TBD', vehicle: 'TBD', client: 'Corporate X', route: 'Canary Wharf to Soho', progress: 0, timeToFree: 'N/A' },
+    { id: '#VELO-9842', channel: 'Velo Black', status: 'On Trip',              driver: 'James Smith',  vehicle: 'RR Phantom (KX21)',  passenger: 'J.P. Morgan Exec',   client: 'J.P. Morgan',    route: 'Heathrow T5 to Mayfair',          progress: 75,  timeToFree: '12m'    },
+    { id: '#VELO-9843', channel: 'Pool',       status: 'On the way to Pickup', driver: 'Sarah Jenkins', vehicle: 'Bentley Bentayga',   passenger: 'Lady V. Ashworth',   client: 'Private (VIP)',  route: 'Gatwick South to The Shard',      progress: 15,  timeToFree: '1h 15m' },
+    { id: '#VELO-9844', channel: 'Velo Core',  status: 'Completed',            driver: 'Marcus F.',    vehicle: 'S-Class (Black)',    passenger: 'R. Goldman',         client: 'Goldman Sachs',  route: 'Luton Private to Canary Wharf',   progress: 100, timeToFree: 'Now'    },
+    { id: '#VELO-9845', channel: 'Pool',       status: 'Waiting for customer', driver: 'David O.',     vehicle: 'Range Rover SV',    passenger: 'M. Soho',            client: 'Soho House',     route: 'Soho House to Heathrow T2',       progress: 40,  timeToFree: '45m'    },
+    { id: '#VELO-9846', channel: 'Velo Core',  status: 'Unassigned',           driver: 'Unassigned',   vehicle: 'V-Class (Silver)',   passenger: '—',                  client: 'Internal',       route: 'Service Center Return',           progress: 0,   timeToFree: 'EST 48h'},
+    { id: '#VELO-9847', channel: 'Pool',       status: 'Assigned',             driver: 'Elena R.',     vehicle: 'i7 xDrive',          passenger: 'C. Lennox',          client: 'Private',        route: 'St. Pancras to Kensington',       progress: 0,   timeToFree: '2h 30m' },
+    { id: '#VELO-9848', channel: 'Velo Black', status: 'On Trip',              driver: 'Tom W.',       vehicle: 'RR Ghost',           passenger: 'D. Morgan Stanley',  client: 'Morgan Stanley', route: 'City Airport to O2 Arena',        progress: 90,  timeToFree: '4m'     },
+    { id: '#VELO-9849', channel: 'Velo Core',  status: 'Arrived at pickup',    driver: 'A. Patel',     vehicle: 'S-Class (Blue)',     passenger: 'Sir B. Harrington',  client: 'Private (VIP)',  route: 'Battersea to Heathrow T5',        progress: 25,  timeToFree: '22m'    },
+    { id: '#VELO-9850', channel: 'Pool',       status: 'Unassigned',           driver: 'TBD',          vehicle: 'TBD',                passenger: '—',                  client: 'Corporate X',    route: 'Canary Wharf to Soho',            progress: 0,   timeToFree: 'N/A'    },
   ];
 
   // Derive counts dynamically
@@ -98,32 +110,13 @@ const CommandCenter = ({ onNavigate }) => {
     return allTasks;
   }, [activeFilter, allTasks]);
 
-  const activeTasks = useMemo(() => allTasks.filter(t => ['On the way to Pickup', 'Arrived at pickup', 'Waiting for customer', 'On Trip'].includes(t.status)), [allTasks]);
+  const activeTasksForMap = useMemo(() => allTasks.filter(t => ['On the way to Pickup', 'Arrived at pickup', 'Waiting for customer', 'On Trip'].includes(t.status)), [allTasks]);
 
   const handleNavClick = (id) => {
     if (activeSubView === id) {
       setActiveSubView('operations'); // Toggle back to main view
     } else {
       setActiveSubView(id);
-    }
-  };
-
-  const handleLinkClick = (e, type, value) => {
-    e.stopPropagation();
-    console.log(`Navigating to ${type} profile: ${value}`);
-    alert(`[Mock Navigation] Opening profile for: ${value}`);
-  };
-
-  const getStatusClass = (status) => {
-    switch(status) {
-      case 'Unassigned': return 'status-unassigned';
-      case 'Assigned': return 'status-assigned';
-      case 'On the way to Pickup': return 'status-way-to-pickup';
-      case 'Arrived at pickup': return 'status-arrived';
-      case 'Waiting for customer': return 'status-waiting';
-      case 'On Trip': return 'status-on-trip';
-      case 'Completed': return 'status-completed';
-      default: return 'status-unassigned';
     }
   };
 
@@ -207,63 +200,19 @@ const CommandCenter = ({ onNavigate }) => {
             </button>
           </div>
         </div>
-        
-        <div className="cc-table-container">
-          <table className="cc-table">
-            <thead>
-              <tr>
-                <th style={{ width: '8%' }}>TASK ID</th>
-                <th style={{ width: '10%' }}>CHANNEL</th>
-                <th style={{ width: '12%' }}>STATUS</th>
-                <th style={{ width: '14%' }}>DRIVER</th>
-                <th style={{ width: '14%' }}>VEHICLE</th>
-                <th style={{ width: '12%' }}>CLIENT</th>
-                <th style={{ width: '12%' }}>ROUTE DETAIL</th>
-                <th className="text-right" style={{ width: '10%' }}>TIME-TO-FREE</th>
-                <th className="text-center" style={{ width: '8%' }}>LOCATION</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTasks.map(task => (
-                <tr key={task.id} className="cc-card-row" onClick={() => setSelectedTrip(task)}>
-                  <td className="text-gold font-bold">{task.id}</td>
-                  <td>{task.channel}</td>
-                  <td><span className={`cc-status-badge ${getStatusClass(task.status)}`}>{task.status}</span></td>
-                  <td><span className="cc-mock-link" onClick={(e) => handleLinkClick(e, 'Driver', task.driver)}>{task.driver}</span></td>
-                  <td><span className="cc-mock-link" onClick={(e) => handleLinkClick(e, 'Vehicle', task.vehicle)}>{task.vehicle}</span></td>
-                  <td><span className="cc-mock-link" onClick={(e) => handleLinkClick(e, 'Client', task.client)}>{task.client}</span></td>
-                  <td className="text-white">{task.route}</td>
-                  <td className="text-right" style={{ paddingRight: '24px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                      <span className="cc-metric" style={{ color: 'var(--color-gold)' }}>{task.timeToFree}</span>
-                      <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>Mins</span>
-                    </div>
-                  </td>
-                  <td className="text-center" onClick={(e) => e.stopPropagation()}>
-                    <button 
-                      className="cc-row-action-btn"
-                      onClick={() => {
-                        setMapFocusedTrip(task);
-                        setIsMapOpen(true);
-                      }}
-                    >
-                      <MapPin size={14} />
-                    </button>
-                  </td>
-                  {/* Progress Bar */}
-                  <div className="cc-row-progress-bar">
-                     <div className={`cc-row-progress-fill ${getStatusClass(task.status)}`} style={{ width: `${task.progress}%` }}>
-                        <div className="cc-progress-content">
-                           <FastCarIcon size={32} className="cc-progress-car-icon" />
-                           <span className="cc-progress-text">{task.progress > 0 ? `${task.progress}%` : ''}</span>
-                        </div>
-                     </div>
-                  </div>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <UniversalTripTable
+          trips={filteredTasks}
+          onTripClick={setSelectedTrip}
+          onDriverClick={(name) => handleLinkClick({stopPropagation:()=>{}}, 'Driver', name)}
+          onVehicleClick={(name) => handleLinkClick({stopPropagation:()=>{}}, 'Vehicle', name)}
+          onClientClick={(name) => handleLinkClick({stopPropagation:()=>{}}, 'Client', name)}
+          onMapClick={(task) => {
+            setMapFocusedTrip(task);
+            setIsMapOpen(true);
+          }}
+          showChannel={true}
+          emptyMessage="No trips match the selected filter."
+        />
       </div>
       </>
       )}
@@ -288,7 +237,13 @@ const CommandCenter = ({ onNavigate }) => {
       {activeSubView === 'analytics' && <FinancialDashboard />}
       {activeSubView === 'brand' && <WhiteLabelPortal />}
 
-      <LiveTripModal trip={selectedTrip} onClose={() => setSelectedTrip(null)} />
+      <LiveTripModal
+        trip={selectedTrip}
+        onClose={() => setSelectedTrip(null)}
+        onDriverClick={openDriverProfile}
+        onClientClick={openClientProfile}
+        onVehicleClick={openVehicleProfile}
+      />
 
       <React.Suspense fallback={null}>
         <LiveFleetMapModal 
@@ -319,6 +274,8 @@ const CommandCenter = ({ onNavigate }) => {
           ))}
         </div>
       </div>
+
+      <div className="security-footer" style={{ marginTop: "auto" }}>Verified by Velo AI Security Protocol</div>
     </div>
   );
 };

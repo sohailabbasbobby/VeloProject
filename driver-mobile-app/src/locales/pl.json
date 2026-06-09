@@ -1,0 +1,80 @@
+{
+  "sidebar": {
+    "close": "✕  ZAMKNIJ",
+    "update_profile": "⚙️  Dotknij, aby zaktualizować profil",
+    "status_active": "• AKTYWNY I ODBIERA ZLECENIA",
+    "dispatch_radar": "Radar Zleceń",
+    "upcoming_runs": "Nadchodzące Kursy",
+    "shift_journal": "Dziennik Zmiany",
+    "payroll_wallet": "Wypłaty i Portfel",
+    "fleet_settings": "Ustawienia Floty",
+    "logout": "Wyloguj się"
+  },
+  "radar": {
+    "conflict_detected": "⚠️ WYKRYTO KONFLIKT W HARMONOGRAMIE",
+    "conflict_desc": "Proszę przejrzeć konflikty zleceń poniżej. Akceptacja jednego automatycznie anuluje pozostałe.",
+    "pickup_time": "WYMAGANY CZAS ODBIORU",
+    "trip_request": "PROŚBA O KURS"
+  },
+  "active_trip": {
+    "map_initialising": "📍 INICJOWANIE MAPY",
+    "pickup_address_payout": "📍 ADRES ODBIORU | WYNAGRODZENIE NETTO: £{{payout}}",
+    "en_route": "W drodze: {{time}} ({{distance}})",
+    "in_transit": "W trakcie: {{time}} ({{distance}})",
+    "grace_period": "⏱️  CZAS OCZEKIWANIA NA PASAŻERA",
+    "grace_remaining": "Pozostały czas:",
+    "paging_board": "☆   DOTKNIJ, ABY URUCHOMIĆ CYFROWĄ TABLICĘ POWITALNĄ",
+    "cabin_presentation": "📷   DOTKNIJ, ABY ZROBIĆ ZDJĘCIE TYLNEJ KABINY",
+    "cabin_captured": "✓ ZDJĘCIE KABINY ZROBIONE POMYŚLNIE",
+    "request_cancellation": "🛑   ZŁÓŻ WNIOSEK O ANULOWANIE",
+    "execute_no_show": "🟥   WYKONAJ ANULOWANIE (PASAŻER NIE ZJAWIŁ SIĘ)"
+  },
+  "cancellation": {
+    "title": "ANULUJ KURS",
+    "select_reason": "Proszę wybrać powód anulowania tego kursu.",
+    "reason_vehicle_issue": "Problem z Pojazdem",
+    "reason_too_small": "Pojazd Zbyt Mały",
+    "reason_too_many_bags": "Zbyt Wiele Bagaży",
+    "reason_other": "Inne (Proszę określić)",
+    "optional_notes": "Opcjonalne Uwagi...",
+    "confirm_cancellation": "Potwierdź Anulowanie",
+    "close": "Zamknij"
+  },
+  "post_trip": {
+    "completed": "KURS ZAKOŃCZONY SUKCESEM",
+    "payout": "WYNAGRODZENIE",
+    "rate_customer": "OCEŃ KLIENTA",
+    "optional_feedback": "Opcjonalna Opinia...",
+    "journal_title": "DZIENNIK DOCHODÓW NETTO ZE ZMIANY",
+    "base_earnings": "Podstawowe Zarobki Netto",
+    "gratuity": "Napiwek od Klienta",
+    "total_payout": "Całkowity Dodatek do Wypłaty za Zmianę",
+    "trip_duration": "Czas Trwania Kursu",
+    "distance_driven": "Przejechany Dystans",
+    "submit": "WYŚLIJ",
+    "add_expense": "[ DODAJ WYDATEK ZA KURS ]"
+  },
+  "settings": {
+    "title": "USTAWIENIA FLOTY",
+    "personalisation": "OPCJE PERSONALIZACJI",
+    "auto_accept": "Automatycznie Akceptuj Zlecenia z Radaru",
+    "turn_by_turn": "Nawigacja Głosowa Krok po Kroku",
+    "force_dark": "Wymuś Tryb Ciemny na Mapie",
+    "multi_tenant": "KANAŁY ZLECEŃ MULTI-TENANT",
+    "language": "JĘZYK APLIKACJI",
+    "language_sub": "Zmień język interfejsu. Obsługuje układy od prawej do lewej (RTL)."
+  },
+  "profile": {
+    "account_details": "SZCZEGÓŁY KONTA",
+    "chauffeur_id": "ID KIEROWCY: ",
+    "wage_contract": "UMOWA O WYNAGRODZENIE",
+    "percentage": "PROCENT (80/20)",
+    "salaried": "STAŁA PENSJA",
+    "name": "IMIĘ (ZABLOKOWANE PRZEZ ADMINA)",
+    "phone": "NUMER TELEFONU KOMÓRKOWEGO",
+    "address": "ADRES OPERACYJNY",
+    "update_photo": "[ AKTUALIZUJ ZDJĘCIE ]",
+    "save": "[ ZAPISZ ]",
+    "back": "◀  POWRÓT DO MENU"
+  }
+}

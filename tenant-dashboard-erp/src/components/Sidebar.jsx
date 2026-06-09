@@ -12,8 +12,14 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
 
   return (
     <aside className="erp-sidebar surface-panel">
-      <div className="brand-zone">
-        <h2 className="velo-logo">Velo</h2>
+      <div className="brand-zone" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+        <img 
+          src={role === 'Corporate_Client' ? '/branding/corporate-logo.svg' : '/branding/app-logo.svg'} 
+          onError={(e) => { e.target.src = '/branding/app-logo.svg'; }}
+          alt="Brand Logo" 
+          style={{ width: '100%', height: 'auto', maxHeight: '48px', objectFit: 'contain' }} 
+        />
+        <div style={{ fontSize: '10px', color: 'var(--color-gold)', letterSpacing: '1px' }}>Excellence in Motion.</div>
       </div>
 
       {role !== 'Corporate_Client' && (

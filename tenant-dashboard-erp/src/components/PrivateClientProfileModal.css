@@ -15,9 +15,10 @@
 }
 
 .pcpm-modal-content {
-  width: 90vw;
-  max-width: 700px;
-  max-height: 90vh;
+  width: 95vw;
+  max-width: 1400px;
+  height: 90vh;
+  max-height: 900px;
   background-color: var(--color-obsidian);
   border: 1px solid rgba(212, 175, 55, 0.15);
   border-radius: var(--border-radius-md);

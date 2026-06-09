@@ -7,9 +7,22 @@ const ConciergeFeed = ({ clientName }) => {
   const [activeThread, setActiveThread] = useState(null);
   const [replyText, setReplyText] = useState('');
 
-  // Filter threads for this specific client
   const clientThreads = useMemo(() => {
-    return MOCK_THREADS.filter(t => t.clientName === clientName);
+    const found = MOCK_THREADS.filter(t => t.clientName === clientName);
+    if (found.length > 0) return found;
+    
+    // Force-inject 10 mock communication threads into the Engagement tab if empty
+    return Array.from({length: 10}).map((_, i) => ({
+      id: `MSG-F${100+i}`,
+      clientName: clientName,
+      subject: `Automated Chauffeur Update #${i+1}`,
+      status: i === 0 ? 'Urgent' : (i < 3 ? 'In-Progress' : 'Archived'),
+      lastMessageTime: `2026-06-0${8-i}`,
+      preview: `System notification regarding status update and shift alignment.`,
+      messages: [
+        { sender: 'System Admin', time: `2026-06-0${8-i}`, text: `System notification regarding status update and shift alignment.` }
+      ]
+    }));
   }, [clientName]);
 
   const handleSendReply = () => {
@@ -39,25 +52,16 @@ const ConciergeFeed = ({ clientName }) => {
         </div>
 
         <div className="cf-message-list">
-          {/* Mock previous messages in thread */}
-          <div className="cf-message received">
-            <div className="cf-message-bubble">
-              {activeThread.preview}
-            </div>
-            <div className="cf-message-info">
-              <span>{clientName}</span> • <span>{activeThread.lastMessageTime}</span>
-            </div>
-          </div>
-          {activeThread.status !== 'Archived' && (
-            <div className="cf-message sent">
+          {activeThread.messages?.map((msg, idx) => (
+            <div key={idx} className={`cf-message ${msg.sender === 'System Admin' ? 'sent' : 'received'}`}>
               <div className="cf-message-bubble">
-                We have received your request and our operations team is currently reviewing the vehicle capacity. We will confirm shortly.
+                {msg.text}
               </div>
               <div className="cf-message-info">
-                <span>System Admin</span> • <span>Just now</span>
+                <span>{msg.sender}</span> • <span>{msg.time}</span>
               </div>
             </div>
-          )}
+          ))}
         </div>
 
         {activeThread.status !== 'Archived' && (
@@ -107,6 +111,8 @@ const ConciergeFeed = ({ clientName }) => {
               </div>
               
               <div className="cf-card-meta">
+                <span className="cf-thread-sender" style={{fontWeight: 'bold', color: 'var(--color-gold)'}}>{thread.clientName || 'System'}</span>
+                <span>•</span>
                 <span className="cf-thread-id">{thread.id}</span>
                 <span>•</span>
                 <span>{thread.lastMessageTime}</span>

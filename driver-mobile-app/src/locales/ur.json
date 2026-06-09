@@ -1,0 +1,80 @@
+{
+  "sidebar": {
+    "close": "✕  بند کریں",
+    "update_profile": "⚙️  پروفائل اپ ڈیٹ کرنے کے لیے ٹیپ کریں",
+    "status_active": "• فعال اور ڈسپیچز موصول ہو رہے ہیں",
+    "dispatch_radar": "ڈسپیچ ریڈار",
+    "upcoming_runs": "آنے والے سفر",
+    "shift_journal": "شفٹ جرنل",
+    "payroll_wallet": "پے رول اور والیٹ",
+    "fleet_settings": "فلیٹ کی ترتیبات",
+    "logout": "لاگ آؤٹ"
+  },
+  "radar": {
+    "conflict_detected": "⚠️ شیڈول کا تصادم پایا گیا",
+    "conflict_desc": "براہ کرم ذیل میں متصادم درخواستوں کا جائزہ لیں۔ ایک کو قبول کرنے سے باقی خود بخود منسوخ ہو جائیں گی۔",
+    "pickup_time": "پک اپ کا وقت درکار ہے",
+    "trip_request": "سفر کی درخواست"
+  },
+  "active_trip": {
+    "map_initialising": "📍 نقشہ شروع ہو رہا ہے",
+    "pickup_address_payout": "📍 پک اپ کا پتہ | خالص تفویض کردہ ادائیگی: £{{payout}}",
+    "en_route": "راستے میں: {{time}} ({{distance}})",
+    "in_transit": "دوران سفر: {{time}} ({{distance}})",
+    "grace_period": "⏱️ مسافر کی رعایت کا وقت",
+    "grace_remaining": "باقی رعایت:",
+    "paging_board": "☆ ڈیجیٹل پیجنگ بورڈ شروع کرنے کے لیے ٹیپ کریں",
+    "cabin_presentation": "📷 عقبی کیبن کی تصویر لینے کے لیے ٹیپ کریں",
+    "cabin_captured": "✓ کیبن کی تصویر کامیابی سے لے لی گئی",
+    "request_cancellation": "🛑 منسوخی کی درخواست کریں",
+    "execute_no_show": "🟥 مسافر کے نہ آنے پر منسوخی نافذ کریں"
+  },
+  "cancellation": {
+    "title": "سفر منسوخ کریں",
+    "select_reason": "براہ کرم اس سفر کو منسوخ کرنے کی وجہ منتخب کریں۔",
+    "reason_vehicle_issue": "گاڑی کا مسئلہ",
+    "reason_too_small": "گاڑی بہت چھوٹی ہے",
+    "reason_too_many_bags": "بہت زیادہ سامان",
+    "reason_other": "دیگر (براہ کرم وضاحت کریں)",
+    "optional_notes": "اختیاری نوٹس...",
+    "confirm_cancellation": "منسوخی کی تصدیق کریں",
+    "close": "بند کریں"
+  },
+  "post_trip": {
+    "completed": "سفر کامیابی کے ساتھ مکمل ہوا",
+    "payout": "ادائیگی",
+    "rate_customer": "گاہک کو ریٹ کریں",
+    "optional_feedback": "اختیاری تاثرات...",
+    "journal_title": "شفٹ کی خالص آمدنی کا جرنل",
+    "base_earnings": "بنیادی خالص آمدنی",
+    "gratuity": "گاہک کی طرف سے بخشش (ٹپ)",
+    "total_payout": "شفٹ کی کل ادائیگی کا اضافہ",
+    "trip_duration": "سفر کا دورانیہ",
+    "distance_driven": "طے کردہ فاصلہ",
+    "submit": "جمع کرائیں",
+    "add_expense": "[ سفر کا خرچ شامل کریں ]"
+  },
+  "settings": {
+    "title": "فلیٹ کی ترتیبات",
+    "personalisation": "ذاتی نوعیت کے ٹوگلز",
+    "auto_accept": "ریڈار ڈسپیچز خودکار قبول کریں",
+    "turn_by_turn": "باری باری صوتی ہدایات",
+    "force_dark": "نقشے کا ڈارک موڈ نافذ کریں",
+    "multi_tenant": "ملٹی ٹیننٹ ڈسپیچ چینلز",
+    "language": "ایپ کی زبان",
+    "language_sub": "انٹرفیس کی زبان تبدیل کریں۔ دائیں سے بائیں (RTL) لے آؤٹ کو سپورٹ کرتا ہے۔"
+  },
+  "profile": {
+    "account_details": "اکاؤنٹ کی تفصیلات",
+    "chauffeur_id": "ڈرائیور کی آئی ڈی: ",
+    "wage_contract": "اجرت کا معاہدہ",
+    "percentage": "فیصد (80/20)",
+    "salaried": "تنخواہ دار",
+    "name": "نام (ایڈمن کے ذریعہ مقفل)",
+    "phone": "موبائل فون نمبر",
+    "address": "آپریشنل پتہ",
+    "update_photo": "[ تصویر اپ ڈیٹ کریں ]",
+    "save": "[ محفوظ کریں ]",
+    "back": "◀ مینو پر واپس جائیں"
+  }
+}

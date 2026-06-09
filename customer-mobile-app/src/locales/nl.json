@@ -1,0 +1,130 @@
+{
+  "sidebar": {
+    "close": "✕  SLUITEN",
+    "update_profile": "⚙️  Tik om profiel bij te werken",
+    "account_switcher": "ACCOUNT WISSELEN",
+    "personal_account": "Persoonlijk Account",
+    "personal_sub": "Betalen via Creditcard/Pin",
+    "corporate_account": "Acme Corp Ltd",
+    "corporate_sub": "Zakelijke Facturatie (Goedgekeurd)",
+    "menu": "MENU",
+    "upcoming_bookings": "Aankomende Ritten",
+    "trip_history": "Ritgeschiedenis",
+    "saved_addresses": "Opgeslagen Adressen",
+    "payment_method": "Betaalmethode",
+    "app_settings": "App Instellingen",
+    "logout": "Uitloggen",
+    "delete_account": "Account Verwijderen"
+  },
+  "home": {
+    "itinerary_routing": "ROUTE",
+    "book_a_ride": "Rit Boeken",
+    "add_stop": "Stop Toevoegen",
+    "pickup_time": "OPHAALTIJD",
+    "asap": "Z.s.m.",
+    "schedule": "Plannen",
+    "time": "Tijd:",
+    "confirm": "Bevestigen",
+    "edit": "Bewerken",
+    "vehicle_requirements": "VOERTUIGEISEN",
+    "trip_notes": "RITNOTITIES",
+    "add_instructions": "Instructies Toevoegen",
+    "get_quote": "Prijsopgave Aanvragen",
+    "select_account": "KIES ACCOUNT",
+    "cancel": "Annuleren",
+    "trip_itinerary_summary": "SAMENVATTING RIT",
+    "estimated_eta": "VERWACHTE AANKOMST",
+    "total_fixed_quote": "VASTE TOTAALPRIJS",
+    "confirm_ride": "Rit Bevestigen",
+    "submit_admin_approval": "Indienen voor Goedkeuring"
+  },
+  "active_trip": {
+    "finding_vehicle": "Zoeken naar dichtstbijzijnde premium voertuig...",
+    "driver": "Chauffeur:",
+    "car": "Auto:",
+    "eta": "Aankomst",
+    "cancel_trip": "Rit Annuleren",
+    "cancel_trip_confirm": "RIT ANNULEREN?",
+    "cancel_trip_message": "Weet u zeker dat u de rit wilt annuleren?",
+    "cancel_trip_fee_notice": "Let op: Er kan een annuleringskosten van £10.00 (bepaald door het bedrijf) in rekening worden gebracht.",
+    "resume_trip": "Rit Hervatten",
+    "driver_waiting": "Uw chauffeur wacht buiten."
+  },
+  "vehicle_selection": {
+    "title": "KIES VOERTUIGKLASSE",
+    "passengers_required": "Passagiers (Verplicht)",
+    "luggage_optional": "Bagage (Optioneel)",
+    "confirm_selection": "Selectie Bevestigen",
+    "capacity_exceeded": "⚠️ Capaciteit Overschreden",
+    "standard_suitcases": "Standaard koffers",
+    "max_per_vehicle": "Max {{max}} per voertuig"
+  },
+  "upcoming": {
+    "title": "AANKOMENDE RITTEN",
+    "manage_booking": "RIT BEHEREN",
+    "manage_desc": "Wilt u wijzigingen aanbrengen in uw aanstaande rit?",
+    "modify": "Wijzigen"
+  },
+  "history": {
+    "title": "RITGESCHIEDENIS",
+    "past_trips": "EERDERE RITTEN",
+    "post_job_assistance": "HULP NA DE RIT",
+    "post_job_desc": "Iets in het voertuig laten liggen of hulp nodig voor deze rit?",
+    "chat_support": "Chat Ondersteuning",
+    "view_receipt": "Bekijk Bon"
+  },
+  "addresses": {
+    "title": "OPGESLAGEN ADRESSEN",
+    "add_new": "+ Nieuw Toevoegen",
+    "save_address": "Adres Opslaan"
+  },
+  "payment": {
+    "title": "BETAALMETHODEN",
+    "add_new": "+ Nieuwe Betaalmethode",
+    "default": "Standaard"
+  },
+  "messaging": {
+    "title": "BERICHTENBOX",
+    "call_driver": "Bel Chauffeur"
+  },
+  "settings": {
+    "title": "INSTELLINGEN",
+    "preferences": "VOORKEUREN",
+    "push_notifications": "Pushmeldingen",
+    "push_sub": "Rit-updates en waarschuwingen",
+    "location_services": "Locatiediensten",
+    "location_sub": "Vereist voor nauwkeurige routes",
+    "dark_mode": "Donkere Modus Verplicht",
+    "dark_mode_sub": "VELO werkt uitsluitend in de donkere modus",
+    "language_region": "TAAL & REGIO",
+    "app_display_language": "App-taal",
+    "app_display_sub": "Wijzigt de taal van de hele app.",
+    "communication_language": "Voorkeurtaal voor Communicatie",
+    "communication_sub": "De taal waarin u typt en berichten wilt ontvangen. Vertaald door AI.",
+    "security": "BEVEILIGING",
+    "two_factor": "Tweestapsverificatie (2FA)",
+    "device_management": "Apparaatbeheer"
+  },
+  "profile": {
+    "title": "PERSOONLIJK PROFIEL",
+    "first_name": "Voornaam",
+    "last_name": "Achternaam",
+    "phone_number": "Telefoonnummer",
+    "email_address": "E-mailadres",
+    "home_address": "Thuisadres (Standaard)",
+    "office_address": "Kantooradres (Standaard)",
+    "save_changes": "Wijzigingen Opslaan",
+    "change_photo": "Foto Wijzigen"
+  },
+  "ledger": {
+    "title": "REISADMINISTRATIE",
+    "outstanding_balance": "OPENSTAAND SALDO",
+    "paid_invoiced": "BETAALD - GEFACTUREERD",
+    "download_statement": "Download Maandelijks Btw-overzicht"
+  },
+  "navigation": {
+    "account": "Account",
+    "tenant": "Bedrijf",
+    "settings": "Instellingen"
+  }
+}

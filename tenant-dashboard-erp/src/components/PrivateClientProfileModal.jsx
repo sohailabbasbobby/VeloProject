@@ -3,8 +3,13 @@ import { X, User, CreditCard, Star, ShieldCheck, FileText, Lock, Shield, Camera,
 import privateAvatar from '../assets/private-avatar-placeholder.png';
 import './PrivateClientProfileModal.css';
 import './UniversalModal.css';
+import { MOCK_PRIV_CLIENTS } from '../data/mockDatabase';
 import ConciergeFeed from './ConciergeFeed';
-import './CommandCenter.css'; // Import for cc-table styles
+import './CommandCenter.css';
+import LiveTripModal from './LiveTripModal';
+import UniversalTripTable from './UniversalTripTable';
+import { useEntityLinker } from '../contexts/EntityLinkerContext';
+import EntityLink from './EntityLink';
 
 const FastCarIcon = ({ size = 20, className = "" }) => (
   <svg width={size} height={size * 0.4} viewBox="0 0 100 40" className={className} xmlns="http://www.w3.org/2000/svg">
@@ -31,8 +36,8 @@ const FastCarIcon = ({ size = 20, className = "" }) => (
 );
 
 const MOCK_ACTIVE_BOOKINGS = [
-  { id: '#VELO-9855', channel: 'Private (VIP)', status: 'On Trip', driver: 'Sarah Jenkins', vehicle: 'Bentley Bentayga', route: 'Gatwick South to The Shard', progress: 45, timeToFree: '1h 15m' },
-  { id: '#VELO-9861', channel: 'Private (VIP)', status: 'Arrived at pickup', driver: 'A. Patel', vehicle: 'S-Class (Blue)', route: 'Battersea to Heathrow T5', progress: 25, timeToFree: '22m' },
+  { id: '#VELO-9855', channel: 'Private (VIP)', status: 'On Trip', driver: 'Sarah Jenkins', vehicle: 'Bentley Bentayga', route: 'Gatwick South to The Shard', progress: 45, timeToFree: '1h 15m', passenger: 'Alexander Sterling', client: 'Alexander Sterling' },
+  { id: '#VELO-9861', channel: 'Private (VIP)', status: 'Arrived at pickup', driver: 'A. Patel', vehicle: 'S-Class (Blue)', route: 'Battersea to Heathrow T5', progress: 25, timeToFree: '22m', passenger: 'Alexander Sterling', client: 'Alexander Sterling' },
 ];
 
 const MOCK_INVOICES = [
@@ -56,22 +61,39 @@ const getStatusClass = (status) => {
   }
 };
 
-const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
+const PrivateClientProfileModal = ({ isOpen, onClose, isNew, client }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(isNew || false);
+  const [selectedTrip, setSelectedTrip] = useState(null);
+  const { openSummaryModal } = useEntityLinker();
 
   if (!isOpen) return null;
 
+  const name = isNew ? "New Private Client" : (client?.name || "Private Client");
+  const avatar = isNew ? privateAvatar : (client?.avatar || privateAvatar);
+  const tier = client?.tier || 'VIP';
+  const lifetimeValue = client?.lifetimeValue || "$0.00";
+  const status = client?.status || "ACTIVE";
+  
+  const phone = client?.contact?.phone || "+44 7700 900000";
+  const email = client?.contact?.email || "email@example.com";
+  const assistant = client?.contact?.assistant || "None";
+  
+  const rides = client?.rides?.length ? client.rides : (MOCK_PRIV_CLIENTS?.[0]?.rides || []);
+
   return (
     <div className="u-modal-overlay" onClick={onClose}>
+      {selectedTrip && (
+        <LiveTripModal trip={selectedTrip} onClose={() => setSelectedTrip(null)} />
+      )}
       <div className="u-modal-container" onClick={e => e.stopPropagation()}>
-        
-        {/* Header */}
-        <div className="u-modal-header">
-          <div className="u-modal-header-left">
-            <h2 className="u-modal-title">{isNew ? "Onboard Private Client" : "Private Client Profile"}</h2>
-          </div>
-          <div className="u-modal-header-actions">
+          
+          {/* Header */}
+          <div className="u-modal-header">
+            <div className="u-modal-header-left">
+              <h2 className="u-modal-title">{isNew ? "Onboard Private Client" : "Private Client Profile"}</h2>
+            </div>
+            <div className="u-modal-header-actions">
             {isEditing ? (
               <button className="u-modal-btn-save" onClick={() => setIsEditing(false)}>SAVE CLIENT</button>
             ) : (
@@ -81,18 +103,39 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
           </div>
         </div>
 
-        <div className="u-modal-hero">
-          <div className="u-modal-hero-avatar-container">
-            <img src={privateAvatar} alt="Client Avatar" className="u-modal-hero-avatar" />
-            {isEditing && (
-              <button className="u-modal-hero-upload-btn">
-                <Camera size={16} />
-              </button>
-            )}
+        <div className="u-modal-hero" style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '0' }}>
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+            <div className="u-modal-hero-avatar-container">
+              <img src={avatar} alt="Private Avatar" className="u-modal-hero-avatar" />
+              {isEditing && (
+                <button className="u-modal-hero-upload-btn">
+                  <Camera size={16} />
+                </button>
+              )}
+            </div>
+            <div className="u-modal-hero-info" style={{ flexGrow: 1 }}>
+              <h1 className="u-modal-hero-title" style={{ fontSize: '28px', marginBottom: '8px' }}>{name}</h1>
+              <p className="u-modal-hero-subtitle" style={{ fontSize: '14px', letterSpacing: '1px' }}>High Net Worth Individual • <span style={{color: 'var(--color-gold)'}}>{tier}</span></p>
+            </div>
           </div>
-          <div className="u-modal-hero-info">
-            <h1 className="u-modal-hero-title">{isNew ? "New Private Client" : "Alexander Sterling"}</h1>
-            <p className="u-modal-hero-subtitle">High-Net-Worth Individual • VIP PRIORITY</p>
+          
+          <div className="u-modal-hero-persistent-info" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Mobile Phone</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>{phone}</span>
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Primary Email</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>{email}</span>
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>EA / PA Contact</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>{assistant}</span>
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Account Status</span>
+                <span style={{ fontSize: '13px', color: 'var(--status-completed)', fontWeight: 'bold' }}>{status}</span>
+             </div>
           </div>
         </div>
 
@@ -174,7 +217,13 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
                     <label className="u-modal-label">Dedicated Chauffeur (Optional)</label>
                     <div className="u-modal-input-with-icon">
                       <User size={14} className="u-modal-input-icon" />
-                      <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "Julian Sterling (VEO-9921)"} readOnly={!isEditing} />
+                      {!isEditing ? (
+                        <div className="u-modal-input" style={{ display: 'flex', alignItems: 'center' }}>
+                          <EntityLink type="Driver">Julian Sterling</EntityLink> &nbsp;(VEO-9921)
+                        </div>
+                      ) : (
+                        <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "Julian Sterling (VEO-9921)"} />
+                      )}
                     </div>
                   </div>
                   <div className="u-modal-field">
@@ -232,44 +281,13 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
                 </button>
               </div>
 
-              <div className="cc-table-container">
-                <table className="cc-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: '10%' }}>TASK ID</th>
-                      <th style={{ width: '15%' }}>STATUS</th>
-                      <th style={{ width: '15%' }}>DRIVER</th>
-                      <th style={{ width: '15%' }}>VEHICLE</th>
-                      <th style={{ width: '25%' }}>ROUTE DETAIL</th>
-                      <th className="text-right" style={{ width: '15%' }}>TIME-TO-FREE</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {MOCK_ACTIVE_BOOKINGS.map(task => (
-                      <tr key={task.id} className="cc-card-row">
-                        <td className="text-gold font-bold">{task.id}</td>
-                        <td><span className={`cc-status-badge ${getStatusClass(task.status)}`}>{task.status}</span></td>
-                        <td><span className="cc-mock-link">{task.driver}</span></td>
-                        <td><span className="cc-mock-link">{task.vehicle}</span></td>
-                        <td className="text-white">{task.route}</td>
-                        <td className="text-right" style={{ paddingRight: '24px' }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                            <span className="cc-metric" style={{ color: 'var(--color-gold)' }}>{task.timeToFree}</span>
-                            <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>Mins</span>
-                          </div>
-                        </td>
-                        <div className="cc-row-progress-bar">
-                           <div className={`cc-row-progress-fill ${getStatusClass(task.status)}`} style={{ width: `${task.progress}%` }}>
-                              <div className="cc-progress-content">
-                                 <FastCarIcon size={32} className="cc-progress-car-icon" />
-                                 <span className="cc-progress-text">{task.progress > 0 ? `${task.progress}%` : ''}</span>
-                              </div>
-                           </div>
-                        </div>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px', minHeight: 0 }}>
+                <UniversalTripTable
+                  trips={MOCK_ACTIVE_BOOKINGS}
+                  onTripClick={trip => setSelectedTrip(trip)}
+                  showChannel={true}
+                  emptyMessage="No active bookings for this client."
+                />
               </div>
             </div>
           )}
@@ -304,7 +322,15 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
                   </thead>
                   <tbody>
                     {MOCK_INVOICES.map(inv => (
-                      <tr key={inv.id} className="cc-card-row">
+                      <tr key={inv.id} className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
+                        title: 'Private Invoice Detail', subtitle: inv.id, status: inv.status, icon: 'financial',
+                        primaryMetric: { label: 'AMOUNT', value: inv.amount },
+                        fields: [
+                          { label: 'Date Issued', value: inv.date },
+                          { label: 'Total Trips', value: inv.trips },
+                          { label: 'Status', value: inv.status }
+                        ]
+                      })}>
                         <td className="text-gold font-bold">{inv.id}</td>
                         <td className="text-white">{inv.date}</td>
                         <td className="text-white">{inv.trips}</td>
@@ -319,6 +345,39 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew }) => {
           )}
         </div>
 
+          {activeTab === 'engagement' && (
+            <div className="u-modal-tab-content" style={{ padding: 0 }}>
+              <ConciergeFeed clientName={name} />
+            </div>
+          )}
+
+          {activeTab === 'preferences' && (
+            <div className="u-modal-tab-content" style={{ padding: '24px' }}>
+              <div className="u-modal-section">
+                <div className="u-modal-section-header">
+                  VIP PREFERENCES
+                </div>
+                <div className="u-modal-grid-2">
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Dedicated Chauffeur (Optional)</label>
+                    <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "Julian Sterling (VEO-9921)"} readOnly={!isEditing} />
+                  </div>
+                  <div className="u-modal-field">
+                    <label className="u-modal-label">Preferred Vehicle Class</label>
+                    <select className="u-modal-input u-modal-val-gold" disabled={!isEditing}>
+                      <option>First Class (Maybach / Phantom)</option>
+                      <option>Business Class (S-Class / 7-Series)</option>
+                      <option>SUV (Range Rover / Cullinan)</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="u-modal-field" style={{marginTop: '16px'}}>
+                  <label className="u-modal-label">Cabin Preferences & Dietary</label>
+                  <input type="text" className="u-modal-input" defaultValue={isNew ? "" : "San Pellegrino strictly at room temp, Financial Times, no cabin fragrance"} readOnly={!isEditing} />
+                </div>
+              </div>
+            </div>
+          )}
         {/* Persistent Footer */}
         <div className="u-modal-footer">
           <div className="u-modal-footer-badge">

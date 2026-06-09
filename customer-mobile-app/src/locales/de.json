@@ -1,0 +1,130 @@
+{
+  "sidebar": {
+    "close": "✕  SCHLIESSEN",
+    "update_profile": "⚙️  Tippen, um das Profil zu aktualisieren",
+    "account_switcher": "KONTO WECHSELN",
+    "personal_account": "Persönliches Konto",
+    "personal_sub": "Zahlung per Kredit-/Debitkarte",
+    "corporate_account": "Acme Corp Ltd",
+    "corporate_sub": "Firmenabrechnung (Genehmigt)",
+    "menu": "MENÜ",
+    "upcoming_bookings": "Kommende Buchungen",
+    "trip_history": "Fahrtverlauf",
+    "saved_addresses": "Gespeicherte Adressen",
+    "payment_method": "Zahlungsmethode",
+    "app_settings": "App-Einstellungen",
+    "logout": "Abmelden",
+    "delete_account": "Konto löschen"
+  },
+  "home": {
+    "itinerary_routing": "ROUTENPLANUNG",
+    "book_a_ride": "Fahrt Buchen",
+    "add_stop": "Stopp Hinzufügen",
+    "pickup_time": "ABHOLZEIT",
+    "asap": "Schnellstmöglich",
+    "schedule": "Planen",
+    "time": "Zeit:",
+    "confirm": "Bestätigen",
+    "edit": "Bearbeiten",
+    "vehicle_requirements": "FAHRZEUGANFORDERUNGEN",
+    "trip_notes": "FAHRTNOTIZEN",
+    "add_instructions": "Anweisungen hinzufügen",
+    "get_quote": "Angebot Einholen",
+    "select_account": "KONTO WÄHLEN",
+    "cancel": "Abbrechen",
+    "trip_itinerary_summary": "ZUSAMMENFASSUNG DER ROUTE",
+    "estimated_eta": "GESCHÄTZTE ANKUNFTSZEIT",
+    "total_fixed_quote": "FESTER GESAMTPREIS",
+    "confirm_ride": "Fahrt Bestätigen",
+    "submit_admin_approval": "Zur Genehmigung einreichen"
+  },
+  "active_trip": {
+    "finding_vehicle": "Suche nach dem nächsten Premium-Fahrzeug...",
+    "driver": "Fahrer:",
+    "car": "Auto:",
+    "eta": "Ankunft",
+    "cancel_trip": "Fahrt Stornieren",
+    "cancel_trip_confirm": "FAHRT STORNIEREN?",
+    "cancel_trip_message": "Möchten Sie diese Fahrt wirklich stornieren?",
+    "cancel_trip_fee_notice": "Hinweis: Eine Stornierungsgebühr von 10,00 £ (festgelegt vom Unternehmen) kann Ihrem Konto belastet werden.",
+    "resume_trip": "Fahrt Fortsetzen",
+    "driver_waiting": "Ihr Fahrer wartet draußen."
+  },
+  "vehicle_selection": {
+    "title": "FAHRZEUGKLASSE WÄHLEN",
+    "passengers_required": "Fahrgäste (Erforderlich)",
+    "luggage_optional": "Gepäck (Optional)",
+    "confirm_selection": "Auswahl Bestätigen",
+    "capacity_exceeded": "⚠️ Kapazität Überschritten",
+    "standard_suitcases": "Standardkoffer",
+    "max_per_vehicle": "Max {{max}} pro Fahrzeug"
+  },
+  "upcoming": {
+    "title": "KOMMENDE BUCHUNGEN",
+    "manage_booking": "BUCHUNG VERWALTEN",
+    "manage_desc": "Müssen Sie Änderungen an Ihrer bevorstehenden Fahrt vornehmen?",
+    "modify": "Ändern"
+  },
+  "history": {
+    "title": "FAHRTVERLAUF",
+    "past_trips": "VERGANGENE FAHRTEN",
+    "post_job_assistance": "HILFE NACH DER FAHRT",
+    "post_job_desc": "Haben Sie einen Gegenstand im Fahrzeug vergessen oder benötigen Sie Hilfe?",
+    "chat_support": "Chat-Support",
+    "view_receipt": "Quittung Ansehen"
+  },
+  "addresses": {
+    "title": "GESPEICHERTE ADRESSEN",
+    "add_new": "+ Neu Hinzufügen",
+    "save_address": "Adresse Speichern"
+  },
+  "payment": {
+    "title": "ZAHLUNGSMETHODEN",
+    "add_new": "+ Neue Zahlungsmethode",
+    "default": "Standard"
+  },
+  "messaging": {
+    "title": "NACHRICHTENFACH",
+    "call_driver": "Fahrer Anrufen"
+  },
+  "settings": {
+    "title": "EINSTELLUNGEN",
+    "preferences": "PRÄFERENZEN",
+    "push_notifications": "Push-Benachrichtigungen",
+    "push_sub": "Fahrt-Updates und Warnungen",
+    "location_services": "Standortdienste",
+    "location_sub": "Für präzise Routenplanung erforderlich",
+    "dark_mode": "Erzwungener Dunkelmodus",
+    "dark_mode_sub": "VELO funktioniert ausschließlich im Dunkelmodus",
+    "language_region": "SPRACHE & REGION",
+    "app_display_language": "App-Anzeigesprache",
+    "app_display_sub": "Ändert die Sprache der gesamten Benutzeroberfläche.",
+    "communication_language": "Bevorzugte Kommunikationssprache",
+    "communication_sub": "Die Sprache, in der Sie schreiben und Nachrichten empfangen möchten. KI-übersetzt.",
+    "security": "SICHERHEIT",
+    "two_factor": "Zwei-Faktor-Authentifizierung (2FA)",
+    "device_management": "Geräteverwaltung"
+  },
+  "profile": {
+    "title": "PERSÖNLICHES PROFIL",
+    "first_name": "Vorname",
+    "last_name": "Nachname",
+    "phone_number": "Telefonnummer",
+    "email_address": "E-Mail-Adresse",
+    "home_address": "Heimatadresse (Standard)",
+    "office_address": "Büroadresse (Standard)",
+    "save_changes": "Änderungen Speichern",
+    "change_photo": "Foto Ändern"
+  },
+  "ledger": {
+    "title": "REISE-LEDGER",
+    "outstanding_balance": "OFFENER SALDO",
+    "paid_invoiced": "BEZAHLT - IN RECHNUNG GESTELLT",
+    "download_statement": "Monatliche MwSt.-Erklärung Herunterladen"
+  },
+  "navigation": {
+    "account": "Konto",
+    "tenant": "Unternehmen",
+    "settings": "Einstellungen"
+  }
+}

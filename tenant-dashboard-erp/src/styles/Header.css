@@ -1,0 +1,23 @@
+.fs-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.fs-toggle-btn:hover {
+  color: var(--color-gold);
+  opacity: 1;
+}
+
+.header-icons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
