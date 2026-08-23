@@ -1,19 +1,28 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { VeloClearingEngine, FeeSettings } from '../utils/veloClearingEngine';
 import { db } from '../config/db';
+import { z } from 'zod';
+
+const settlementSchema = z.object({
+    bookingId: z.string().min(1),
+    fulfillingTenantId: z.string().min(1),
+    wholesaleFare: z.number().min(0)
+});
 
 /**
  * VELO CORE ENDPOINT
  * Evaluates completed bookings, enforcing dynamic platform fees and VAT calculations.
  */
-export const processNetworkSettlement = async (req: Request, res: Response, next: import('express').NextFunction) => {
+export const processNetworkSettlement = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const originatingTenantId = (req as any).tenantId; 
-        const { bookingId, fulfillingTenantId, wholesaleFare } = req.body;
 
-        if (!bookingId || !fulfillingTenantId || wholesaleFare === undefined) {
-            return res.status(400).json({ error: "VELO API: Missing required parameters for network clearing." });
+        // Validate payload
+        const validation = settlementSchema.safeParse(req.body);
+        if (!validation.success) {
+            return res.status(400).json({ error: "VELO API: Invalid parameters for network clearing.", details: validation.error.issues });
         }
+        const { bookingId, fulfillingTenantId, wholesaleFare } = validation.data;
 
         // Fetch settings from DB
         const settingsRes = await db.query('SELECT * FROM global_fee_settings ORDER BY id DESC LIMIT 1');

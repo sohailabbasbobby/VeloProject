@@ -1,5 +1,7 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import { v4 as uuidv4 } from 'uuid';
 
 // Import Routes
 import b2bRoutes from './routes/b2b.routes';
@@ -22,9 +24,22 @@ import { tenantMiddleware } from './middleware/tenant.middleware';
 
 const app: Application = express();
 
-// Global Middleware
-app.use(cors());
+// Global Security & Request Configuration
+app.use(helmet()); // Enforce Security Headers
+app.use(cors({
+    origin: '*', // Replace with exact domains in strict production
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-tenant-id', 'x-admin-key', 'x-driver-id']
+}));
 app.use(express.json());
+
+// Correlation ID Tracking
+app.use((req: Request, res: Response, next: NextFunction) => {
+    const reqId = req.headers['x-request-id'] || uuidv4();
+    req.headers['x-request-id'] = reqId;
+    res.setHeader('x-request-id', reqId);
+    next();
+});
 
 // Public Health Check Endpoint
 app.use('/api/v1/health', healthRoutes);

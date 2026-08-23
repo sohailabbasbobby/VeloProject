@@ -1,11 +1,18 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { db } from '../config/db';
+import { z } from 'zod';
+
+const odometerSchema = z.object({
+    vehicleId: z.string().uuid(),
+    reading: z.number().int().positive(),
+    eventType: z.string().optional()
+});
 
 /**
  * POST /api/fleet/odometer
  * Validates and logs odometer preflight checks enforcing the Unidirectional Safety Rule.
  */
-export const logOdometer = async (req: Request, res: Response, next: import('express').NextFunction) => {
+export const logOdometer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const tenantId = req.headers['x-tenant-id'] as string;
         const driverId = req.headers['x-driver-id'] as string;
@@ -14,12 +21,17 @@ export const logOdometer = async (req: Request, res: Response, next: import('exp
             return res.status(401).json({ error: 'Unauthorized: Missing execution identity headers.' });
         }
 
-        const { vehicleId, reading, eventType } = req.body;
-        const newReading = parseInt(reading, 10);
+        const validation = odometerSchema.safeParse({
+            vehicleId: req.body.vehicleId,
+            reading: parseInt(req.body.reading, 10),
+            eventType: req.body.eventType
+        });
 
-        if (isNaN(newReading)) {
-            return res.status(400).json({ error: 'Validation Error: Reading must be an integer.' });
+        if (!validation.success) {
+            return res.status(400).json({ error: 'Validation Error', details: validation.error.issues });
         }
+
+        const { vehicleId, reading: newReading, eventType } = validation.data;
 
         const vehicleRes = await db.query(
             'SELECT current_odometer FROM vehicles WHERE id = $1 AND tenant_id = $2', 

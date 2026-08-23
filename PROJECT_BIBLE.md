@@ -93,6 +93,11 @@ The database schema and ERP UI rigorously separate distinct business entities. T
   - `backend-core/src/routes/health.routes.ts`
   - `tenant-dashboard-erp/src/components/PlatformHealthWidget.jsx`
   - `tenant-dashboard-erp/src/components/PlatformHealthWidget.css`
+- **Master Platform Hardening & Audit**: ✅ Complete
+  - `backend-core/src/config/db.ts` (Pool Guardrails)
+  - `backend-core/src/server.ts` (Graceful Shutdown)
+  - `backend-core/src/app.ts` (Helmet, Request ID)
+  - `tenant-dashboard-erp/src/components/ErrorBoundary.jsx`
 
 ### 3.5 Verification & Audits
 - **2026-08-23**: Verified TypeScript compilation cleanly via `npx tsc --noEmit` inside `backend-core` (Exit Code 0).

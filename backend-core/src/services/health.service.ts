@@ -7,12 +7,23 @@ export const runDiagnostics = async () => {
     let failingCount = 0;
     const startOverall = Date.now();
 
-    // 1. PostgreSQL Pool & Transaction Health
+    // 1. PostgreSQL Pool & Transaction Health (Read & Write Latency)
     const startDb = Date.now();
     try {
         const client = await db.connect();
+        
+        // Read Latency
+        const readStart = Date.now();
         await client.query('SELECT 1');
+        const readLatency = Date.now() - readStart;
+        
+        // Mock Write Latency (Using EXPLAIN to avoid actual inserts during health check)
+        const writeStart = Date.now();
+        await client.query('EXPLAIN UPDATE global_fee_settings SET creator_fee_mode = creator_fee_mode WHERE id = 1');
+        const writeLatency = Date.now() - writeStart;
+        
         client.release();
+        
         const latencyMs = Date.now() - startDb;
         const totalCount = db.totalCount;
         const idleCount = db.idleCount;
@@ -22,7 +33,7 @@ export const runDiagnostics = async () => {
             category: "database",
             status: latencyMs > 200 ? "degraded" : "operational",
             latencyMs,
-            details: `Pool active (${totalCount - idleCount}/${totalCount} connections in use)`
+            details: `Pool active (${totalCount - idleCount}/${totalCount} connections in use). Read: ${readLatency}ms, Write (Explain): ${writeLatency}ms`
         });
         healthyCount++;
     } catch (error: any) {
@@ -38,16 +49,19 @@ export const runDiagnostics = async () => {
         failingCount++;
     }
 
-    // 2. System Resources
+    // 2. System Resources & Disk Pressure
     const memUsage = process.memoryUsage();
     const heapUsedMB = (memUsage.heapUsed / 1024 / 1024).toFixed(2);
+    const freeMemMB = (os.freemem() / 1024 / 1024).toFixed(2);
+    const totalMemMB = (os.totalmem() / 1024 / 1024).toFixed(2);
     const loadAvg = os.loadavg()[0] ?? 0;
+    
     services.push({
-        name: "System Resources",
+        name: "System Resources & Memory",
         category: "infrastructure",
-        status: "operational",
+        status: (memUsage.heapUsed / os.totalmem()) > 0.8 ? "degraded" : "operational",
         latencyMs: 1,
-        details: `Memory: ${heapUsedMB} MB used. CPU Load: ${loadAvg.toFixed(2)}`
+        details: `Heap: ${heapUsedMB} MB. Free RAM: ${freeMemMB}/${totalMemMB} MB. CPU Load: ${loadAvg.toFixed(2)}`
     });
     healthyCount++;
 

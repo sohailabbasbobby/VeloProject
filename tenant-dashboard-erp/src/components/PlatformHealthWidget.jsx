@@ -19,17 +19,12 @@ const PlatformHealthWidget = () => {
       setHealthData(data);
     } catch (error) {
       console.error("Health check failed:", error);
-      // Fallback if backend is completely down
+      // Fallback if backend is unreachable (Reconnecting state)
       setHealthData({
-        status: 'critical',
-        summary: { totalServices: 0, healthy: 0, failing: 1 },
-        services: [{
-          name: "Backend API Gateway",
-          category: "infrastructure",
-          status: "critical",
-          error: "Connection refused",
-          latencyMs: 0
-        }]
+        status: 'offline',
+        overallLatencyMs: '-',
+        summary: { totalServices: 0, healthy: 0, failing: 0 },
+        services: []
       });
     }
     setLoading(false);
@@ -43,13 +38,13 @@ const PlatformHealthWidget = () => {
 
   const getStatusColor = (status) => {
     if (status === 'operational' || status === 'healthy') return 'text-green-500 bg-green-500/10 border-green-500/20';
-    if (status === 'degraded') return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
+    if (status === 'degraded' || status === 'offline') return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
     return 'text-red-500 bg-red-500/10 border-red-500/20';
   };
 
   const getStatusDot = (status) => {
     if (status === 'healthy' || status === 'operational') return <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />;
-    if (status === 'degraded') return <div className="h-2 w-2 rounded-full bg-yellow-500 animate-pulse" />;
+    if (status === 'degraded' || status === 'offline') return <div className="h-2 w-2 rounded-full bg-yellow-500 animate-pulse" />;
     return <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />;
   };
 
@@ -87,16 +82,18 @@ Please review ${(service.affectedFiles || []).join(', ')}, resolve the error, en
               {getStatusDot(healthData.status)}
               <span className={`text-xs font-bold uppercase tracking-widest ${
                 healthData.status === 'healthy' ? 'text-green-500' : 
+                healthData.status === 'offline' ? 'text-yellow-500' :
                 healthData.status === 'degraded' ? 'text-yellow-500' : 'text-red-500'
               }`}>
                 {healthData.status === 'healthy' ? 'ALL SYSTEMS OPERATIONAL' : 
+                 healthData.status === 'offline' ? 'RECONNECTING...' :
                  healthData.status === 'degraded' ? 'DEGRADED PERFORMANCE' : 'SYSTEM CRITICAL'}
               </span>
             </div>
           </div>
         </div>
         <div className="text-right flex flex-col items-end">
-           <span className="text-xs text-gray-500 font-mono">{healthData.overallLatencyMs}ms ping</span>
+           <span className="text-xs text-gray-500 font-mono">{healthData.overallLatencyMs}{healthData.status !== 'offline' && 'ms ping'}</span>
            <span className="text-xs text-gray-500">{healthData.summary.healthy}/{healthData.summary.totalServices} Services Online</span>
         </div>
       </div>
