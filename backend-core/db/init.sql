@@ -19,6 +19,16 @@ CREATE TABLE tenants (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE operator_documents (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    tenant_id VARCHAR(50) NOT NULL REFERENCES tenants(id),
+    document_type VARCHAR(100) NOT NULL,
+    extracted_data JSONB,
+    verification_status VARCHAR(50) DEFAULT 'PENDING',
+    confidence_score DECIMAL(5,2),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Global System Configuration (Managed exclusively by Back-Office Control Tower)
 CREATE TABLE global_fee_settings (
     id SERIAL PRIMARY KEY,
@@ -158,6 +168,9 @@ CREATE TABLE drivers (
     last_name VARCHAR(100) NOT NULL,
     pay_structure remuneration_type NOT NULL,
     commission_rate DECIMAL(5,2) DEFAULT 0.00,
+    hourly_rate DECIMAL(5,2) DEFAULT 25.00,
+    overtime_rate DECIMAL(5,2) DEFAULT 37.50,
+    is_subscribed BOOLEAN DEFAULT FALSE,
     preferred_language VARCHAR(10) DEFAULT 'en',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -241,6 +254,7 @@ CREATE POLICY b2b_ledger_isolation_policy ON network_clearing_ledger
 CREATE TABLE invoices (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     tenant_id UUID NOT NULL REFERENCES tenants(id),
+    driver_id UUID NOT NULL REFERENCES drivers(id),
     booking_id UUID NOT NULL,
     customer_retail_fare DECIMAL(10,2) NOT NULL, 
     driver_net_payout DECIMAL(10,2) NOT NULL,

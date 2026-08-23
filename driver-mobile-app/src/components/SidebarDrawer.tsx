@@ -53,17 +53,30 @@ export function SidebarDrawer({
   const [voicePrompts, setVoicePrompts] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
 
-  // Mock Data
-  const trips = [
-    { id: 'T1', net: '£80.00', tip: '£15.00', car: 'Mercedes-Benz S-Class • Black • Reg: LN26 XAA', route: 'Manchester Piccadilly ➔ Airport T2' },
-    { id: 'T2', net: '£20.80', tip: '£0.00', car: 'Range Rover Vogue • Dark Silver • Reg: V26 VELO', route: 'Spinningfields Core ➔ Wilmslow Manor' },
-  ];
+  // Data State
+  const [trips, setTrips] = useState<any[]>([]);
+  const [upcomingTrips, setUpcomingTrips] = useState<any[]>([]);
 
-  const upcomingTrips = [
-    { id: 'U1', tenant: 'ELITE LIMOS', route: 'Manchester Airport ➔ Spinningfields', targetTime: Date.now() + 2 * 3600000 + 450000 },
-    { id: 'U2', tenant: 'BLACKLANE UK', route: 'Wilmslow Manor ➔ Leeds City Centre', targetTime: Date.now() + 5 * 3600000 + 120000 },
-    { id: 'U3', tenant: 'VELO PRIVATE AVIATION', route: 'Farnborough Airport ➔ The Savoy, London', targetTime: Date.now() + 52 * 3600000 },
-  ];
+  useEffect(() => {
+    // Fetch live queues from backend when opening the drawer
+    const fetchTrips = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/driver/trips', {
+           headers: { 'x-driver-id': 'current-driver-uuid', 'x-tenant-id': 'TENANT-01' }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setTrips(data.history || []);
+          setUpcomingTrips(data.upcoming || []);
+        }
+      } catch (error) {
+        console.error("Failed to load driver trips", error);
+      }
+    };
+    if (activeTab === 'UPCOMING' || activeTab === 'HISTORY' || activeTab === 'EARNINGS') {
+      fetchTrips();
+    }
+  }, [activeTab]);
 
   const formatCountdown = (targetTime: number) => {
     const diff = targetTime - now;

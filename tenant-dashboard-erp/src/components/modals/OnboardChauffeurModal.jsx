@@ -44,14 +44,23 @@ const OnboardChauffeurModal = ({ isOpen, onClose, data = null, isEditMode = fals
     }
   }, [isOpen, isEditMode, data]);
 
-  const handleSubmit = () => {
-    const payload = { fullName, email, mobile, hourlyRate, payFrequency, taxCode, niCategory, pensionPercent, studentLoan };
-    if (isEditMode) {
-      console.log(`[PUT/PATCH] Updating chauffeur ${data?.id}`, payload);
-    } else {
-      console.log(`[POST] Creating new chauffeur`, payload);
+  const handleSubmit = async () => {
+    const payload = { fullName, email, mobile, address, emergencyName, emergencyPhone, hourlyRate, payFrequency, taxCode, niCategory, pensionPercent, studentLoan };
+    try {
+      const url = isEditMode 
+        ? `http://localhost:8000/api/fleet/chauffeurs/${data?.id}` 
+        : `http://localhost:8000/api/fleet/chauffeurs`;
+      const method = isEditMode ? 'PUT' : 'POST';
+      
+      await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'TENANT-CORP-001' },
+        body: JSON.stringify(payload)
+      });
+      onClose();
+    } catch (err) {
+      console.error("Failed to save chauffeur", err);
     }
-    onClose();
   };
 
   if (!isOpen) return null;

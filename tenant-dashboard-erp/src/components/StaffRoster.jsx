@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Search, User, ShieldCheck, FileText, Settings, AlertCircle, CheckCircle2, MessageSquare, BookOpen, Clock } from 'lucide-react';
+import { Search, User, ShieldCheck, FileText, Settings, AlertCircle, CheckCircle2, MessageSquare, BookOpen, Clock, Plus } from 'lucide-react';
 import './StaffRoster.css';
+import OnboardChauffeurModal from './modals/OnboardChauffeurModal';
 
 const StaffRoster = () => {
   const [activeStaff, setActiveStaff] = useState(1);
+  const [isOnboardModalOpen, setIsOnboardModalOpen] = useState(false);
 
   const staffList = [
     {
@@ -38,7 +40,12 @@ const StaffRoster = () => {
         <div>
           <h2 className="text-white" style={{ fontSize: '24px', letterSpacing: '1px' }}>Personnel Directory</h2>
         </div>
+        <button className="btn-primary flex-row align-center gap-sm" onClick={() => setIsOnboardModalOpen(true)}>
+          <Plus size={16} /> Add New Staff
+        </button>
       </div>
+
+      <OnboardChauffeurModal isOpen={isOnboardModalOpen} onClose={() => setIsOnboardModalOpen(false)} />
 
       <div className="roster-workspace">
         

@@ -1,21 +1,12 @@
 import { Request, Response } from 'express';
 import { VeloClearingEngine, FeeSettings } from '../utils/veloClearingEngine';
-
-// Simulated DB state representing `global_fee_settings`
-let activeGlobalSettings: FeeSettings = {
-    creatorFeeMode: 'FLAT',
-    creatorFlatValue: 1.00,
-    creatorPercentageValue: 0.00,
-    fulfillerFeeMode: 'FLAT',
-    fulfillerFlatValue: 1.00,
-    fulfillerPercentageValue: 0.00
-};
+import { db } from '../config/db';
 
 /**
  * VELO CORE ENDPOINT
  * Evaluates completed bookings, enforcing dynamic platform fees and VAT calculations.
  */
-export const processNetworkSettlement = async (req: Request, res: Response) => {
+export const processNetworkSettlement = async (req: Request, res: Response, next: import('express').NextFunction) => {
     try {
         const originatingTenantId = (req as any).tenantId; 
         const { bookingId, fulfillingTenantId, wholesaleFare } = req.body;
@@ -23,6 +14,18 @@ export const processNetworkSettlement = async (req: Request, res: Response) => {
         if (!bookingId || !fulfillingTenantId || wholesaleFare === undefined) {
             return res.status(400).json({ error: "VELO API: Missing required parameters for network clearing." });
         }
+
+        // Fetch settings from DB
+        const settingsRes = await db.query('SELECT * FROM global_fee_settings ORDER BY id DESC LIMIT 1');
+        const dbSettings = settingsRes.rows[0];
+        const activeGlobalSettings: FeeSettings = {
+            creatorFeeMode: dbSettings ? dbSettings.creator_fee_mode : 'FLAT',
+            creatorFlatValue: dbSettings ? parseFloat(dbSettings.creator_flat_value) : 1.00,
+            creatorPercentageValue: dbSettings ? parseFloat(dbSettings.creator_percentage_value) : 0.00,
+            fulfillerFeeMode: dbSettings ? dbSettings.fulfiller_fee_mode : 'FLAT',
+            fulfillerFlatValue: dbSettings ? parseFloat(dbSettings.fulfiller_flat_value) : 1.00,
+            fulfillerPercentageValue: dbSettings ? parseFloat(dbSettings.fulfiller_percentage_value) : 0.00
+        };
 
         // 1. Execute Pure VELO Clearing Math
         const clearanceResult = VeloClearingEngine.calculateClearance(
@@ -33,7 +36,7 @@ export const processNetworkSettlement = async (req: Request, res: Response) => {
             activeGlobalSettings
         );
 
-        // 2. Database/Stripe Ledger Actions (Execution Stubs)
+        // 2. Database/Stripe Ledger Actions
         console.log(`\n[NETWORK CLEARING INITIATED] Booking: ${bookingId} (Wholesale Base: £${Number(wholesaleFare).toFixed(2)})`);
         
         if (clearanceResult.isNetworkTrade) {
@@ -42,11 +45,26 @@ export const processNetworkSettlement = async (req: Request, res: Response) => {
             console.log(`[FULFILLER FEE] Net: £${clearanceResult.fulfillerFeeNet.toFixed(2)} | VAT: £${clearanceResult.fulfillerFeeVat.toFixed(2)} | GROSS EXTRACTION: £${clearanceResult.fulfillerFeeGross.toFixed(2)}`);
             
             console.log(`[SQL EXECUTION STREAM] -> network_clearing_ledger`);
-            console.log(`
-                INSERT INTO network_clearing_ledger 
-                (booking_id, originating_tenant_id, fulfilling_tenant_id, creator_fee_net, creator_fee_vat, creator_fee_gross, fulfiller_fee_net, fulfiller_fee_vat, fulfiller_fee_gross)
-                VALUES ('${bookingId}', '${originatingTenantId}', '${fulfillingTenantId}', ${clearanceResult.creatorFeeNet}, ${clearanceResult.creatorFeeVat}, ${clearanceResult.creatorFeeGross}, ${clearanceResult.fulfillerFeeNet}, ${clearanceResult.fulfillerFeeVat}, ${clearanceResult.fulfillerFeeGross});
-            `);
+            
+            const client = await db.connect();
+            try {
+                await client.query('BEGIN');
+                await client.query(`
+                    INSERT INTO network_clearing_ledger 
+                    (booking_id, originating_tenant_id, fulfilling_tenant_id, creator_fee_net, creator_fee_vat, creator_fee_gross, fulfiller_fee_net, fulfiller_fee_vat, fulfiller_fee_gross)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                `, [
+                    bookingId, originatingTenantId, fulfillingTenantId, 
+                    clearanceResult.creatorFeeNet, clearanceResult.creatorFeeVat, clearanceResult.creatorFeeGross, 
+                    clearanceResult.fulfillerFeeNet, clearanceResult.fulfillerFeeVat, clearanceResult.fulfillerFeeGross
+                ]);
+                await client.query('COMMIT');
+            } catch (txError) {
+                await client.query('ROLLBACK');
+                throw txError;
+            } finally {
+                client.release();
+            }
             
             console.log(`[BACK-OFFICE FEED] Traded transaction cleared. Total Platform Gross Revenue: £${clearanceResult.totalPlatformGrossRevenue.toFixed(2)}`);
         } else {
@@ -61,8 +79,7 @@ export const processNetworkSettlement = async (req: Request, res: Response) => {
         });
 
     } catch (error) {
-        console.error('CRITICAL [VELO CLEARING ENGINE FAILURE]:', error);
-        return res.status(500).json({ error: 'VELO API: Internal Server Error during network settlement.' });
+        next(error);
     }
 };
 
@@ -70,7 +87,7 @@ export const processNetworkSettlement = async (req: Request, res: Response) => {
  * VELO CORE ENDPOINT (BACK-OFFICE MASTER TOWER)
  * Allows administrators to dynamically manipulate global fee configurations.
  */
-export const updateGlobalFeeConfig = async (req: Request, res: Response) => {
+export const updateGlobalFeeConfig = async (req: Request, res: Response, next: import('express').NextFunction) => {
     try {
         const adminKey = req.headers['x-admin-key'];
         if (adminKey !== 'super-secret-velo-admin-key-999') {
@@ -79,21 +96,49 @@ export const updateGlobalFeeConfig = async (req: Request, res: Response) => {
 
         const newSettings = req.body as Partial<FeeSettings>;
         
-        // Merge updates into the active memory state (Simulating a DB UPDATE)
-        activeGlobalSettings = { ...activeGlobalSettings, ...newSettings };
+        const settingsRes = await db.query('SELECT * FROM global_fee_settings ORDER BY id DESC LIMIT 1');
+        const dbSettings = settingsRes.rows[0];
+        
+        const merged = {
+            creatorFeeMode: newSettings.creatorFeeMode || (dbSettings ? dbSettings.creator_fee_mode : 'FLAT'),
+            creatorFlatValue: newSettings.creatorFlatValue !== undefined ? newSettings.creatorFlatValue : (dbSettings ? parseFloat(dbSettings.creator_flat_value) : 1.00),
+            creatorPercentageValue: newSettings.creatorPercentageValue !== undefined ? newSettings.creatorPercentageValue : (dbSettings ? parseFloat(dbSettings.creator_percentage_value) : 0.00),
+            fulfillerFeeMode: newSettings.fulfillerFeeMode || (dbSettings ? dbSettings.fulfiller_fee_mode : 'FLAT'),
+            fulfillerFlatValue: newSettings.fulfillerFlatValue !== undefined ? newSettings.fulfillerFlatValue : (dbSettings ? parseFloat(dbSettings.fulfiller_flat_value) : 1.00),
+            fulfillerPercentageValue: newSettings.fulfillerPercentageValue !== undefined ? newSettings.fulfillerPercentageValue : (dbSettings ? parseFloat(dbSettings.fulfiller_percentage_value) : 0.00)
+        };
+
+        const client = await db.connect();
+        try {
+            await client.query('BEGIN');
+            await client.query(`
+                INSERT INTO global_fee_settings (
+                    creator_fee_mode, creator_flat_value, creator_percentage_value,
+                    fulfiller_fee_mode, fulfiller_flat_value, fulfiller_percentage_value
+                ) VALUES ($1, $2, $3, $4, $5, $6)
+            `, [
+                merged.creatorFeeMode, merged.creatorFlatValue, merged.creatorPercentageValue,
+                merged.fulfillerFeeMode, merged.fulfillerFlatValue, merged.fulfillerPercentageValue
+            ]);
+            await client.query('COMMIT');
+        } catch (txError) {
+            await client.query('ROLLBACK');
+            throw txError;
+        } finally {
+            client.release();
+        }
 
         console.log(`\n[BACK-OFFICE TOWER] Master Configuration overriding global_fee_settings...`);
-        console.log(JSON.stringify(activeGlobalSettings, null, 2));
+        console.log(JSON.stringify(merged, null, 2));
         console.log(`-----------------------------------------------------\n`);
 
         return res.status(200).json({
             success: true,
             message: "Global Fee Configuration successfully updated.",
-            active_settings: activeGlobalSettings
+            active_settings: merged
         });
 
     } catch (error) {
-        console.error('CRITICAL [VELO CONFIG FAILURE]:', error);
-        return res.status(500).json({ error: 'VELO API: Internal Server Error during config update.' });
+        next(error);
     }
 };

@@ -70,58 +70,7 @@ const calculateNetPay = (grossStr, taxCode = '1257L', niCat = 'A', pensionPct = 
   };
 };
 
-const mockShiftData = [
-  { id: 'S-7701', date: '2026-06-07', start: '07:00 AM', end: '05:00 PM', hours: '10h 0m', trips: '8', gross: '£250.00', net: '£250.00', status: 'Completed' },
-  { id: 'S-7702', date: '2026-06-06', start: '06:30 AM', end: '04:30 PM', hours: '10h 0m', trips: '7', gross: '£240.00', net: '£240.00', status: 'Completed' },
-  { id: 'S-7703', date: '2026-06-05', start: '08:00 AM', end: '06:00 PM', hours: '10h 0m', trips: '9', gross: '£310.00', net: '£310.00', status: 'Completed' },
-  { id: 'S-7704', date: '2026-06-04', start: '07:30 AM', end: '05:30 PM', hours: '10h 0m', trips: '6', gross: '£220.00', net: '£220.00', status: 'Completed' },
-  { id: 'S-7705', date: '2026-06-03', start: '06:00 AM', end: '04:00 PM', hours: '10h 0m', trips: '8', gross: '£265.00', net: '£265.00', status: 'Completed' }
-];
 
-const MOCK_MAINTENANCE = [
-  { id: 'MX-01', date: '2026-06-01', vehicle: 'S-Class W223', issue: 'Tire Pressure Sensor', severity: 'Low',      mechanic: 'J. Evans',    cost: '£65',   parts: '£40',   labour: '£25',  nextAction: 'None',           status: 'Resolved' },
-  { id: 'MX-02', date: '2026-05-15', vehicle: 'S-Class W223', issue: 'Brake Pad Replacement', severity: 'Medium',   mechanic: 'A. Patel',    cost: '£380',  parts: '£240',  labour: '£140', nextAction: 'Check in 6mo',   status: 'Resolved' },
-  { id: 'MX-03', date: '2026-04-22', vehicle: 'S-Class W223', issue: 'Routine Oil Change',    severity: 'Low',      mechanic: 'J. Evans',    cost: '£120',  parts: '£80',   labour: '£40',  nextAction: 'Oct 2026',       status: 'Resolved' },
-  { id: 'MX-04', date: '2026-03-10', vehicle: 'S-Class W223', issue: 'Wiper Fluid Top-up',    severity: 'None',     mechanic: 'Driver Self', cost: '£12',   parts: '£12',   labour: '£0',   nextAction: 'As needed',      status: 'Resolved' },
-  { id: 'MX-05', date: '2026-02-05', vehicle: 'S-Class W223', issue: 'Cabin Air Filter',      severity: 'Low',      mechanic: 'A. Patel',    cost: '£55',   parts: '£35',   labour: '£20',  nextAction: 'Feb 2027',       status: 'Resolved' },
-  { id: 'MX-06', date: '2026-01-18', vehicle: 'S-Class W223', issue: 'Full Service',           severity: 'Routine',  mechanic: 'MB Dealer',   cost: '£1,200',parts: '£800',  labour: '£400', nextAction: 'Jan 2027',       status: 'Resolved' },
-  { id: 'MX-07', date: '2025-12-03', vehicle: 'S-Class W223', issue: 'Tyre Rotation',          severity: 'Low',      mechanic: 'J. Evans',    cost: '£45',   parts: '£0',    labour: '£45',  nextAction: 'Jun 2026',       status: 'Resolved' },
-  { id: 'MX-08', date: '2025-11-14', vehicle: 'S-Class W223', issue: 'Coolant Top-up',         severity: 'None',     mechanic: 'Driver Self', cost: '£8',    parts: '£8',    labour: '£0',   nextAction: 'As needed',      status: 'Resolved' },
-  { id: 'MX-09', date: '2025-10-20', vehicle: 'S-Class W223', issue: 'Windshield Chip Repair', severity: 'Low',      mechanic: 'AutoGlass',   cost: '£75',   parts: '£30',   labour: '£45',  nextAction: 'Monitor',        status: 'Resolved' },
-  { id: 'MX-10', date: '2025-09-05', vehicle: 'S-Class W223', issue: 'Battery Check & Replace',severity: 'High',     mechanic: 'MB Dealer',   cost: '£520',  parts: '£420',  labour: '£100', nextAction: 'Sep 2028',       status: 'Resolved' },
-  { id: 'MX-11', date: '2025-08-12', vehicle: 'S-Class W223', issue: 'AC Re-gas',              severity: 'Medium',   mechanic: 'A. Patel',    cost: '£180',  parts: '£120',  labour: '£60',  nextAction: 'Aug 2027',       status: 'Resolved' },
-  { id: 'MX-12', date: '2025-07-01', vehicle: 'S-Class W223', issue: 'Wheel Alignment',        severity: 'Low',      mechanic: 'J. Evans',    cost: '£90',   parts: '£0',    labour: '£90',  nextAction: 'Annual',         status: 'Resolved' },
-];
-
-const MOCK_FINANCIALS = [
-  { id: 'PAY-01', period: 'May 2026',  shifts: 22, trips: 187, gross: '$5,610', commission: '60%', deduction: '$760', tax: '$230', net: '$4,620', status: 'Paid',    paid: '2026-06-01' },
-  { id: 'PAY-02', period: 'Apr 2026',  shifts: 20, trips: 171, gross: '$5,125', commission: '60%', deduction: '$640', tax: '$210', net: '$4,275', status: 'Paid',    paid: '2026-05-01' },
-  { id: 'PAY-03', period: 'Mar 2026',  shifts: 21, trips: 179, gross: '$4,750', commission: '60%', deduction: '$590', tax: '$180', net: '$3,980', status: 'Paid',    paid: '2026-04-01' },
-  { id: 'PAY-04', period: 'Feb 2026',  shifts: 19, trips: 163, gross: '$5,625', commission: '60%', deduction: '$700', tax: '$225', net: '$4,700', status: 'Paid',    paid: '2026-03-01' },
-  { id: 'PAY-05', period: 'Jan 2026',  shifts: 22, trips: 188, gross: '$4,938', commission: '60%', deduction: '$605', tax: '$195', net: '$4,138', status: 'Paid',    paid: '2026-02-01' },
-  { id: 'PAY-06', period: 'Dec 2025',  shifts: 18, trips: 154, gross: '$4,312', commission: '60%', deduction: '$530', tax: '$168', net: '$3,614', status: 'Paid',    paid: '2026-01-01' },
-  { id: 'PAY-07', period: 'Nov 2025',  shifts: 20, trips: 168, gross: '$5,040', commission: '60%', deduction: '$630', tax: '$200', net: '$4,210', status: 'Paid',    paid: '2025-12-01' },
-  { id: 'PAY-08', period: 'Oct 2025',  shifts: 21, trips: 180, gross: '$4,860', commission: '60%', deduction: '$605', tax: '$190', net: '$4,065', status: 'Paid',    paid: '2025-11-01' },
-  { id: 'PAY-09', period: 'Sep 2025',  shifts: 19, trips: 162, gross: '$4,374', commission: '60%', deduction: '$546', tax: '$170', net: '$3,658', status: 'Paid',    paid: '2025-10-01' },
-  { id: 'PAY-10', period: 'Aug 2025',  shifts: 22, trips: 190, gross: '$5,700', commission: '60%', deduction: '$710', tax: '$228', net: '$4,762', status: 'Paid',    paid: '2025-09-01' },
-  { id: 'PAY-11', period: 'Jul 2025',  shifts: 23, trips: 196, gross: '$5,880', commission: '60%', deduction: '$735', tax: '$236', net: '$4,909', status: 'Paid',    paid: '2025-08-01' },
-  { id: 'PAY-12', period: 'Jun 2025',  shifts: 20, trips: 172, gross: '$5,160', commission: '60%', deduction: '$645', tax: '$206', net: '$4,309', status: 'Paid',    paid: '2025-07-01' },
-];
-
-const MOCK_PAST_TRIPS = [
-  { id: '#VELO-9841', channel: 'Velo Black', status: 'Completed', date: '2026-06-07', route: 'LHR T5 → The Savoy',          passenger: 'J. Hartmann',    client: 'J. Hartmann',    vehicle: 'S-Class W223',   driver: null, dist: '23.4mi', duration: '48m', timeToFree: '48m', fare: '$145', tip: '$20', progress: 100, rating: '5.0' },
-  { id: '#VELO-9840', channel: 'Velo Core',  status: 'Completed', date: '2026-06-07', route: 'Mayfair → LGW',              passenger: 'S. Whitmore',    client: 'S. Whitmore',    vehicle: 'RR Phantom',     driver: null, dist: '31.2mi', duration: '62m', timeToFree: '62m', fare: '$180', tip: '$15', progress: 100, rating: '5.0' },
-  { id: '#VELO-9838', channel: 'Pool',       status: 'Completed', date: '2026-06-06', route: 'Soho → LHR T2',              passenger: 'R. Chen',        client: 'R. Chen',        vehicle: 'S-Class W223',   driver: null, dist: '19.8mi', duration: '55m', timeToFree: '55m', fare: '$125', tip: '$10', progress: 100, rating: '5.0' },
-  { id: '#VELO-9835', channel: 'Velo Black', status: 'Completed', date: '2026-06-06', route: 'The Shard → O2 Arena',       passenger: 'R. Goldman',     client: 'Goldman Sachs',  vehicle: 'RR Ghost',       driver: null, dist: '9.1mi',  duration: '28m', timeToFree: '28m', fare: '$85',  tip: '$0',  progress: 100, rating: '4.9' },
-  { id: '#VELO-9831', channel: 'Velo Core',  status: 'Completed', date: '2026-06-05', route: 'Canary Wharf → Mayfair',     passenger: 'T. Osei',        client: 'T. Osei',        vehicle: 'Bentley Mulsanne',driver: null, dist: '7.4mi', duration: '22m', timeToFree: '22m', fare: '$65',  tip: '$10', progress: 100, rating: '5.0' },
-  { id: '#VELO-9828', channel: 'Velo Black', status: 'Completed', date: '2026-06-05', route: 'Heathrow → Belgravia',       passenger: 'A. Rossi',       client: 'A. Rossi',       vehicle: 'RR Phantom',     driver: null, dist: '20.5mi', duration: '50m', timeToFree: '50m', fare: '$135', tip: '$25', progress: 100, rating: '5.0' },
-  { id: '#VELO-9824', channel: 'Pool',       status: 'Completed', date: '2026-06-04', route: 'Chelsea → City of London',   passenger: 'P. Nielsen',     client: 'P. Nielsen',     vehicle: 'S-Class W223',   driver: null, dist: '5.8mi',  duration: '18m', timeToFree: '18m', fare: '$55',  tip: '$0',  progress: 100, rating: '4.8' },
-  { id: '#VELO-9820', channel: 'Velo Core',  status: 'Completed', date: '2026-06-04', route: 'Kensington → Knightsbridge', passenger: 'R. Al-Farsi',    client: 'R. Al-Farsi',    vehicle: 'Range Rover SV', driver: null, dist: '2.1mi',  duration: '12m', timeToFree: '12m', fare: '$45',  tip: '$5',  progress: 100, rating: '5.0' },
-  { id: '#VELO-9815', channel: 'Velo Black', status: 'Completed', date: '2026-06-03', route: 'Paddington → Shoreditch',    passenger: 'M. Yamamoto',    client: 'M. Yamamoto',    vehicle: 'i7 xDrive',      driver: null, dist: '6.2mi',  duration: '25m', timeToFree: '25m', fare: '$60',  tip: '$0',  progress: 100, rating: '5.0' },
-  { id: '#VELO-9810', channel: 'Velo Core',  status: 'Completed', date: '2026-06-03', route: 'Gatwick → Kensington',       passenger: 'C. Leveque',     client: 'C. Leveque',     vehicle: 'S-Class W223',   driver: null, dist: '35.6mi', duration: '75m', timeToFree: '75m', fare: '$210', tip: '$30', progress: 100, rating: '5.0' },
-  { id: '#VELO-9804', channel: 'Velo Core',  status: 'Completed', date: '2026-06-02', route: 'Islington → LHR T4',         passenger: 'D. Kumar',       client: 'D. Kumar',       vehicle: 'Bentley Mulsanne',driver: null, dist: '22.1mi', duration: '58m', timeToFree: '58m', fare: '$140', tip: '$0',  progress: 100, rating: '4.9' },
-  { id: '#VELO-9799', channel: 'Pool',       status: 'Completed', date: '2026-06-02', route: 'Waterloo → Westminster',     passenger: "B. O'Sullivan",  client: "B. O'Sullivan",  vehicle: 'V-Class',        driver: null, dist: '1.8mi',  duration: '10m', timeToFree: '10m', fare: '$40',  tip: '$10', progress: 100, rating: '5.0' },
-];
 
 const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -130,6 +79,44 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
   const [isEditing, setIsEditing] = useState(false);
   
   const { openSummaryModal } = useEntityLinker();
+
+  const [liveData, setLiveData] = useState({ shifts: [], maintenance: [], financials: [], trips: [] });
+  const [assigningJob, setAssigningJob] = useState(false);
+
+  React.useEffect(() => {
+    if (!chauffeur) return;
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/api/fleet/chauffeurs/${chauffeur.id}/data`, {
+          headers: { 'x-tenant-id': 'TENANT-CORP-001' }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setLiveData(data);
+        }
+      } catch (err) {
+        console.error("Failed to load chauffeur data", err);
+      }
+    };
+    fetchData();
+  }, [chauffeur]);
+
+  const handleAssignJob = async (jobId) => {
+    setAssigningJob(true);
+    try {
+      await fetch(`http://localhost:8000/api/fleet/jobs/${jobId}/assign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'TENANT-CORP-001' },
+        body: JSON.stringify({ chauffeurId: chauffeur.id })
+      });
+      setIsAssignJobModalOpen(false);
+      // Optional: Refetch data here
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAssigningJob(false);
+    }
+  };
 
   if (!chauffeur) return null;
 
@@ -156,14 +143,14 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
                   <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '14px' }}>JOB-8902</div>
                   <div style={{ color: '#888', fontSize: '12px', marginTop: '4px' }}>LHR T5 to The Savoy</div>
                 </div>
-                <button className="u-modal-btn-outline" onClick={() => { alert('Job Assigned to ' + chauffeur.name); setIsAssignJobModalOpen(false); }}>ASSIGN</button>
+                <button className="u-modal-btn-outline" onClick={() => handleAssignJob('JOB-8905')} disabled={assigningJob}>{assigningJob ? 'ASSIGNING...' : 'ASSIGN'}</button>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#000', padding: '12px', borderRadius: '4px', border: '1px solid #333' }}>
                 <div>
                   <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '14px' }}>JOB-8905</div>
                   <div style={{ color: '#888', fontSize: '12px', marginTop: '4px' }}>O2 Arena to Mayfair</div>
                 </div>
-                <button className="u-modal-btn-outline" onClick={() => { alert('Job Assigned to ' + chauffeur.name); setIsAssignJobModalOpen(false); }}>ASSIGN</button>
+                <button className="u-modal-btn-outline" onClick={() => handleAssignJob('JOB-8902')} disabled={assigningJob}>{assigningJob ? 'ASSIGNING...' : 'ASSIGN'}</button>
               </div>
             </div>
             <button className="u-modal-btn-primary" onClick={() => setIsAssignJobModalOpen(false)} style={{marginTop: '24px', width: '100%'}}>CANCEL</button>
@@ -403,7 +390,7 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
               </div>
               {/* Universal Trip Table — identical to Operations Hub */}
               <UniversalTripTable
-                trips={MOCK_PAST_TRIPS.map(t => ({ ...t, driver: t.driver || chauffeur.name }))}
+                trips={liveData.trips.map(t => ({ ...t, driver: t.driver || chauffeur.name }))}
                 onTripClick={trip => setSelectedTrip(trip)}
                 onClientClick={null}
                 onVehicleClick={null}
@@ -440,7 +427,7 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockShiftData.map((s, i) => (
+                    {liveData.shifts.map((s, i) => (
                       <tr key={i} className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
                         title: 'Shift Detail', subtitle: s.id, status: s.status, icon: 'activity',
                         primaryMetric: { label: 'NET EARNINGS', value: s.net },
@@ -490,7 +477,7 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {MOCK_MAINTENANCE.map((m, i) => {
+                    {liveData.maintenance.map((m, i) => {
                       const partsCost = parseFloat(m.parts.replace(/[^0-9.-]+/g,"")) || 0;
                       const labourCost = parseFloat(m.labour.replace(/[^0-9.-]+/g,"")) || 0;
                       const totalCost = partsCost + labourCost;
@@ -550,7 +537,7 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {MOCK_FINANCIALS.map((f, i) => (
+                    {liveData.financials.map((f, i) => (
                       <tr key={i} className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
                         title: 'Financial Payout Detail', subtitle: f.id, status: f.status, icon: 'financial',
                         primaryMetric: { label: 'NET PAY', value: f.net },
@@ -612,7 +599,7 @@ const ChauffeurProfileModal = ({ chauffeur, onClose }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockShiftData.slice(0, 3).map((shift, i) => {
+                    {liveData.shifts.slice(0, 3).map((shift, i) => {
                       const payroll = calculateNetPay(shift.gross);
                       return (
                         <tr key={i} className="cc-card-row">

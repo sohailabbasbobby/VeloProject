@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
+import { db } from '../config/db';
 
 /**
  * VELO CORE - ONBOARDING CONTROLLER
- * Simulates advanced Gemini Vision OCR and provisioning.
+ * Simulates advanced Gemini Vision OCR and provisioning, now backed by actual DB records.
  */
 
-export const signupTenant = async (req: Request, res: Response) => {
+export const signupTenant = async (req: Request, res: Response, next: import('express').NextFunction) => {
     try {
         const { companyName, ownerName, email } = req.body;
         
@@ -13,23 +14,21 @@ export const signupTenant = async (req: Request, res: Response) => {
 
         console.log(`[ONBOARDING ENGINE] Provisioning white-labeled tenant environment for ${companyName}...`);
         
-        // Simulate heavy DB provisioning
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        const tenantId = `TENANT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-        const mockTenant = {
-            id: `TENANT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-            name: companyName,
-            activation_status: 'REGISTRATION',
-            preferred_language: 'en'
-        };
+        const insertRes = await db.query(`
+            INSERT INTO tenants (id, name, activation_status, preferred_language)
+            VALUES ($1, $2, 'REGISTRATION', 'en')
+            RETURNING *
+        `, [tenantId, companyName]);
 
-        return res.status(201).json({ success: true, tenant: mockTenant });
+        return res.status(201).json({ success: true, tenant: insertRes.rows[0] });
     } catch (error) {
-        return res.status(500).json({ error: 'Internal Engine Error' });
+        next(error);
     }
 };
 
-export const verifyDocuments = async (req: Request, res: Response) => {
+export const verifyDocuments = async (req: Request, res: Response, next: import('express').NextFunction) => {
     try {
         const tenantId = req.headers['x-tenant-id'] as string;
         
@@ -37,18 +36,21 @@ export const verifyDocuments = async (req: Request, res: Response) => {
 
         console.log(`[GEMINI VISION ENGINE] Scanning uploaded Operator Licensing Documents for ${tenantId}...`);
         
-        // Simulate Gemini Vision Document Extraction
-        await new Promise(resolve => setTimeout(resolve, 2500));
-
-        const mockVerification = {
+        // Simulating the extraction logic that would come from an AI call
+        const extractedData = {
             extracted_license_number: 'PCO-9988776655',
             expiry_date: '2028-11-01',
-            status: 'AI_VERIFIED',
-            confidence: 0.99
+            status: 'AI_VERIFIED'
         };
 
-        return res.status(200).json({ success: true, verification: mockVerification });
+        const insertRes = await db.query(`
+            INSERT INTO operator_documents (tenant_id, document_type, extracted_data, verification_status, confidence_score)
+            VALUES ($1, 'OPERATOR_LICENSE', $2, 'VERIFIED', 0.99)
+            RETURNING *
+        `, [tenantId, JSON.stringify(extractedData)]);
+
+        return res.status(200).json({ success: true, verification: insertRes.rows[0] });
     } catch (error) {
-        return res.status(500).json({ error: 'Internal Engine Error' });
+        next(error);
     }
 };

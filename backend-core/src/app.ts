@@ -51,9 +51,20 @@ app.get('/health', (req: Request, res: Response) => {
 // Global Error-Handling Catch-All Middleware
 app.use((err: any, req: Request, res: Response, next: express.NextFunction) => {
     console.error('CRITICAL [UNHANDLED EXCEPTION]:', err.message || err);
-    res.status(500).json({
+    
+    // Check for PostgreSQL connection timeout or specific codes
+    if (err.code === '57014' || err.message.includes('timeout')) {
+        return res.status(503).json({
+            success: false,
+            error: 'VELO SYSTEM: Database connection timeout. The transaction was aborted.',
+            code: err.code
+        });
+    }
+
+    res.status(err.status || 500).json({
         success: false,
-        error: 'VELO SYSTEM: An unexpected internal server error occurred.'
+        error: err.message || 'VELO SYSTEM: An unexpected internal server error occurred.',
+        code: err.code || 'INTERNAL_ERROR'
     });
 });
 

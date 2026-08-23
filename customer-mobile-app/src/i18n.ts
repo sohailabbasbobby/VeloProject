@@ -57,6 +57,9 @@ i18n
     compatibilityJSON: 'v3',
     interpolation: {
       escapeValue: false // not needed for react as it escapes by default
+    },
+    react: {
+      useSuspense: false, // prevents async languageDetector from throwing during sync render
     }
   });
 

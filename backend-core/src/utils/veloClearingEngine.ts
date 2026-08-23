@@ -43,7 +43,9 @@ export class VeloClearingEngine {
         originatingTenantId: string, 
         fulfillingTenantId: string,
         wholesaleFare: number,
-        settings: FeeSettings
+        settings: FeeSettings,
+        creatorIsSubscribed: boolean = false,
+        fulfillerIsSubscribed: boolean = false
     ): ClearingResult {
         
         // 1. In-House Job Evaluation
@@ -57,16 +59,14 @@ export class VeloClearingEngine {
         }
 
         // 2. Cross-Network B2B Trade Evaluation
-        const calcNetFee = (mode: string, flat: number, percentage: number, baseFare: number) => {
-            let net = 0;
-            if (mode === 'FLAT') net = flat;
-            if (mode === 'PERCENTAGE') net = baseFare * (percentage / 100);
-            if (mode === 'HYBRID') net = flat + (baseFare * (percentage / 100));
-            return net;
+        // Exact Pricing Rule: 50p for trips < £7.00, £1.00 for trips >= £7.00
+        const calcNetFee = (isSubscribed: boolean, baseFare: number) => {
+            if (isSubscribed) return 0; // Subscription model pays 0% commission/transaction fee
+            return baseFare < 7.00 ? 0.50 : 1.00;
         };
 
-        const creatorNet = calcNetFee(settings.creatorFeeMode, settings.creatorFlatValue, settings.creatorPercentageValue, wholesaleFare);
-        const fulfillerNet = calcNetFee(settings.fulfillerFeeMode, settings.fulfillerFlatValue, settings.fulfillerPercentageValue, wholesaleFare);
+        const creatorNet = calcNetFee(creatorIsSubscribed, wholesaleFare);
+        const fulfillerNet = calcNetFee(fulfillerIsSubscribed, wholesaleFare);
 
         const creatorVat = creatorNet * this.VAT_RATE;
         const fulfillerVat = fulfillerNet * this.VAT_RATE;
