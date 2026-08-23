@@ -13,6 +13,7 @@ import WorkforceScheduler from './WorkforceScheduler';
 import FinancialDashboard from './FinancialDashboard';
 import WhiteLabelPortal from './WhiteLabelPortal';
 import UniversalTripTable from './UniversalTripTable';
+import PlatformHealthWidget from './PlatformHealthWidget';
 import './CommandCenter.css';
 import { MOCK_CHAUFFEURS, MOCK_CORP_CLIENTS, MOCK_PRIV_CLIENTS, MOCK_VEHICLES, MOCK_ACTIVE_TASKS as activeTasks, MOCK_LEDGER } from '../data/mockDatabase';
 import { useEntityLinker } from '../contexts/EntityLinkerContext';
@@ -130,10 +131,13 @@ const CommandCenter = ({ onNavigate }) => {
             <span className="cc-toolbar-label">{item.label}</span>
           </button>
         ))}
-        <button className="cc-toolbar-btn" onClick={() => setIsDrawerOpen(true)}>
-          <span className="cc-toolbar-icon"><Settings size={14} /></span>
-          <span className="cc-toolbar-label">System Admin</span>
-        </button>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <PlatformHealthWidget />
+          <button className="cc-toolbar-btn" onClick={() => setIsDrawerOpen(true)}>
+            <span className="cc-toolbar-icon"><Settings size={14} /></span>
+            <span className="cc-toolbar-label">System Admin</span>
+          </button>
+        </div>
       </div>
 
       {/* Row 2: Operational Metrics (Pulse Bar) */}

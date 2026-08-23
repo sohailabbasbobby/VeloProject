@@ -87,6 +87,12 @@ The database schema and ERP UI rigorously separate distinct business entities. T
   - `src/controllers/onboarding.controller.ts`
   - `src/controllers/analytics.controller.ts`
   - `src/app.ts` (Global Error Interceptor)
+- **Platform Health Check & Diagnostic Hub**: ✅ Complete
+  - `backend-core/src/services/health.service.ts`
+  - `backend-core/src/controllers/health.controller.ts`
+  - `backend-core/src/routes/health.routes.ts`
+  - `tenant-dashboard-erp/src/components/PlatformHealthWidget.jsx`
+  - `tenant-dashboard-erp/src/components/PlatformHealthWidget.css`
 
 ### 3.5 Verification & Audits
 - **2026-08-23**: Verified TypeScript compilation cleanly via `npx tsc --noEmit` inside `backend-core` (Exit Code 0).

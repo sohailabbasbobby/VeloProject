@@ -15,6 +15,7 @@ import fleetRoutes from './routes/fleet.routes';
 import uploadRoutes from './routes/upload.routes';
 import aiRoutes from './routes/ai.routes';
 import onboardingRoutes from './routes/onboarding.routes';
+import healthRoutes from './routes/health.routes';
 
 // Import Middleware
 import { tenantMiddleware } from './middleware/tenant.middleware';
@@ -24,6 +25,9 @@ const app: Application = express();
 // Global Middleware
 app.use(cors());
 app.use(express.json());
+
+// Public Health Check Endpoint
+app.use('/api/v1/health', healthRoutes);
 
 // Apply Tenant Isolation Middleware to all protected routes
 app.use('/api', tenantMiddleware);
