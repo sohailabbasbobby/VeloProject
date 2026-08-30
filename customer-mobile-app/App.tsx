@@ -101,15 +101,6 @@ const App = () => {
   // AUTHENTICATION LISTENER
   // ----------------------------------------------------
   useEffect(() => {
-    // --- DEVELOPMENT BYPASS MODE ---
-    setUser({ uid: 'dev-test-123', email: 'dev@velo.com' });
-    setJwtToken('MOCK_JWT_TOKEN');
-    setUserRole('customer_personal');
-    setActiveTenantId('default_tenant');
-    setSelectedRole('PERSONAL'); // Bypass Role Selection screen directly to Home
-    setIsAuthLoading(false);
-
-    /* Original Auth Logic (Commented out for bypass):
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
@@ -134,7 +125,6 @@ const App = () => {
       setIsAuthLoading(false);
     });
     return unsubscribe;
-    */
   }, []);
 
   // ----------------------------------------------------

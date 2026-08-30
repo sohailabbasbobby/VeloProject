@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 export const InteractiveMap = ({ stops, onMarkerDragEnd, tripStatus = 'NONE' }) => {
   // Default coordinates (London) if no stops have valid geocodes yet
@@ -14,6 +14,7 @@ export const InteractiveMap = ({ stops, onMarkerDragEnd, tripStatus = 'NONE' }) 
   return (
     <View style={styles.mapContainer}>
       <MapView
+        provider={PROVIDER_GOOGLE}
         style={StyleSheet.absoluteFillObject}
         initialRegion={initialRegion}
         userInterfaceStyle="dark"

@@ -86,7 +86,7 @@ export const getPlatformAnalytics = async (req: Request, res: Response, next: im
     try {
         const adminKey = req.headers['x-admin-key'];
 
-        if (adminKey !== 'super-secret-velo-admin-key-999') {
+        if (adminKey !== process.env.ADMIN_KEY) {
             console.error(`[SECURITY BREACH ATTEMPT] Invalid or missing admin key on Platform Analytics endpoint.`);
             return res.status(403).json({ error: 'Forbidden: Valid Master Admin Key Required' });
         }

@@ -104,6 +104,56 @@ const LiveTripModal = ({ trip, onClose, onDriverClick, onClientClick, onVehicleC
                 <span className="ltm-value">{trip.route}</span>
               </div>
             </div>
+
+            <div className="ltm-detail-card full-width">
+              <div className="ltm-detail-icon"><span style={{fontSize: 18, color: '#D4AF37'}}>£</span></div>
+              <div className="ltm-detail-info" style={{ width: '100%' }}>
+                <span className="ltm-label">CUSTOM PLATFORM FEE (DRIVER CHARGE)</span>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+                  <input 
+                    type="number" 
+                    id="customFeeInput"
+                    placeholder="Enter fee (e.g. 10.00)"
+                    defaultValue={trip.customPlatformFee || ''}
+                    style={{ 
+                      flex: 1, 
+                      padding: '8px', 
+                      borderRadius: '4px', 
+                      border: '1px solid #333', 
+                      backgroundColor: '#1A1A1A', 
+                      color: '#FFF' 
+                    }} 
+                  />
+                  <button 
+                    onClick={() => {
+                      const val = document.getElementById('customFeeInput').value;
+                      if(val) {
+                        fetch(`/api/b2b/trips/${trip.id}/price`, {
+                          method: 'PUT',
+                          headers: { 
+                            'Content-Type': 'application/json',
+                            'x-tenant-id': 'TENANT_123',
+                            'x-admin-key': process.env.REACT_APP_ADMIN_KEY || 'super-secret-velo-admin-key-999'
+                          },
+                          body: JSON.stringify({ customPlatformFee: Number(val) })
+                        }).then(() => alert('Custom platform fee saved.'));
+                      }
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#D4AF37',
+                      color: '#000',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>

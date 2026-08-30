@@ -6,7 +6,7 @@ import { z } from 'zod';
 const settlementSchema = z.object({
     bookingId: z.string().min(1),
     fulfillingTenantId: z.string().min(1),
-    wholesaleFare: z.number().min(0)
+    customPlatformFee: z.number().min(0)
 });
 
 /**
@@ -22,35 +22,21 @@ export const processNetworkSettlement = async (req: Request, res: Response, next
         if (!validation.success) {
             return res.status(400).json({ error: "VELO API: Invalid parameters for network clearing.", details: validation.error.issues });
         }
-        const { bookingId, fulfillingTenantId, wholesaleFare } = validation.data;
-
-        // Fetch settings from DB
-        const settingsRes = await db.query('SELECT * FROM global_fee_settings ORDER BY id DESC LIMIT 1');
-        const dbSettings = settingsRes.rows[0];
-        const activeGlobalSettings: FeeSettings = {
-            creatorFeeMode: dbSettings ? dbSettings.creator_fee_mode : 'FLAT',
-            creatorFlatValue: dbSettings ? parseFloat(dbSettings.creator_flat_value) : 1.00,
-            creatorPercentageValue: dbSettings ? parseFloat(dbSettings.creator_percentage_value) : 0.00,
-            fulfillerFeeMode: dbSettings ? dbSettings.fulfiller_fee_mode : 'FLAT',
-            fulfillerFlatValue: dbSettings ? parseFloat(dbSettings.fulfiller_flat_value) : 1.00,
-            fulfillerPercentageValue: dbSettings ? parseFloat(dbSettings.fulfiller_percentage_value) : 0.00
-        };
+        const { bookingId, fulfillingTenantId, customPlatformFee } = validation.data;
 
         // 1. Execute Pure VELO Clearing Math
         const clearanceResult = VeloClearingEngine.calculateClearance(
             bookingId, 
             originatingTenantId, 
             fulfillingTenantId,
-            Number(wholesaleFare),
-            activeGlobalSettings
+            Number(customPlatformFee)
         );
 
         // 2. Database/Stripe Ledger Actions
-        console.log(`\n[NETWORK CLEARING INITIATED] Booking: ${bookingId} (Wholesale Base: £${Number(wholesaleFare).toFixed(2)})`);
+        console.log(`\n[NETWORK CLEARING INITIATED] Booking: ${bookingId} (Custom Platform Fee: £${Number(customPlatformFee).toFixed(2)})`);
         
         if (clearanceResult.isNetworkTrade) {
             console.log(`[TRADE TYPE] Cross-Network B2B Fulfillment detected.`);
-            console.log(`[CREATOR FEE] Net: £${clearanceResult.creatorFeeNet.toFixed(2)} | VAT: £${clearanceResult.creatorFeeVat.toFixed(2)} | GROSS EXTRACTION: £${clearanceResult.creatorFeeGross.toFixed(2)}`);
             console.log(`[FULFILLER FEE] Net: £${clearanceResult.fulfillerFeeNet.toFixed(2)} | VAT: £${clearanceResult.fulfillerFeeVat.toFixed(2)} | GROSS EXTRACTION: £${clearanceResult.fulfillerFeeGross.toFixed(2)}`);
             
             console.log(`[SQL EXECUTION STREAM] -> network_clearing_ledger`);
@@ -99,7 +85,7 @@ export const processNetworkSettlement = async (req: Request, res: Response, next
 export const updateGlobalFeeConfig = async (req: Request, res: Response, next: import('express').NextFunction) => {
     try {
         const adminKey = req.headers['x-admin-key'];
-        if (adminKey !== 'super-secret-velo-admin-key-999') {
+        if (adminKey !== process.env.ADMIN_KEY) {
             return res.status(403).json({ error: 'Forbidden: Valid Master Admin Key Required' });
         }
 

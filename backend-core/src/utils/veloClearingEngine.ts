@@ -36,16 +36,13 @@ export class VeloClearingEngine {
     private static readonly VAT_RATE = 0.20;
 
     /**
-     * Executes the strict VELO clearing matrix utilizing active fee configurations.
+     * Executes the strict VELO clearing matrix utilizing a custom manual platform fee per trip.
      */
     public static calculateClearance(
         bookingId: string, 
         originatingTenantId: string, 
         fulfillingTenantId: string,
-        wholesaleFare: number,
-        settings: FeeSettings,
-        creatorIsSubscribed: boolean = false,
-        fulfillerIsSubscribed: boolean = false
+        customPlatformFee: number
     ): ClearingResult {
         
         // 1. In-House Job Evaluation
@@ -59,30 +56,20 @@ export class VeloClearingEngine {
         }
 
         // 2. Cross-Network B2B Trade Evaluation
-        // Exact Pricing Rule: 50p for trips < £7.00, £1.00 for trips >= £7.00
-        const calcNetFee = (isSubscribed: boolean, baseFare: number) => {
-            if (isSubscribed) return 0; // Subscription model pays 0% commission/transaction fee
-            return baseFare < 7.00 ? 0.50 : 1.00;
-        };
-
-        const creatorNet = calcNetFee(creatorIsSubscribed, wholesaleFare);
-        const fulfillerNet = calcNetFee(fulfillerIsSubscribed, wholesaleFare);
-
-        const creatorVat = creatorNet * this.VAT_RATE;
+        // The admin specifies the exact custom platform fee to extract from the fulfiller.
+        const fulfillerNet = customPlatformFee;
         const fulfillerVat = fulfillerNet * this.VAT_RATE;
-
-        const creatorGross = creatorNet + creatorVat;
         const fulfillerGross = fulfillerNet + fulfillerVat;
 
         return {
             bookingId, originatingTenantId, fulfillingTenantId,
-            creatorFeeNet: creatorNet,
-            creatorFeeVat: creatorVat,
-            creatorFeeGross: creatorGross,
+            creatorFeeNet: 0, // Creator is not charged a fee
+            creatorFeeVat: 0,
+            creatorFeeGross: 0,
             fulfillerFeeNet: fulfillerNet,
             fulfillerFeeVat: fulfillerVat,
             fulfillerFeeGross: fulfillerGross,
-            totalPlatformGrossRevenue: creatorGross + fulfillerGross,
+            totalPlatformGrossRevenue: fulfillerGross,
             isNetworkTrade: true
         };
     }

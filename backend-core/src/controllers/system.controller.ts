@@ -32,7 +32,7 @@ export const getSystemSettings = (): SystemSettings => {
 export const updateSystemConfig = async (req: Request, res: Response) => {
     try {
         const adminKey = req.headers['x-admin-key'];
-        if (adminKey !== 'super-secret-velo-admin-key-999') {
+        if (adminKey !== process.env.ADMIN_KEY) {
             return res.status(403).json({ error: 'Forbidden: Valid Master Admin Key Required' });
         }
 
@@ -54,5 +54,18 @@ export const updateSystemConfig = async (req: Request, res: Response) => {
     } catch (error) {
         console.error('CRITICAL [VELO SYSTEM CONFIG FAILURE]:', error);
         return res.status(500).json({ error: 'VELO API: Internal Server Error during system config update.' });
+    }
+};
+
+import fs from 'fs';
+import path from 'path';
+
+export const getMockData = async (req: Request, res: Response) => {
+    try {
+        const p = path.resolve(__dirname, 'mock_data.json');
+        const data = fs.readFileSync(p, 'utf8');
+        return res.status(200).json(JSON.parse(data));
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to load mock data' });
     }
 };

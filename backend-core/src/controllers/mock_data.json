@@ -1,0 +1,18 @@
+{
+  "MOCK_VEHICLES": [
+    { "id": "V-102", "name": "Mercedes S-Class LWB", "plate": "L1 M0", "type": "First Class", "status": "Active", "tenant": "ELITE LIMOS", "mileage": 12450 },
+    { "id": "V-103", "name": "Range Rover SV", "plate": "V1 P", "type": "SUV", "status": "Maintenance", "tenant": "BLACKLANE UK", "mileage": 42000 }
+  ],
+  "MOCK_CHAUFFEURS": [
+    { "id": "C-902", "name": "Julian Sterling", "status": "On-Shift", "statusType": "success", "stars": 5, "compliance": "CLEARED", "complianceType": "success" },
+    { "id": "C-903", "name": "Marcus Wright", "status": "Off-Duty", "statusType": "neutral", "stars": 4, "compliance": "EXPIRES_SOON", "complianceType": "warning" }
+  ],
+  "MOCK_CORP_CLIENTS": [],
+  "MOCK_PRIV_CLIENTS": [],
+  "MOCK_LEDGER": [],
+  "MOCK_ACTIVE_TASKS": [],
+  "MOCK_STAFF": [],
+  "MOCK_THREADS": [],
+  "MOCK_FINANCIALS": { "totalRevenue": "£124,500" },
+  "MOCK_WHITELABEL": {}
+}

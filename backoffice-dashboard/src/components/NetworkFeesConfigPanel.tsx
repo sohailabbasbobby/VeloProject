@@ -29,7 +29,7 @@ export const NetworkFeesConfigPanel: React.FC = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-admin-key': 'super-secret-velo-admin-key-999'
+                    'x-admin-key': process.env.REACT_APP_ADMIN_KEY
                 },
                 body: JSON.stringify(payload)
             });

@@ -79,7 +79,7 @@ export const freezeEscrow = async (req: Request, res: Response) => {
         const adminKey = req.headers['x-admin-key'];
 
         // 1. Back-Office Tower Security Mask
-        if (adminKey !== 'super-secret-velo-admin-key-999') {
+        if (adminKey !== process.env.ADMIN_KEY) {
             console.error(`[SECURITY ALERT] Unauthorized attempt to trigger Master Escrow Freeze.`);
             return res.status(403).json({ error: 'VELO API: Unauthorized access. Admin Tower credentials required.' });
         }

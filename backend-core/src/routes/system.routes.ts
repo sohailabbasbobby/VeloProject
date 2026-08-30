@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { updateSystemConfig } from '../controllers/system.controller';
+import { updateSystemConfig, getMockData } from '../controllers/system.controller';
 
 const router = Router();
 
@@ -8,5 +8,6 @@ const router = Router();
  * Allows master administrators to dynamically alter operational physics.
  */
 router.post('/config', updateSystemConfig);
+router.get('/mock-data', getMockData);
 
 export default router;

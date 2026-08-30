@@ -8,23 +8,15 @@
 
 Velo operates a zero-commission, multi-tenant marketplace for executive chauffeurs. 
 
-### 1.1 Pay-as-you-go Model (Transactional)
-When a driver fulfills a trip on the Velo network, the platform extracts a flat operational fee based *strictly* on the wholesale base fare of the trip:
-- **Trips UNDER £7.00**: The platform extracts exactly **£0.50** from the fulfilling driver.
-- **Trips £7.00 and ABOVE**: The platform extracts exactly **£1.00** from the fulfilling driver.
+### 1.1 Custom Trip Pricing Model
+When a trip is booked, the back-office admin has full control to manually enter a custom price for that specific trip. There are no hardcoded flat fees.
 
-### 1.2 Subscription Model (Recurring)
-Drivers can opt into a subscription model instead of pay-as-you-go:
-- **Subscription Fee**: Exactly **£50.00 per week**, billed automatically via a cron-style worker.
-- **Commission**: **0% commission** per trip.
-- Drivers on the subscription model do *not* pay the £0.50 or £1.00 transactional platform fees.
-
-### 1.3 VAT Policy (CRITICAL RULE)
+### 1.2 VAT Policy (CRITICAL RULE)
 - **VAT applies strictly and exclusively to drivers**, never to retail customers.
 - Customer retail fares remain entirely free of direct VAT line-item extraction.
-- The 20% standard UK VAT is calculated *only* on the platform fees (the £0.50, £1.00, or £50.00 charged to the driver), producing the Gross Platform Extraction.
+- The 20% standard UK VAT is calculated *only* on the platform fees (the custom fee charged to the driver), producing the Gross Platform Extraction.
 
-### 1.4 Driver Pay Structures (Onboarding Models)
+### 1.3 Driver Pay Structures (Onboarding Models)
 Drivers can be onboarded under three distinct remuneration frameworks by their Tenant fleet operators:
 1. **Percentage Revenue Share (Commission)**: The driver keeps a percentage (e.g., 80%) of the net wholesale fare.
 2. **Hourly + Trip Bonus (Salaried)**: The driver receives a fixed hourly rate plus a flat bonus per completed trip.
@@ -41,7 +33,6 @@ The Velo platform is divided into four primary technical pillars:
 - **Functionality**: Serves as the central nervous system.
 - **Components**:
   - `veloClearingEngine.ts`: Executes exact financial mathematics for B2B trades.
-  - `subscription.worker.ts`: Background job processing weekly recurring subscriptions.
   - `controllers/`: Handles Fleet, Payroll, Analytics, and Escrow logic.
 
 ### 2.2 Tenant Back-Office ERP & Admin Dashboard

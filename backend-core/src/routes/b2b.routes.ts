@@ -22,4 +22,14 @@ router.post('/settle', (req: Request, res: Response) => {
     });
 });
 
+router.put('/trips/:id/price', (req: Request, res: Response) => {
+    const adminKey = req.headers['x-admin-key'];
+    if (adminKey !== process.env.ADMIN_KEY) {
+        return res.status(403).json({ error: 'Forbidden: Valid Master Admin Key Required' });
+    }
+    const { customPlatformFee } = req.body;
+    console.log(`Updated trip ${req.params.id} with Custom Platform Fee: £${customPlatformFee}`);
+    res.status(200).json({ success: true, message: 'Custom Platform Fee updated.' });
+});
+
 export default router;
