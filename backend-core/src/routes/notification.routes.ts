@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import { testNotificationTrigger } from '../controllers/notification.controller';
+import * as notifications from '../controllers/notification.controller';
 
 const router = Router();
-
-/**
- * VELO CORE ROUTE: /api/notifications/test-trigger
- * Triggers simulated SMS and WhatsApp payloads directly to the terminal.
- */
-router.post('/test-trigger', testNotificationTrigger);
-
+router.get('/', notifications.listNotifications);
+router.get('/unread-count', notifications.unreadCount);
+router.post('/:id/read', notifications.markRead);
+router.post('/read', notifications.markRead);
+router.post('/dispatch', notifications.dispatchNotification);
 export default router;

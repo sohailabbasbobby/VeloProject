@@ -1,6 +1,8 @@
 import app from './app';
 import dotenv from 'dotenv';
 import { db } from './config/db';
+import { startSubscriptionWorker } from './workers/subscription.worker';
+import { startDispatchWorker } from './workers/dispatch.worker';
 
 dotenv.config();
 
@@ -11,6 +13,10 @@ const startServer = async () => {
         const server = app.listen(PORT, () => {
             console.log(`🚀 Velo Backend Core Engine running on port ${PORT}`);
         });
+
+        // Background workers
+        startSubscriptionWorker();
+        startDispatchWorker();
 
         // Graceful Shutdown Interceptor
         const gracefulShutdown = async (signal: string) => {
@@ -26,7 +32,7 @@ const startServer = async () => {
                     process.exit(1);
                 }
             });
-            
+
             // Fallback timeout in case connections hang
             setTimeout(() => {
                 console.error('[SYSTEM] Graceful shutdown timeout exceeded. Forcing exit.');
@@ -36,7 +42,6 @@ const startServer = async () => {
 
         process.on('SIGINT', () => gracefulShutdown('SIGINT'));
         process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-
     } catch (error) {
         console.error('CRITICAL: Failed to start server', error);
         process.exit(1);

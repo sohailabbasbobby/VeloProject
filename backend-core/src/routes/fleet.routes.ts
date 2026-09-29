@@ -1,13 +1,16 @@
 import { Router } from 'express';
-import { logOdometer, reportIssue, resolveIssue, getTenantFleet, logBookingExpense, logGeneralExpense } from '../controllers/fleet.controller';
+import * as fleet from '../controllers/fleet.controller';
 
 const router = Router();
-
-router.post('/odometer', logOdometer);
-router.post('/issues', reportIssue);
-router.post('/issues/:id/resolve', resolveIssue);
-router.get('/vehicles', getTenantFleet);
-router.post('/booking-expenses', logBookingExpense);
-router.post('/general-expenses', logGeneralExpense);
-
+router.get('/vehicles', fleet.listVehicles);
+router.get('/vehicles/:id', fleet.getVehicle);
+router.post('/vehicles', fleet.createVehicle);
+router.put('/vehicles/:id', fleet.updateVehicle);
+router.post('/vehicles/:id/assign', fleet.assignVehicle);
+router.post('/vehicles/:id/unassign', fleet.unassignVehicle);
+router.post('/vehicles/:id/maintenance', fleet.createMaintenanceLog);
+router.put('/vehicles/:id/maintenance/:logId', fleet.updateMaintenanceLog);
+router.post('/vehicles/:id/expenses', fleet.addFleetExpense);
+router.post('/vehicles/:id/odometer', fleet.logOdometer);
+router.get('/compliance', fleet.getFleetCompliance);
 export default router;

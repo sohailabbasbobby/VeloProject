@@ -1,21 +1,11 @@
 import { Router } from 'express';
-import { processSplitSettlement, freezeEscrow } from '../controllers/escrow.controller';
-import { tenantMiddleware } from '../middleware/tenant.middleware';
+import * as escrow from '../controllers/escrow.controller';
 
 const router = Router();
-
-/**
- * VELO CORE ROUTE: /api/escrow/settle
- * Process B2B cross-tenant splits extracting exactly £1.00 from both sides.
- * This route requires standard tenant RLS validation.
- */
-router.post('/settle', tenantMiddleware, processSplitSettlement);
-
-/**
- * VELO CORE ROUTE: /api/escrow/freeze
- * Administrative endpoint used exclusively by the Back-Office Tower to trigger a database-level Row Lock on a payout.
- * Bypasses standard tenant middleware, utilizing custom admin headers inside the controller.
- */
-router.post('/freeze', freezeEscrow);
-
+router.get('/', escrow.listEscrow);
+router.post('/trips/:tripId/capture', escrow.captureEscrow);
+router.post('/trips/:tripId/release', escrow.releaseEscrow);
+router.post('/trips/:tripId/dispute', escrow.disputeEscrow);
+router.post('/trips/:tripId/refund', escrow.refundEscrow);
+router.post('/trips/:tripId/arbitrate', escrow.arbitrateEscrow);
 export default router;

@@ -1,199 +1,322 @@
 import { Request, Response } from 'express';
+import { db, withTransaction } from '../config/db';
+import { asyncHandler, badRequest, notFound, conflict, forbidden } from '../utils/httpError';
+import { SettingsService } from '../services/settings.service';
 import { MapsService, Coordinate } from '../utils/mapsService';
-import { NotificationService } from '../utils/notificationService';
-import { getSystemSettings } from '../controllers/system.controller';
-
-// In-Memory store for Active Rollback Timers
-// (In production, replace with BullMQ/Redis to survive server restarts)
-const negotiationTimers: Map<string, NodeJS.Timeout> = new Map();
+import { getAuthContext } from '../middleware/tenant.middleware';
 
 /**
- * Validates and posts a new job to the global open pool board.
+ * POOL CONTROLLER — B2B Overflow Pool (§1.3)
+ *
+ * All state lives in PostgreSQL (`b2b_pool_jobs`, `pool_negotiations`, `trips`).
+ * Negotiation expiry is an authoritative `negotiation_deadline` column — expired
+ * negotiations are rolled back lazily by `expireDueNegotiations()` which any read/
+ * write path calls first. There are NO in-memory timers.
+ * Network floor pricing is enforced per vehicle tier from `platform_settings`.
  */
-export const postJob = async (req: Request, res: Response) => {
-    try {
-        const tenantId = (req as any).tenantId; // Secure RLS constraint
-        const { pickupLocation, dropoffLocation, pickupCoord, dropoffCoord, baseWholesaleFare } = req.body;
 
-        const fare = Number(baseWholesaleFare);
+const round2 = (n: number): number => Math.round(n * 100) / 100;
 
-        // 1. Map Routing Evaluation
-        if (!pickupCoord || !dropoffCoord) {
-            return res.status(400).json({ error: "Missing precise spatial coordinates for routing evaluation." });
-        }
-
-        const metrics = await MapsService.getRouteMetrics(pickupCoord as Coordinate, dropoffCoord as Coordinate);
-        
-        // 2. Dynamic Safety Pricing Floor Validation
-        const engineSettings = getSystemSettings();
-        
-        const baseFare = engineSettings.marketplaceBaseFarePence / 100;
-        const ratePerMile = engineSettings.marketplacePerMilePence / 100;
-        const ratePerMinute = engineSettings.marketplacePerMinutePence / 100;
-
-        // Note: For now, we simulate estimated duration (minutes) as distance * 2.5 min/mile if mapsService doesn't provide it natively in this mock.
-        const estimatedMinutes = metrics.estimatedDurationMinutes || (metrics.distanceMiles * 2.5);
-
-        const dynamicFloor = baseFare + (metrics.distanceMiles * ratePerMile) + (estimatedMinutes * ratePerMinute);
-
-        if (fare < dynamicFloor) {
-            console.error(`[VELO SECURITY] Rejected job post from ${tenantId}. Fare £${fare} violates the dynamic distance floor of £${dynamicFloor.toFixed(2)}.`);
-            return res.status(403).json({ 
-                error: `VELO NETWORK POLICY: The minimum wholesale fare allowed for this route is £${dynamicFloor.toFixed(2)}.` 
-            });
-        }
-
-        // 3. Database Action Stub (Executing RLS-secured INSERT with GEOMETRY)
-        const mockJobId = `POOL-JOB-${Math.floor(Math.random() * 10000)}`;
-        console.log(`[SQL EXECUTION STREAM] INSERT INTO b2b_pool_jobs (originating_tenant_id, pickup_geom, dropoff_geom, base_wholesale_fare, current_wholesale_fare, state) VALUES ('${tenantId}', ST_SetSRID(ST_MakePoint(${pickupCoord.lng}, ${pickupCoord.lat}), 4326), ST_SetSRID(ST_MakePoint(${dropoffCoord.lng}, ${dropoffCoord.lat}), 4326), ${fare}, ${fare}, 'OPEN')`);
-        console.log(`[BACK-OFFICE FEED] New Job posted to network by ${tenantId} at £${fare.toFixed(2)} (Route: ${metrics.distanceMiles} miles).`);
-
-        return res.status(201).json({
-            success: true,
-            jobId: mockJobId,
-            message: 'Job successfully posted to the Global Open Pool.'
-        });
-
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal Server Error' });
-    }
+/** Rolls back any negotiation whose deadline has passed (authoritative, DB-driven). */
+export const expireDueNegotiations = async (): Promise<void> => {
+    await db.query(
+        `UPDATE b2b_pool_jobs pj SET state = 'OPEN', countering_tenant_id = NULL,
+                current_wholesale_fare = pj.base_wholesale_fare, negotiation_deadline = NULL
+         WHERE pj.state = 'NEGOTIATION' AND pj.negotiation_deadline <= CURRENT_TIMESTAMP`
+    );
+    await db.query(
+        `UPDATE pool_negotiations SET status = 'EXPIRED', resolved_at = CURRENT_TIMESTAMP
+         WHERE status = 'PENDING' AND deadline <= CURRENT_TIMESTAMP`
+    );
 };
 
-/**
- * Mutates job status to NEGOTIATION, triggering the query filter that masks it from other dashboards.
- * Initializes the 10-Minute Timeout Rollback tracker.
- */
-export const submitCounterOffer = async (req: Request, res: Response) => {
-    try {
-        const counteringTenantId = (req as any).tenantId; 
-        const jobId = String(req.params.jobId);
-        const { proposedFare } = req.body;
-
-        // 1. Database State Mutation (Masking the job)
-        console.log(`[SQL EXECUTION STREAM] UPDATE b2b_pool_jobs SET state = 'NEGOTIATION', countering_tenant_id = '${counteringTenantId}', current_wholesale_fare = ${proposedFare} WHERE id = '${jobId}' AND state = 'OPEN'`);
-        
-        console.log(`[VELO NETWORK LOGIC] Job ${jobId} transitioned to NEGOTIATION mode. Successfully masked from global radar feeds.`);
-
-        // 2. Initialize the Dynamic Rollback Tracker from the System Engine
-        const engineSettings = getSystemSettings();
-        const TIMEOUT_MS = engineSettings.b2bNegotiationTimeoutMins * 60 * 1000; 
-
-        console.log(`[VELO ENGINE] ${engineSettings.b2bNegotiationTimeoutMins}-Minute Negotiation Lock mechanism armed for ${jobId}. Counter countdown started.`);
-
-        const rollbackTask = setTimeout(() => {
-            // AUTOMATED ROLLBACK EXECUTION
-            executeAutomatedRollback(jobId);
-        }, TIMEOUT_MS);
-
-        negotiationTimers.set(jobId, rollbackTask);
-
-        return res.status(200).json({
-            success: true,
-            message: `Counter offer submitted at £${proposedFare}. The 10-Minute Negotiation Lock is now active.`
-        });
-
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal Server Error' });
-    }
+const tierLabel = (tier: string): string => {
+    const labels: Record<string, string> = {
+        EXECUTIVE: 'Executive (E-Class/5-Series)',
+        PREMIUM_MPV: 'Premium MPV (V-Class/EQV)',
+        FIRST_CLASS: 'First-Class Luxury (S-Class/7-Series)',
+        ULTRA_LUXURY: 'Ultra-Luxury (Rolls-Royce/Bentley/Maybach)',
+    };
+    return labels[tier] || tier;
 };
 
-/**
- * Allows the originating tenant to accept or reject the counter offer.
- */
-export const resolveCounterOffer = async (req: Request, res: Response) => {
-    try {
-        const tenantId = (req as any).tenantId; // Ensuring only originating tenant can resolve
-        const jobId = String(req.params.jobId);
-        const { resolution } = req.body; // 'ACCEPT' or 'REJECT'
+/** POST /api/pool/jobs — publish an existing trip to the open pool (floor-enforced). */
+export const postJob = asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = getAuthContext(req);
+    const { tripId } = req.body || {};
+    if (!tripId) throw badRequest('tripId is required.');
 
-        // 1. Clear the automated timeout lock
-        const timer = negotiationTimers.get(jobId);
-        if (timer) {
-            clearTimeout(timer);
-            negotiationTimers.delete(jobId);
-            console.log(`[VELO ENGINE] Timeout lock cleared for ${jobId}. Resolution triggered manually by Originator.`);
-        } else {
-            return res.status(400).json({ error: 'Negotiation session has expired or does not exist.' });
+    const result = await withTransaction(tenantId, async (client) => {
+        const tripRes = await client.query(
+            `SELECT id, task_id, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng,
+                    distance_miles, custom_price, requested_tier, state, originating_tenant_id
+             FROM trips WHERE id = $1 AND originating_tenant_id = $2 FOR UPDATE`,
+            [tripId, tenantId]
+        );
+        if (tripRes.rows.length === 0) throw notFound('Trip not found for this tenant.');
+        const trip = tripRes.rows[0];
+        if (!['PENDING_DISPATCH', 'OFFERING_OWN_FLEET', 'IN_POOL'].includes(trip.state)) {
+            throw conflict(`Trip in state ${trip.state} cannot be published to the pool.`);
         }
+
+        const tier = trip.requested_tier || 'EXECUTIVE';
+        const distanceMiles = Number(trip.distance_miles || 0);
+        const pickupCoord: Coordinate = { lat: Number(trip.pickup_lat), lng: Number(trip.pickup_lng) };
+        const dropoffCoord: Coordinate = { lat: Number(trip.dropoff_lat), lng: Number(trip.dropoff_lng) };
+        const metrics = pickupCoord.lat && dropoffCoord.lat
+            ? await MapsService.getRouteMetrics(pickupCoord, dropoffCoord)
+            : { distanceMiles, estimatedDurationMinutes: 0 };
+
+        const effectiveDistance = distanceMiles || metrics.distanceMiles;
+        const { floor } = await SettingsService.computeFloorPrice(tier, effectiveDistance);
+
+        const fare = round2(Number(trip.custom_price));
+        if (fare < floor) {
+            throw forbidden(
+                `Submission Blocked: Minimum network price floor for a ${tierLabel(String(tier))} transfer is £${floor.toFixed(2)}.`
+            );
+        }
+
+        await client.query(
+            `UPDATE trips SET state = 'IN_POOL', channel = 'POOL',
+                pool_floor_price = $2, own_fleet_deadline = NULL, updated_at = CURRENT_TIMESTAMP
+             WHERE id = $1`,
+            [tripId, floor]
+        );
+
+        const jobRes = await client.query(
+            `INSERT INTO b2b_pool_jobs
+                (trip_id, originating_tenant_id, pickup_location, pickup_geom, dropoff_location, dropoff_geom,
+                 vehicle_tier, distance_miles, base_wholesale_fare, current_wholesale_fare, state)
+             VALUES ($1,$2,$3,
+                ST_SetSRID(ST_MakePoint($4,$5),4326),
+                $6,
+                ST_SetSRID(ST_MakePoint($7,$8),4326),
+                $9,$10,$11,$11,'OPEN')
+             ON CONFLICT (trip_id) DO UPDATE
+                SET state = 'OPEN', current_wholesale_fare = $11, countering_tenant_id = NULL,
+                    negotiation_deadline = NULL, base_wholesale_fare = $11
+             RETURNING id`,
+            [tripId, tenantId, trip.pickup_address, trip.pickup_lng, trip.pickup_lat,
+             trip.dropoff_address, trip.dropoff_lng, trip.dropoff_lat, tier, effectiveDistance, fare]
+        );
+        return { jobId: jobRes.rows[0].id, floor, fare };
+    });
+
+    res.status(201).json({
+        success: true,
+        data: {
+            jobId: result.jobId,
+            message: `Job successfully posted to the Global Open Pool at £${result.fare.toFixed(2)} (network floor £${result.floor.toFixed(2)}).`,
+        },
+    });
+});
+
+/** GET /api/pool/jobs — open pool board filtered by this tenant's acceptance criteria. */
+export const listPoolJobs = asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = getAuthContext(req);
+    await expireDueNegotiations();
+
+    const tenantRes = await db.query(
+        `SELECT pool_accept_enabled, pool_min_price, pool_vehicle_classes, pool_geo_center, pool_geo_radius_m
+         FROM tenants WHERE id = $1`,
+        [tenantId]
+    );
+    const cfg = tenantRes.rows[0] || {
+        pool_accept_enabled: true, pool_min_price: 0, pool_vehicle_classes: [], pool_geo_center: null, pool_geo_radius_m: 50000,
+    };
+
+    const { rows } = await db.query(
+        `SELECT pj.id, pj.trip_id, pj.pickup_location, pj.dropoff_location, pj.vehicle_tier, pj.distance_miles,
+                pj.current_wholesale_fare, pj.state, pj.negotiation_deadline, pj.published_at,
+                t.task_id, t.scheduled_at, t.booking_type, t.passenger_count, t.baggage_count,
+                orig.name AS originating_tenant_name,
+                ST_Distance(pj.pickup_geom, COALESCE(t2.pool_geo_center, pj.pickup_geom)) AS meters_from_tenant_center
+         FROM b2b_pool_jobs pj
+         JOIN trips t ON t.id = pj.trip_id
+         JOIN tenants orig ON orig.id = pj.originating_tenant_id
+         LEFT JOIN tenants t2 ON t2.id = $1
+         WHERE pj.state = 'OPEN'
+           AND pj.originating_tenant_id <> $1
+           AND pj.current_wholesale_fare >= COALESCE($2::numeric, 0)
+           AND pj.negotiation_deadline IS NULL
+           AND ($3::text[] IS NULL OR pj.vehicle_tier::text = ANY($3::text[]))
+         ORDER BY pj.published_at DESC
+         LIMIT 200`,
+        [tenantId, cfg.pool_min_price, cfg.pool_vehicle_classes && cfg.pool_vehicle_classes.length ? cfg.pool_vehicle_classes : null]
+    );
+
+    // Geography filter in application layer (ST_DWithin center is null-safe handled above)
+    const filtered = cfg.pool_geo_center
+        ? rows.filter((r) => Number(r.meters_from_tenant_center) <= (cfg.pool_geo_radius_m || 50000))
+        : rows;
+
+    res.json({ success: true, data: filtered });
+});
+
+/** POST /api/pool/jobs/:jobId/counter — counter-offer; opens a deadline-bound negotiation. */
+export const submitCounterOffer = asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = getAuthContext(req);
+    const jobId = String(req.params.jobId);
+    const proposedFare = round2(Number(req.body?.proposedFare));
+    if (!proposedFare || proposedFare <= 0) throw badRequest('proposedFare must be a positive amount.');
+
+    const neg = await SettingsService.getNegotiationSettings();
+    const deadline = new Date(Date.now() + neg.timeoutMinutes * 60 * 1000);
+
+    const result = await withTransaction(tenantId, async (client) => {
+        const jobRes = await client.query(
+            `SELECT pj.*, t.requested_tier, t.distance_miles FROM b2b_pool_jobs pj
+             JOIN trips t ON t.id = pj.trip_id
+             WHERE pj.id = $1 AND pj.state = 'OPEN' AND pj.originating_tenant_id <> $2 FOR UPDATE OF pj`,
+            [jobId, tenantId]
+        );
+        if (jobRes.rows.length === 0) throw conflict('Pool job is not open for counter-offers.');
+
+        const job = jobRes.rows[0];
+        const { floor } = await SettingsService.computeFloorPrice(String(job.requested_tier || 'EXECUTIVE'), Number(job.distance_miles || 0));
+        if (proposedFare < floor) {
+            throw forbidden(
+                `Submission Blocked: Minimum network price floor for a ${tierLabel(String(job.requested_tier || 'EXECUTIVE'))} transfer is £${floor.toFixed(2)}.`
+            );
+        }
+
+        await client.query(
+            `UPDATE b2b_pool_jobs SET state = 'NEGOTIATION', countering_tenant_id = $2,
+                    current_wholesale_fare = $3, negotiation_deadline = $4 WHERE id = $1`,
+            [jobId, tenantId, proposedFare, deadline]
+        );
+        await client.query(
+            `INSERT INTO pool_negotiations (pool_job_id, proposing_tenant_id, proposed_fare, status, deadline)
+             VALUES ($1,$2,$3,'PENDING',$4)`,
+            [jobId, tenantId, proposedFare, deadline]
+        );
+        return { deadline, floor };
+    });
+
+    res.json({
+        success: true,
+        data: {
+            jobId,
+            proposedFare,
+            negotiationDeadline: result.deadline,
+            message: `Counter offer submitted at £${proposedFare.toFixed(2)}. The ${neg.timeoutMinutes}-minute negotiation lock is active until ${result.deadline.toISOString()}.`,
+        },
+    });
+});
+
+/** POST /api/pool/jobs/:jobId/resolve — originating tenant accepts/rejects the counter-offer. */
+export const resolveCounterOffer = asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = getAuthContext(req);
+    const jobId = String(req.params.jobId);
+    const resolution = String(req.body?.resolution || '').toUpperCase();
+    if (!['ACCEPT', 'REJECT'].includes(resolution)) throw badRequest("resolution must be 'ACCEPT' or 'REJECT'.");
+
+    const result = await withTransaction(tenantId, async (client) => {
+        const jobRes = await client.query(
+            `SELECT * FROM b2b_pool_jobs pj WHERE pj.id = $1 AND pj.originating_tenant_id = $2 AND pj.state = 'NEGOTIATION' FOR UPDATE`,
+            [jobId, tenantId]
+        );
+        if (jobRes.rows.length === 0) throw conflict('No active negotiation exists for this pool job.');
+
+        const job = jobRes.rows[0];
 
         if (resolution === 'ACCEPT') {
-            console.log(`[SQL EXECUTION STREAM] UPDATE b2b_pool_jobs SET state = 'ALLOCATED' WHERE id = '${jobId}'`);
-            console.log(`[BACK-OFFICE FEED] Counter offer accepted. Job ${jobId} locked and allocated to fulfiller.`);
-            
-            // BACKGROUND NOTIFICATION TRIGGERS
-            // These fire asynchronously without blocking the client response
-            NotificationService.sendClientConfirmation(
-                "+447911123456", // Mock Client Phone
-                "Jonathan Pierce (VIP)",
-                "Heathrow T5 (VIP Pickup Zone)",
-                "Mercedes S-Class (Black)",
-                "Goldman Sachs Corporate Tier"
-            ).catch(err => console.error("Notification Engine Error:", err));
-
-            NotificationService.sendDriverAllocation(
-                "+447811122233", // Mock Driver Phone
-                "ASAP",
-                "LHR to Mayfair, London",
-                "Goldman Sachs Corporate Tier - Silent Drive Protocol"
-            ).catch(err => console.error("Notification Engine Error:", err));
-
-            return res.status(200).json({ success: true, message: 'Counter offer accepted. Route mapped to fulfilling fleet.' });
-        } 
-        
-        if (resolution === 'REJECT') {
-            executeAutomatedRollback(jobId);
-            return res.status(200).json({ success: true, message: 'Counter offer rejected. Job reverted to open pool.' });
+            await client.query(`UPDATE pool_negotiations SET status = 'ACCEPTED', resolved_at = CURRENT_TIMESTAMP WHERE pool_job_id = $1 AND status = 'PENDING'`, [jobId]);
+            await client.query(
+                `UPDATE b2b_pool_jobs SET state = 'ALLOCATED', allocated_at = CURRENT_TIMESTAMP, negotiation_deadline = NULL WHERE id = $1`,
+                [jobId]
+            );
+            await client.query(
+                `UPDATE trips SET fulfilling_tenant_id = $2, negotiated_price = $3,
+                    state = 'ASSIGNED', accepted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+                 WHERE id = $1`,
+                [job.trip_id, job.countering_tenant_id, job.current_wholesale_fare]
+            );
+            return { state: 'ALLOCATED' as const };
         }
 
-        return res.status(400).json({ error: 'Invalid resolution parameter.' });
+        await client.query(`UPDATE pool_negotiations SET status = 'REJECTED', resolved_at = CURRENT_TIMESTAMP WHERE pool_job_id = $1 AND status = 'PENDING'`, [jobId]);
+        await client.query(
+            `UPDATE b2b_pool_jobs SET state = 'OPEN', countering_tenant_id = NULL,
+                    current_wholesale_fare = base_wholesale_fare, negotiation_deadline = NULL WHERE id = $1`,
+            [jobId]
+        );
+        return { state: 'OPEN' as const };
+    });
 
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal Server Error' });
-    }
-};
+    res.json({
+        success: true,
+        data: {
+            jobId,
+            state: result.state,
+            message: resolution === 'ACCEPT'
+                ? 'Counter offer accepted. Job locked and allocated to the fulfilling tenant.'
+                : 'Counter offer rejected. Job reverted to the open pool.',
+        },
+    });
+});
 
-/**
- * Helper function executing the strict Rollback parameters.
- */
-const executeAutomatedRollback = (jobId: string) => {
-    negotiationTimers.delete(jobId);
+/** POST /api/pool/jobs/:jobId/accept — fulfilling tenant accepts an OPEN job outright (assigns own driver). */
+export const acceptPoolJob = asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, driverId } = getAuthContext(req);
+    const jobId = String(req.params.jobId);
+    const { driverId: bodyDriverId, vehicleId } = req.body || {};
+    const effectiveDriverId = driverId || bodyDriverId;
+    if (!effectiveDriverId) throw badRequest('driverId is required to accept a pool job.');
 
-    // 1. Discard counter offer, restore base price, flip state back to OPEN
-    console.log(`\n--- AUTOMATED SYSTEM ROLLBACK TRIGGERED ---`);
-    console.log(`[SQL EXECUTION STREAM] UPDATE b2b_pool_jobs SET state = 'OPEN', countering_tenant_id = NULL, current_wholesale_fare = base_wholesale_fare WHERE id = '${jobId}'`);
-    console.log(`[VELO NETWORK LOGIC] Negotiation Timeout expired or rejected. Job ${jobId} successfully reverted to global open board visibility.`);
-    console.log(`-------------------------------------------\n`);
-};
+    const result = await withTransaction(tenantId, async (client) => {
+        const jobRes = await client.query(
+            `SELECT * FROM b2b_pool_jobs pj WHERE pj.id = $1 AND pj.state = 'OPEN' AND pj.originating_tenant_id <> $2 FOR UPDATE OF pj`,
+            [jobId, tenantId]
+        );
+        if (jobRes.rows.length === 0) throw conflict('Pool job is no longer open.');
+        const job = jobRes.rows[0];
 
-/**
- * MOCK ENDPOINT: Allows developers to execute a PostGIS spatial radius query
- * to find the closest online drivers matching a specific vehicle tier.
- */
-export const getNearbyDrivers = async (req: Request, res: Response) => {
-    try {
-        const { lat, lng, radius, tier } = req.query;
+        await client.query(
+            `UPDATE b2b_pool_jobs SET state = 'ALLOCATED', countering_tenant_id = $2, allocated_at = CURRENT_TIMESTAMP, negotiation_deadline = NULL WHERE id = $1`,
+            [jobId, tenantId]
+        );
+        await client.query(
+            `UPDATE trips SET fulfilling_tenant_id = $2, driver_id = $3, vehicle_id = COALESCE($4, vehicle_id),
+                negotiated_price = $5, state = 'ASSIGNED', accepted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+             WHERE id = $1`,
+            [job.trip_id, tenantId, effectiveDriverId, vehicleId || null, job.current_wholesale_fare]
+        );
+        return { tripId: job.trip_id };
+    });
 
-        if (!lat || !lng || !radius || !tier) {
-            return res.status(400).json({ error: "Missing required query parameters: lat, lng, radius, tier." });
-        }
+    res.json({ success: true, data: { ...result, message: 'Pool job accepted and assigned.' } });
+});
 
-        const pickupCoord: Coordinate = { lat: Number(lat), lng: Number(lng) };
-        const maxRadiusMiles = Number(radius);
-        const vehicleTier = String(tier);
+/** GET /api/pool/jobs/mine — jobs this tenant published or is negotiating. */
+export const myPoolJobs = asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = getAuthContext(req);
+    await expireDueNegotiations();
+    const { rows } = await db.query(
+        `SELECT pj.*, t.task_id, t.passenger_name, t.scheduled_at
+         FROM b2b_pool_jobs pj JOIN trips t ON t.id = pj.trip_id
+         WHERE pj.originating_tenant_id = $1 OR pj.countering_tenant_id = $1
+         ORDER BY pj.published_at DESC LIMIT 200`,
+        [tenantId]
+    );
+    res.json({ success: true, data: rows });
+});
 
-        // Retrieve the complex PostGIS query string
-        const rawSql = MapsService.getClosestOnlineDrivers(pickupCoord, maxRadiusMiles, vehicleTier);
-        
-        console.log(`[POSTGIS EXECUTION STREAM] Generating ST_DWithin query:`);
-        console.log(rawSql);
+export const nearbyDrivers = asyncHandler(async (req: Request, res: Response) => {
+    const { lat, lng, radius, tier } = req.query;
+    if (!lat || !lng || !radius || !tier) throw badRequest('Missing required query parameters: lat, lng, radius, tier.');
 
-        return res.status(200).json({
-            success: true,
-            message: `Generated spatial query for radius ${maxRadiusMiles} miles targeting tier ${vehicleTier}.`,
-            sql_query: rawSql
-        });
-
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal Server Error' });
-    }
-};
+    const radiusMeters = Number(radius);
+    const { rows } = await db.query(
+        `SELECT d.id, d.first_name, d.last_name, d.reference_code, dl.vehicle_tier, dl.bearing, dl.speed,
+                ST_Distance(dl.current_location, ST_SetSRID(ST_MakePoint($1,$2),4326)) AS meters,
+                ST_AsGeoJSON(dl.current_location) AS location
+         FROM driver_locations dl JOIN drivers d ON d.id = dl.driver_id
+         WHERE dl.is_online = TRUE AND dl.current_location IS NOT NULL AND dl.vehicle_tier = $3
+           AND ST_DWithin(dl.current_location, ST_SetSRID(ST_MakePoint($1,$2),4326), $4)
+         ORDER BY meters ASC LIMIT 50`,
+        [Number(lng), Number(lat), String(tier), radiusMeters]
+    );
+    res.json({ success: true, data: rows });
+});

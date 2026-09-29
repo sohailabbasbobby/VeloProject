@@ -1,25 +1,12 @@
 import { Router } from 'express';
-import { getTenantAnalytics, getPlatformAnalytics, getVehicleProductivity } from '../controllers/analytics.controller';
-import { tenantMiddleware } from '../middleware/tenant.middleware';
+import * as analytics from '../controllers/analytics.controller';
 
 const router = Router();
-
-/**
- * VELO CORE ROUTE: GET /api/analytics/tenant
- * Returns isolated fleet statistics protected by Row-Level Security.
- */
-router.get('/tenant', tenantMiddleware, getTenantAnalytics);
-
-/**
- * VELO CORE ROUTE: GET /api/analytics/platform
- * Returns omnipotent global aggregations protected by master admin-key validation.
- */
-router.get('/platform', getPlatformAnalytics);
-
-/**
- * VELO CORE ROUTE: GET /api/analytics/vehicle-productivity/:id
- * Returns Net Yield and financial breakdown for a specific vehicle.
- */
-router.get('/vehicle-productivity/:id', getVehicleProductivity);
-
+router.get('/kpis', analytics.operationsKpis);
+router.get('/trips', analytics.listTrips);
+router.get('/revenue-series', analytics.revenueSeries);
+router.get('/drivers/performance', analytics.driverPerformance);
+router.get('/fleet/utilization', analytics.fleetUtilization);
+router.get('/financial/master-ledger', analytics.masterLedger);
+router.get('/financial/vat', analytics.vatReport);
 export default router;

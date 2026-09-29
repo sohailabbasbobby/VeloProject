@@ -1,12 +1,7 @@
 import { Router } from 'express';
-import { uploadReceipt } from '../controllers/upload.controller';
+import { uploadFile, downloadFile } from '../controllers/upload.controller';
 
 const router = Router();
-
-/**
- * VELO CORE ROUTE: POST /api/fleet/upload-receipt
- * Processes secure image transmission for financial outlays.
- */
-router.post('/upload-receipt', uploadReceipt);
-
+router.post('/files', uploadFile);
+router.get('/file/:tenantId/:category/:filename', downloadFile);
 export default router;

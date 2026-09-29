@@ -1,10 +1,8 @@
 import { Router } from 'express';
-import { trackFlight, executeCommand, translateMessage } from '../controllers/ai.controller';
+import * as ai from '../controllers/ai.controller';
 
 const router = Router();
-
-router.post('/track-flight', trackFlight);
-router.post('/command', executeCommand);
-router.post('/translate', translateMessage);
-
+router.post('/documents/verify', ai.verifyComplianceDocument);
+router.get('/documents', ai.listComplianceDocuments);
+router.post('/documents/:id/override', ai.overrideDocumentVerification);
 export default router;

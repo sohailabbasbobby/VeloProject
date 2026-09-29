@@ -1,8 +1,15 @@
-/**
- * VELO PLATFORM - REAL-TIME PROXIMITY MAPPING ENGINE
- * Manages geospatial queries and distance matrix calculations via PostGIS.
- */
+import { db } from '../config/db';
+import dotenv from 'dotenv';
 
+dotenv.config();
+
+/**
+ * MAPS SERVICE — real Google Routes API integration (§2).
+ *
+ * When GOOGLE_MAPS_API_KEY is absent the service throws: the pool floor pricing and
+ * dispatch ETA logic must never silently run on simulated math. Configure the key
+ * enabled for Routes API + Maps SDK (PROVIDER_GOOGLE on both mobile apps, §7.5).
+ */
 export interface Coordinate {
     lat: number;
     lng: number;
@@ -11,68 +18,72 @@ export interface Coordinate {
 export interface RouteMetrics {
     distanceMiles: number;
     estimatedDurationMinutes: number;
+    polyline: string | null;
+    source: 'GOOGLE_ROUTES_API';
 }
 
-export class MapsService {
+export const MapsService = {
+    isConfigured(): boolean {
+        return Boolean(process.env.GOOGLE_MAPS_API_KEY);
+    },
 
-    /**
-     * Executes an asynchronous server-side routing evaluation.
-     * MOCKED for scaffolding: In production, this pings Google Routes API or OSRM.
-     * For now, it calculates a simulated distance using a basic euclidean math mock.
-     */
-    public static async getRouteMetrics(pickup: Coordinate, dropoff: Coordinate): Promise<RouteMetrics> {
-        console.log(`[MAPS SERVICE] Calculating exact route metrics from [${pickup.lat}, ${pickup.lng}] to [${dropoff.lat}, ${dropoff.lng}]`);
-        
-        // Mock Math Simulation: 
-        // A very rough simulation generating ~15-30 miles based on coordinates difference for testing logic.
-        const latDiff = Math.abs(pickup.lat - dropoff.lat);
-        const lngDiff = Math.abs(pickup.lng - dropoff.lng);
-        const roughDistanceMiles = Math.max(10, (latDiff + lngDiff) * 60); // Ensures at least a 10-mile mock
-        
-        // Mock Duration: Assuming roughly 2 minutes per mile in city traffic
-        const roughDuration = roughDistanceMiles * 2.0;
+    async getRouteMetrics(origin: Coordinate, destination: Coordinate): Promise<RouteMetrics> {
+        if (!this.isConfigured()) {
+            throw new Error('GOOGLE_MAPS_API_KEY is not configured. Route metrics require the Google Routes API — no simulated math is permitted.');
+        }
 
-        return {
-            distanceMiles: Number(roughDistanceMiles.toFixed(1)),
-            estimatedDurationMinutes: Number(roughDuration.toFixed(0))
+        const body = {
+            origin: { location: { latLng: { latitude: origin.lat, longitude: origin.lng } } },
+            destination: { location: { latLng: { latitude: destination.lat, longitude: destination.lng } } },
+            travelMode: 'DRIVE',
+            routingPreference: 'TRAFFIC_AWARE',
         };
-    }
+
+        const res = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': process.env.GOOGLE_MAPS_API_KEY as string,
+                'X-Goog-FieldMask': 'routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline',
+            },
+            body: JSON.stringify(body),
+        });
+
+        const json: any = await res.json();
+        if (!res.ok || !json.routes?.length) {
+            throw new Error(`Google Routes API error: ${json.error?.message || res.status}`);
+        }
+
+        const route = json.routes[0];
+        return {
+            distanceMiles: Math.round((route.distanceMeters / 1609.344) * 100) / 100,
+            estimatedDurationMinutes: Math.max(1, Math.round(parseInt(route.duration, 10) / 60)),
+            polyline: route.polyline?.encodedPolyline || null,
+            source: 'GOOGLE_ROUTES_API',
+        };
+    },
 
     /**
-     * Constructs the exact raw PostGIS spatial query required to fetch and sort online drivers.
-     * Utilizes ST_DWithin for the performant bounding-box radius filter, 
-     * and ST_Distance to mathematically sort the array closest-to-furthest.
-     * 
-     * Note: SRID 4326 uses meters for calculations when cast to geography.
+     * Executes the PostGIS nearest-driver query (ST_DWithin + ST_Distance) and
+     * returns live online drivers for a tier. Previously this endpoint only
+     * printed the SQL; it now runs it against the live database.
      */
-    public static getClosestOnlineDrivers(pickup: Coordinate, maxRadiusMiles: number, vehicleTier: string): string {
-        const radiusInMeters = maxRadiusMiles * 1609.34;
-
-        const rawSQLQuery = `
-            SELECT 
-                d.driver_id,
-                d.vehicle_tier,
-                ST_X(d.current_location::geometry) as lng,
-                ST_Y(d.current_location::geometry) as lat,
-                (ST_Distance(
-                    d.current_location::geography, 
-                    ST_SetSRID(ST_MakePoint(${pickup.lng}, ${pickup.lat}), 4326)::geography
-                ) / 1609.34) AS distance_miles
-            FROM 
-                driver_locations d
-            WHERE 
-                d.is_online = TRUE
-                AND d.vehicle_tier = '${vehicleTier}'
-                AND ST_DWithin(
-                    d.current_location::geography, 
-                    ST_SetSRID(ST_MakePoint(${pickup.lng}, ${pickup.lat}), 4326)::geography, 
-                    ${radiusInMeters}
-                )
-            ORDER BY 
-                distance_miles ASC
-            LIMIT 10;
-        `;
-
-        return rawSQLQuery.trim();
-    }
-}
+    async getClosestOnlineDrivers(point: Coordinate, radiusMeters: number, vehicleTier: string) {
+        const { rows } = await db.query(
+            `SELECT d.id, d.first_name, d.last_name, d.reference_code, d.status,
+                    dl.vehicle_tier, dl.bearing, dl.speed,
+                    ST_Distance(dl.current_location, ST_SetSRID(ST_MakePoint($1,$2),4326)) AS meters,
+                    ST_Y(dl.current_location) AS lat, ST_X(dl.current_location) AS lng
+             FROM driver_locations dl
+             JOIN drivers d ON d.id = dl.driver_id
+             WHERE dl.is_online = TRUE
+               AND dl.current_location IS NOT NULL
+               AND dl.vehicle_tier = $3
+               AND ST_DWithin(dl.current_location, ST_SetSRID(ST_MakePoint($1,$2),4326), $4)
+             ORDER BY dl.current_location <-> ST_SetSRID(ST_MakePoint($1,$2),4326)
+             LIMIT 25`,
+            [point.lng, point.lat, vehicleTier, radiusMeters]
+        );
+        return rows;
+    },
+};
