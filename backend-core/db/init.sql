@@ -909,6 +909,52 @@ CREATE POLICY b2b_ledger_isolation_policy ON network_clearing_ledger
 -- scope is enforced in the API layer (admin key), not RLS.
 
 -- ------------------------------------------------------------------------------------
+-- 11c. SELF-HOSTED AUTH (Jawa Ride pattern) — replaces Firebase Auth entirely.
+-- bcrypt password hashes, refresh-token rotation, and OTP codes all live in our
+-- own PostgreSQL. Social tokens (Google/Apple) are verified server-side against
+-- the issuer and mapped onto these same identities.
+-- ------------------------------------------------------------------------------------
+CREATE TABLE auth_identities (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
+    actor_type VARCHAR(20) NOT NULL CHECK (actor_type IN ('DRIVER', 'PRIVATE_CLIENT')),
+    actor_id UUID NOT NULL,                              -- drivers.id | private_clients.id (no FK: created after identity)
+    provider VARCHAR(20) NOT NULL CHECK (provider IN ('PASSWORD', 'PHONE', 'GOOGLE', 'APPLE')),
+    subject VARCHAR(128) NOT NULL,                       -- email (lowercased) for PASSWORD, provider 'sub' for social
+    password_hash VARCHAR(255),                          -- PASSWORD only, bcrypt
+    display_name VARCHAR(150),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (provider, subject)
+);
+CREATE INDEX idx_auth_identities_actor ON auth_identities(actor_type, actor_id);
+
+CREATE TABLE auth_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    identity_id UUID NOT NULL REFERENCES auth_identities(id) ON DELETE CASCADE,
+    refresh_token_hash VARCHAR(128) NOT NULL,            -- sha-256 of the rotating refresh token
+    user_agent VARCHAR(255),
+    ip_address VARCHAR(64),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_refreshed_at TIMESTAMPTZ,
+    expires_at TIMESTAMPTZ NOT NULL,
+    revoked_at TIMESTAMPTZ
+);
+CREATE INDEX idx_auth_sessions_identity ON auth_sessions(identity_id);
+
+CREATE TABLE auth_otp_codes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    phone VARCHAR(50) NOT NULL,
+    code_hash VARCHAR(128) NOT NULL,                     -- sha-256, never store the raw code
+    purpose VARCHAR(20) NOT NULL DEFAULT 'LOGIN',        -- LOGIN | BIND
+    attempts INT NOT NULL DEFAULT 0,
+    max_attempts INT NOT NULL DEFAULT 5,
+    consumed_at TIMESTAMPTZ,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_auth_otp_phone ON auth_otp_codes(phone, purpose);
+
+-- ------------------------------------------------------------------------------------
 -- 12. SEED: platform demo tenant (used for local/e2e smoke; production tenants onboard via backoffice)
 -- ------------------------------------------------------------------------------------
 INSERT INTO tenants (id, code, name, activation_status, vat_registered, contact_email)

@@ -1,5 +1,5 @@
 import { db } from '../config/db';
-import { sendPush } from '../services/firebase.service';
+import { sendPush } from '../services/push.service';
 import dotenv from 'dotenv';
 
 dotenv.config();

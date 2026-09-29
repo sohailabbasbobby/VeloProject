@@ -1,8 +1,11 @@
 import app from './app';
+import http from 'http';
 import dotenv from 'dotenv';
 import { db } from './config/db';
 import { startSubscriptionWorker } from './workers/subscription.worker';
 import { startDispatchWorker } from './workers/dispatch.worker';
+import { attachChatGateway } from './realtime/chatGateway';
+import type { WebSocketServer } from 'ws';
 
 dotenv.config();
 
@@ -10,7 +13,10 @@ const PORT = process.env.PORT || 8000;
 
 const startServer = async () => {
     try {
-        const server = app.listen(PORT, () => {
+        const server = http.createServer(app);
+        const chatWss: WebSocketServer = attachChatGateway(server);
+
+        server.listen(PORT, () => {
             console.log(`🚀 Velo Backend Core Engine running on port ${PORT}`);
         });
 
@@ -21,6 +27,8 @@ const startServer = async () => {
         // Graceful Shutdown Interceptor
         const gracefulShutdown = async (signal: string) => {
             console.log(`\n[SYSTEM] Received ${signal}. Draining DB pool and closing HTTP server gracefully...`);
+            chatWss.clients.forEach((c) => c.close(1001, 'server shutting down'));
+            chatWss.close();
             server.close(async () => {
                 console.log('[SYSTEM] HTTP listener closed.');
                 try {

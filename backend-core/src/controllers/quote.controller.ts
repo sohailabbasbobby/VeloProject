@@ -64,7 +64,7 @@ export const getVehicleClasses = asyncHandler(async (req: Request, res: Response
     res.json({ success: true, data });
 });
 
-/** Passenger's own trips (authenticated via Firebase uid → private_clients). */
+/** Passenger's own trips (authenticated via the self-hosted session → private_clients). */
 export const listMyTrips = asyncHandler(async (req: Request, res: Response) => {
     const { clientId } = getAuthContext(req);
     if (!clientId) throw forbidden('Passenger authentication required.');

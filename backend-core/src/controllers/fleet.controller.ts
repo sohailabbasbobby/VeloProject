@@ -13,7 +13,7 @@ const round2 = (n: number): number => Math.round(n * 100) / 100;
 
 const nextReferenceCode = async (client: any, prefix: string, table: string): Promise<string> => {
     const res = await client.query(
-        `SELECT COALESCE(MAX(NULLIF(regexp_replace(reference_code, '\D', 'g'), '')::int), 0) + 1 AS next
+        `SELECT COALESCE(MAX(NULLIF(regexp_replace(reference_code, '\D', '', 'g'), '')::int), 0) + 1 AS next
          FROM ${table} WHERE reference_code LIKE $1`,
         [`${prefix}-%`]
     );

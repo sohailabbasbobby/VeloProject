@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
 
 // Import Routes
+import authRoutes from './routes/auth.routes';
 import b2bRoutes from './routes/b2b.routes';
 import escrowRoutes from './routes/escrow.routes';
 import poolRoutes from './routes/pool.routes';
@@ -18,6 +19,7 @@ import uploadRoutes from './routes/upload.routes';
 import aiRoutes from './routes/ai.routes';
 import onboardingRoutes from './routes/onboarding.routes';
 import healthRoutes from './routes/health.routes';
+import mapsRoutes from './routes/maps.routes';
 
 // Import Middleware
 import { resolveAuth } from './middleware/tenant.middleware';
@@ -44,6 +46,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Public Health Check Endpoint
 app.use('/api/v1/health', healthRoutes);
 
+// Self-hosted auth (Jawa Ride pattern) — public endpoints that ISSUE our own
+// sessions; must be mounted before the global resolveAuth verifier.
+app.use('/api/auth', authRoutes);
+
 // Authentication + tenant isolation for all protected routes
 app.use('/api', resolveAuth);
 
@@ -61,6 +67,7 @@ app.use('/api/fleet', fleetRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/onboarding', onboardingRoutes);
+app.use('/api/maps', mapsRoutes);
 
 // Global Error-Handling Catch-All Middleware (typed, PostgreSQL-code aware)
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

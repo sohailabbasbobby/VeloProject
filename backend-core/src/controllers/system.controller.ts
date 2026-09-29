@@ -14,7 +14,7 @@ import { getAuthContext } from '../middleware/tenant.middleware';
 
 const nextReferenceCode = async (client: any, prefix: string, table: string): Promise<string> => {
     const res = await client.query(
-        `SELECT COALESCE(MAX(NULLIF(regexp_replace(reference_code, '\\D', 'g'), '')::int), 0) + 1 AS next
+        `SELECT COALESCE(MAX(NULLIF(regexp_replace(reference_code, '\\D', '', 'g'), '')::int), 0) + 1 AS next
          FROM ${table} WHERE reference_code LIKE $1`,
         [`${prefix}-%`]
     );
@@ -244,7 +244,10 @@ export const exportDiagnostics = asyncHandler(async (req: Request, res: Response
             environment: {
                 stripe: Boolean(process.env.STRIPE_SECRET_KEY),
                 twilio: Boolean(process.env.TWILIO_ACCOUNT_SID),
-                firebase: Boolean(process.env.FIREBASE_SERVICE_ACCOUNT_B64 || process.env.FIREBASE_SERVICE_ACCOUNT_JSON),
+                selfHostedAuth: Boolean(process.env.JWT_SECRET && process.env.JWT_SECRET.length >= 32),
+                pushPipe: Boolean(process.env.FIREBASE_SERVICE_ACCOUNT_B64 || process.env.FIREBASE_SERVICE_ACCOUNT_JSON),
+                googleSignIn: Boolean(process.env.GOOGLE_CLIENT_ID),
+                appleSignIn: Boolean(process.env.APPLE_CLIENT_ID),
                 googleMaps: Boolean(process.env.GOOGLE_MAPS_API_KEY),
                 openaiVision: Boolean(process.env.OPENAI_API_KEY),
             },
@@ -252,8 +255,8 @@ export const exportDiagnostics = asyncHandler(async (req: Request, res: Response
     };
     if (!diagnostics.sections.environment.googleMaps) diagnostics.remediation.push('Set GOOGLE_MAPS_API_KEY to enable live routing and PROVIDER_GOOGLE maps.');
     if (!diagnostics.sections.environment.stripe) diagnostics.remediation.push('Set STRIPE_SECRET_KEY and connect tenant Stripe accounts for escrow.');
-    if (!diagnostics.sections.environment.firebase) diagnostics.remediation.push('Set FIREBASE_SERVICE_ACCOUNT_B64 for auth + push.');
-    if (!diagnostics.sections.environment.twilio) diagnostics.remediation.push('Set Twilio credentials for masked proxy contact.');
+    if (!diagnostics.sections.environment.selfHostedAuth) diagnostics.remediation.push('Set JWT_SECRET (min 32 chars) to enable self-hosted app sign-in.');
+    if (!diagnostics.sections.environment.twilio) diagnostics.remediation.push('Set Twilio credentials for masked proxy contact and OTP SMS delivery.');
 
     res.json({ success: true, data: diagnostics });
 });

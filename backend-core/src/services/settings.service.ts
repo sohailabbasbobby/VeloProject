@@ -31,6 +31,16 @@ export interface DispatchSettings {
     nearbyDriverRadiusMeters: number;
 }
 
+export interface AuthSettings {
+    accessTokenTtlSeconds: number;
+    refreshTokenTtlDays: number;
+    otpTtlSeconds: number;
+    otpMaxAttempts: number;
+    otpLength: number;
+    otpMaxPerHour: number;
+    bcryptRounds: number;
+}
+
 export interface PayrollSettings {
     pensionRateDefault: number;
     studentLoanRateDefault: number;
@@ -109,6 +119,19 @@ export const SettingsService = {
 
     async getSubscriptionSettings(): Promise<{ weeklyFee: number }> {
         return asObject<{ weeklyFee: number }>(await this.get('subscription'), { weeklyFee: 50.0 });
+    },
+
+    /** Self-hosted auth tuning (Jawa Ride pattern) — all persisted, none hardcoded. */
+    async getAuthSettings(): Promise<AuthSettings> {
+        return asObject<AuthSettings>(await this.get('auth'), {
+            accessTokenTtlSeconds: 900,             // 15 min access tokens
+            refreshTokenTtlDays: 30,
+            otpTtlSeconds: 300,                     // 5-minute OTP window
+            otpMaxAttempts: 5,
+            otpLength: 6,
+            otpMaxPerHour: 5,                       // request-rate cap per phone
+            bcryptRounds: 12,
+        });
     },
 
     /** Computes the network floor price for a route/tier: base + perMile*miles + perHour*max(miles/speed, minHours). */

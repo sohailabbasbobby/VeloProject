@@ -81,11 +81,26 @@ export const HealthService = {
                 : { name: 'Twilio', configured: false, status: 'UNCONFIGURED', detail: 'Twilio credentials not set — masked contact unavailable.' }
         );
 
-        // Firebase
+        // Self-hosted auth (Jawa pattern) + push delivery pipe
+        services.push(
+            process.env.JWT_SECRET && process.env.JWT_SECRET.length >= 32
+                ? { name: 'Auth (self-hosted JWT)', configured: true, status: 'OPERATIONAL', detail: 'JWT issuing/verification active (bcrypt + rotating refresh).' }
+                : { name: 'Auth (self-hosted JWT)', configured: false, status: 'UNCONFIGURED', detail: 'JWT_SECRET missing or < 32 chars — app sign-in unavailable.' }
+        );
         services.push(
             process.env.FIREBASE_SERVICE_ACCOUNT_B64 || process.env.FIREBASE_SERVICE_ACCOUNT_JSON
-                ? { name: 'Firebase', configured: true, status: 'OPERATIONAL', detail: 'Service account configured (Auth + FCM).' }
-                : { name: 'Firebase', configured: false, status: 'UNCONFIGURED', detail: 'Firebase service account not set — app auth unavailable.' }
+                ? { name: 'Push delivery (FCM pipe)', configured: true, status: 'OPERATIONAL', detail: 'FCM HTTP v1 credentials present (OS-level push pipe only).' }
+                : { name: 'Push delivery (FCM pipe)', configured: false, status: 'UNCONFIGURED', detail: 'Push no-ops honestly; in-app notification records unaffected.' }
+        );
+        services.push(
+            process.env.GOOGLE_CLIENT_ID
+                ? { name: 'Google Sign-In', configured: true, status: 'OPERATIONAL', detail: 'GOOGLE_CLIENT_ID present (server-side token verification).' }
+                : { name: 'Google Sign-In', configured: false, status: 'UNCONFIGURED', detail: 'GOOGLE_CLIENT_ID not set — Google option disabled.' }
+        );
+        services.push(
+            process.env.APPLE_CLIENT_ID
+                ? { name: 'Apple Sign-In', configured: true, status: 'OPERATIONAL', detail: 'APPLE_CLIENT_ID present (server-side token verification).' }
+                : { name: 'Apple Sign-In', configured: false, status: 'UNCONFIGURED', detail: 'APPLE_CLIENT_ID not set — Apple option disabled.' }
         );
 
         // Google Maps
