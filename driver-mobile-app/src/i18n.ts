@@ -14,7 +14,7 @@ import pl from './locales/pl.json';
 
 const STORE_LANGUAGE_KEY = 'settings.lang';
 
-const languageDetectorPlugin = {
+const languageDetectorPlugin: any = {
   type: 'languageDetector',
   async: true,
   init: () => {},
@@ -64,7 +64,6 @@ i18n
   .use(languageDetectorPlugin)
   .init({
     resources,
-    compatibilityJSON: 'v3',
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false, // react already safes from xss

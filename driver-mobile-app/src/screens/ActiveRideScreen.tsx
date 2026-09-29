@@ -30,6 +30,16 @@ const IconWaze = ({ color = COLOURS.gold }) => (
 );
 
 interface ActiveRideScreenProps {
+  trip: {
+    task_id?: string;
+    passenger_name?: string;
+    corporate_booker_name?: string | null;
+    pickup_address: string;
+    scheduled_at?: string | null;
+    custom_price?: number;
+    final_price?: number;
+    passenger_proxy_number?: string | null;
+  };
   tripPhase: 1 | 2 | 3;
   countdownSeconds: number;
   formatTimerString: (s: number) => string;
@@ -39,13 +49,28 @@ interface ActiveRideScreenProps {
 }
 
 export function ActiveRideScreen({
-  tripPhase, countdownSeconds, formatTimerString,
+  trip, tripPhase, countdownSeconds, formatTimerString,
   onPhaseComplete, onRequestCancellation, onLaunchPagingBoard,
 }: ActiveRideScreenProps) {
   const { t } = useTranslation();
   const [isCancelModalVisible, setCancelModalVisible] = useState(false);
   const [cancelReason, setCancelReason] = useState<string | null>(null);
   const [cancelNotes, setCancelNotes] = useState('');
+  const [proxyNumber, setProxyNumber] = useState<string | null>(trip.passenger_proxy_number || null);
+
+  // Requests a real Twilio masked-proxy session from the backend when the driver opens the call modal
+  const handleOpenCallModal = async () => {
+    setCallModalVisible(true);
+    if (!proxyNumber && trip.task_id) {
+      try {
+        const { requestMaskedContact } = require('../api/client');
+        const data = await requestMaskedContact(trip.task_id);
+        setProxyNumber(data?.callNow || null);
+      } catch {
+        setProxyNumber(null);
+      }
+    }
+  };
   
   const [isCallModalVisible, setCallModalVisible] = useState(false);
   const [isChatModalVisible, setChatModalVisible] = useState(false);
@@ -60,34 +85,34 @@ export function ActiveRideScreen({
   ];
   return (
     <View style={styles.activeRideExecutionSheet}>
-      {/* Waze Floating Icon */}
+      {/* Waze Floating Icon — navigates to the LIVE pickup address */}
       <TouchableOpacity 
         style={styles.wazeFloatButton} 
-        onPress={() => Linking.openURL(`https://waze.com/ul?q=${encodeURIComponent('Manchester Piccadilly Station, Approach')}&navigate=yes`)}
+        onPress={() => Linking.openURL(`https://waze.com/ul?q=${encodeURIComponent(trip.pickup_address)}&navigate=yes`)}
       >
         <IconWaze color={COLOURS.gold} />
         <Text style={{ color: COLOURS.gold, fontSize: 11, fontWeight: '900', letterSpacing: 1, marginLeft: 10 }}>NAVIGATE</Text>
       </TouchableOpacity>
-      {/* Passenger */}
+      {/* Passenger — LIVE trip data; masked contact via Twilio proxy (never the raw number) */}
       <View style={styles.passengerSplitRow}>
         <View style={styles.monogramAssetBox}>
-          <Text style={styles.monogramText}>J</Text>
+          <Text style={styles.monogramText}>{(trip.passenger_name || 'P').charAt(0).toUpperCase()}</Text>
         </View>
         <View style={{ marginLeft: 14 }}>
-          <Text style={styles.passengerNameText}>MR. JOHN</Text>
-          <Text style={styles.passengerCorporateTag}>GOLDMAN SACHS</Text>
+          <Text style={styles.passengerNameText}>{(trip.passenger_name || 'PASSENGER').toUpperCase()}</Text>
+          <Text style={styles.passengerCorporateTag}>{(trip.corporate_booker_name || trip.task_id || 'VELO EXECUTIVE').toUpperCase()}</Text>
         </View>
       </View>
 
       {/* Info boxes */}
       <View style={styles.infoContentBoxWrapper}>
-        <Text style={styles.infoBoxMicroHeader}>{t('active_trip.pickup_address_payout', { payout: '80.00' }).toUpperCase()}</Text>
-        <Text style={styles.infoBoxValueText}>Manchester Piccadilly Station, Approach</Text>
+        <Text style={styles.infoBoxMicroHeader}>{t('active_trip.pickup_address_payout', { payout: Number(trip.final_price ?? trip.custom_price ?? 0).toFixed(2) }).toUpperCase()}</Text>
+        <Text style={styles.infoBoxValueText}>{trip.pickup_address}</Text>
       </View>
 
       <View style={styles.infoContentBoxWrapper}>
         <Text style={styles.infoBoxMicroHeader}>{t('radar.pickup_time').toUpperCase()}</Text>
-        <Text style={styles.infoBoxValueTextBold}>20:30 BST</Text>
+        <Text style={styles.infoBoxValueTextBold}>{trip.scheduled_at ? new Date(trip.scheduled_at).toLocaleTimeString().slice(0, 5) : 'ASAP'}</Text>
       </View>
 
       {/* Grace period countdown (phase 2 only) */}
@@ -108,7 +133,7 @@ export function ActiveRideScreen({
 
       {/* Action icons */}
       <View style={styles.privacyActionHubRowCentered}>
-        <TouchableOpacity style={[styles.actionNodeButtonCentered, { backgroundColor: 'rgba(46, 211, 98, 0.1)', borderColor: COLOURS.green }]} onPress={() => setCallModalVisible(true)}>
+        <TouchableOpacity style={[styles.actionNodeButtonCentered, { backgroundColor: 'rgba(46, 211, 98, 0.1)', borderColor: COLOURS.green }]} onPress={handleOpenCallModal}>
           <IconCall color={COLOURS.green} />
           <Text style={[styles.actionNodeTextLabel, { color: COLOURS.green }]}>CALL</Text>
         </TouchableOpacity>
@@ -135,7 +160,7 @@ export function ActiveRideScreen({
         {tripPhase === 3 && <VeloSwipeTrack text=">>>  END TRIP  >>>" trackColor="#1F1314" thumbColor={COLOURS.red} textColor={COLOURS.red} onComplete={onPhaseComplete} />}
       </View>
 
-      {/* Call Customer Modal */}
+      {/* Call Customer Modal — masked Twilio proxy number fetched live (§1.3 Ghost Fulfilment) */}
       <Modal visible={isCallModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -144,7 +169,7 @@ export function ActiveRideScreen({
             
             <View style={{ backgroundColor: COLOURS.bg, padding: 16, borderRadius: 8, borderWidth: 1, borderColor: '#1C1C1E', alignItems: 'center', marginBottom: 24 }}>
               <Text style={{ color: COLOURS.textDim, fontSize: 10, fontWeight: '800', marginBottom: 4 }}>SECURE ROUTING NUMBER</Text>
-              <Text style={{ color: COLOURS.green, fontSize: 18, fontWeight: '900', letterSpacing: 1 }}>+44 8000 000000</Text>
+              <Text style={{ color: COLOURS.green, fontSize: 18, fontWeight: '900', letterSpacing: 1 }}>{proxyNumber || 'REQUESTING…'}</Text>
             </View>
             
             <View style={styles.modalButtonRow}>
@@ -155,7 +180,7 @@ export function ActiveRideScreen({
                 style={[styles.modalBtn, { backgroundColor: COLOURS.green }]} 
                 onPress={() => {
                   setCallModalVisible(false);
-                  Linking.openURL('tel:+448000000000');
+                  if (proxyNumber) Linking.openURL(`tel:${proxyNumber}`);
                 }}>
                 <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '900' }}>CALL</Text>
               </TouchableOpacity>

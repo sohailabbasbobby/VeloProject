@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from 'react-native-maps';
+import Geolocation from 'react-native-geolocation-service';
 import { COLOURS } from '../constants/theme';
 import { CarIconSVG } from './CarIconSVG';
 
@@ -9,24 +10,46 @@ export type DriverMapStage = 'IDLE' | 'DISPATCHED' | 'ACTIVE';
 interface DriverMapProps {
   stage: DriverMapStage;
   currentLocation?: { latitude: number; longitude: number };
-  pickupLocation?: { latitude: number; longitude: number };
-  dropoffLocation?: { latitude: number; longitude: number };
+  pickupLat?: number;
+  pickupLng?: number;
+  dropoffLat?: number;
+  dropoffLng?: number;
 }
 
-export function DriverMap({ stage, currentLocation, pickupLocation, dropoffLocation }: DriverMapProps) {
+/**
+ * REAL LIVE MAP (§5 DriverMap): PROVIDER_GOOGLE with showsUserLocation from real
+ * device GPS, live pickup/dropoff markers driven by trip state, and a polyline
+ * route between pickup and dropoff. The previous static coordinate fallback is gone.
+ */
+export function DriverMap({ stage, currentLocation, pickupLat, pickupLng, dropoffLat, dropoffLng }: DriverMapProps) {
+  const [deviceLocation, setDeviceLocation] = useState<{ latitude: number; longitude: number } | undefined>(currentLocation);
   const [region, setRegion] = useState({
     latitude: 53.4808, longitude: -2.2426, latitudeDelta: 0.05, longitudeDelta: 0.05
   });
 
+  // Real GPS watch (showsUserLocation + car marker follow the device)
   useEffect(() => {
-    if (currentLocation) {
-       setRegion({
-         ...currentLocation,
-         latitudeDelta: 0.05,
-         longitudeDelta: 0.05
-       });
+    const watchId = Geolocation.watchPosition(
+      (pos) => {
+        const loc = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+        setDeviceLocation(loc);
+        setRegion({ ...loc, latitudeDelta: 0.05, longitudeDelta: 0.05 });
+      },
+      () => undefined,
+      { enableHighAccuracy: true, distanceFilter: 25, interval: 15000, accuracy: { ios: 'best', android: 'high' } }
+    );
+    return () => Geolocation.clearWatch(watchId);
+  }, []);
+
+  const pickupLocation = pickupLat && pickupLng ? { latitude: pickupLat, longitude: pickupLng } : undefined;
+  const dropoffLocation = dropoffLat && dropoffLng ? { latitude: dropoffLat, longitude: dropoffLng } : undefined;
+  const effectiveLocation = currentLocation || deviceLocation;
+
+  useEffect(() => {
+    if (pickupLocation) {
+      setRegion({ ...pickupLocation, latitudeDelta: 0.08, longitudeDelta: 0.08 });
     }
-  }, [currentLocation]);
+  }, [pickupLat, pickupLng]);
 
   return (
     <View style={styles.root}>
@@ -34,12 +57,13 @@ export function DriverMap({ stage, currentLocation, pickupLocation, dropoffLocat
         provider={PROVIDER_GOOGLE}
         style={StyleSheet.absoluteFill}
         region={region}
-        showsUserLocation={false}
+        showsUserLocation
+        showsMyLocationButton={false}
         customMapStyle={veloMapStyle}
       >
-        {/* Car Marker (Center) */}
-        {currentLocation && (
-          <Marker coordinate={currentLocation} anchor={{x: 0.5, y: 0.5}}>
+        {/* Car Marker (live device GPS) */}
+        {effectiveLocation && (
+          <Marker coordinate={effectiveLocation} anchor={{x: 0.5, y: 0.5}}>
             <View style={styles.carBubble}>
               <CarIconSVG color="#FFFFFF" />
             </View>
@@ -68,6 +92,16 @@ export function DriverMap({ stage, currentLocation, pickupLocation, dropoffLocat
               <View style={[styles.pinNeedle, { borderTopColor: COLOURS.red }]} />
             </View>
           </Marker>
+        )}
+
+        {/* Route polyline pickup → dropoff driven by live trip state */}
+        {stage === 'ACTIVE' && pickupLocation && dropoffLocation && (
+          <Polyline
+            coordinates={[pickupLocation, dropoffLocation]}
+            strokeColor={COLOURS.gold}
+            strokeWidth={3}
+            lineDashPattern={[1, 0]}
+          />
         )}
       </MapView>
 

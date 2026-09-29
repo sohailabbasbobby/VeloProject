@@ -5,7 +5,7 @@ import { COLOURS } from '../constants/theme';
 import { VeloSwipeTrack } from './VeloSwipeTrack';
 import { IconUpcoming, IconHistory, IconEarnings, IconOperators, IconSettings, IconExpenses } from './SidebarIcons';
 
-type SidebarTab = 'NONE' | 'PROFILE' | 'EXPENSES' | 'UPCOMING' | 'HISTORY' | 'EARNINGS' | 'OPERATORS' | 'SETTINGS';
+type SidebarTab = 'NONE' | 'PROFILE' | 'EXPENSES' | 'UPCOMING' | 'HISTORY' | 'EARNINGS' | 'OPERATORS' | 'ROSTER' | 'ISSUES' | 'SETTINGS';
 
 interface SidebarDrawerProps {
   driverProfile: { name: string; phone: string; address: string };
@@ -41,7 +41,7 @@ export function SidebarDrawer({
   // Upcoming Trips Timer State
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setInterval>;
     if (activeTab === 'UPCOMING') {
       timer = setInterval(() => setNow(Date.now()), 1000);
     }

@@ -7,7 +7,11 @@ import { VeloSwipeTrack } from '../components/VeloSwipeTrack';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface DispatchScreenProps {
-  dispatches: Array<{ id: string, tenantName: string, payout: string, pickup: string, time: string }>;
+  dispatches: Array<{
+    id: string, tenantName: string, operatorLogo?: string, payout: string, pickup: string,
+    dropoff?: string, time: string, conflict?: boolean, conflictWithTaskId?: string,
+    etaDeltaMinutes?: number, locationDeltaMiles?: number,
+  }>;
   payrollType: 'PERCENTAGE_SPLIT' | 'FIXED_WAGE';
   onAccept: (id: string) => void;
   onDecline: (id: string) => void;
@@ -15,7 +19,7 @@ interface DispatchScreenProps {
 
 export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }: DispatchScreenProps) {
   const { t } = useTranslation();
-  const isConflict = dispatches.length > 1;
+  const isConflict = dispatches.some((d) => d.conflict) || dispatches.length > 1;
 
   const [isCancelModalVisible, setCancelModalVisible] = useState(false);
   const [cancelReason, setCancelReason] = useState<string | null>(null);
@@ -79,8 +83,8 @@ export function DispatchScreen({ dispatches, payrollType, onAccept, onDecline }:
               <View style={[styles.routeNodeBlock, isConflict && { marginVertical: 2 }]}>
                 <View style={[styles.routeRingNode, { borderColor: COLOURS.red }]} />
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.nodeLocation, isConflict && { fontSize: 13 }]}>MANCHESTER AIRPORT T2</Text>
-                  {!isConflict && <Text style={styles.nodeInlineMetrics}>{t('active_trip.in_transit', { time: '28 min', distance: '11.4 mi' })}</Text>}
+                  <Text style={[styles.nodeLocation, isConflict && { fontSize: 13 }]}>{(job.dropoff || job.pickup).toUpperCase()}</Text>
+                  {!isConflict && <Text style={styles.nodeInlineMetrics}>{t('active_trip.in_transit', { time: '—', distance: '—' })}</Text>}
                 </View>
               </View>
             </View>

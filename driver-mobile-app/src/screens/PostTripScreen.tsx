@@ -5,11 +5,21 @@ import { COLOURS } from '../constants/theme';
 import { VeloSwipeTrack } from '../components/VeloSwipeTrack';
 
 interface PostTripScreenProps {
-  onComplete: () => void;
+  trip: {
+    task_id?: string;
+    distance_miles?: number | string;
+    duration_minutes?: number | string;
+    custom_price?: number;
+    final_price?: number;
+    driver_earnings?: number;
+    tip?: number;
+  };
+  onComplete: (stars: number, feedback: string) => void;
 }
 
-export function PostTripScreen({ onComplete }: PostTripScreenProps) {
+export function PostTripScreen({ trip, onComplete }: PostTripScreenProps) {
   const { t } = useTranslation();
+  const [feedback, setFeedback] = useState('');
   const [rating, setRating] = useState(5);
 
   return (
@@ -19,26 +29,28 @@ export function PostTripScreen({ onComplete }: PostTripScreenProps) {
       <View style={styles.summaryCard}>
         <View style={styles.metricRow}>
           <Text style={styles.metricLabel}>{t('post_trip.trip_duration')}</Text>
-          <Text style={styles.metricValue}>42 mins</Text>
+          <Text style={styles.metricValue}>{trip.duration_minutes ? `${trip.duration_minutes} mins` : '—'}</Text>
         </View>
         <View style={styles.metricRow}>
           <Text style={styles.metricLabel}>{t('post_trip.distance_driven')}</Text>
-          <Text style={styles.metricValue}>14.5 mi</Text>
+          <Text style={styles.metricValue}>{trip.distance_miles ? `${Number(trip.distance_miles).toFixed(1)} mi` : '—'}</Text>
         </View>
       </View>
 
       <View style={[styles.summaryCard, { borderColor: COLOURS.gold, borderWidth: 1.5 }]}>
         <View style={styles.metricRow}>
           <Text style={styles.metricLabel}>{t('post_trip.base_earnings')}</Text>
-          <Text style={styles.metricValue}>£80.00</Text>
+          <Text style={styles.metricValue}>£{Number(trip.driver_earnings ?? trip.final_price ?? trip.custom_price ?? 0).toFixed(2)}</Text>
         </View>
         <View style={styles.metricRow}>
           <Text style={styles.metricLabel}>{t('post_trip.gratuity')}</Text>
-          <Text style={[styles.metricValue, { color: COLOURS.green }]}>£15.00</Text>
+          <Text style={[styles.metricValue, { color: COLOURS.green }]}>£{Number(trip.tip || 0).toFixed(2)}</Text>
         </View>
         <View style={[styles.metricRow, { borderTopWidth: 1, borderTopColor: '#222', marginTop: 10, paddingTop: 10 }]}>
           <Text style={[styles.metricLabel, { color: COLOURS.gold }]}>{t('post_trip.total_payout')}</Text>
-          <Text style={[styles.metricValue, { color: COLOURS.gold, fontSize: 20 }]}>£95.00</Text>
+          <Text style={[styles.metricValue, { color: COLOURS.gold, fontSize: 20 }]}>
+            £{(Number(trip.driver_earnings ?? 0) + Number(trip.tip || 0)).toFixed(2)}
+          </Text>
         </View>
       </View>
 
@@ -56,6 +68,8 @@ export function PostTripScreen({ onComplete }: PostTripScreenProps) {
           placeholder={t('post_trip.optional_feedback')}
           placeholderTextColor={COLOURS.textDim}
           multiline
+          value={feedback}
+          onChangeText={setFeedback}
         />
       </View>
 
@@ -65,7 +79,7 @@ export function PostTripScreen({ onComplete }: PostTripScreenProps) {
           trackColor="#131A24" 
           thumbColor={COLOURS.blue} 
           textColor={COLOURS.blue} 
-          onComplete={onComplete} 
+          onComplete={() => onComplete(rating, feedback)} 
         />
       </View>
     </View>
