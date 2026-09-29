@@ -8,4 +8,5 @@ router.post('/trips/:tripId/release', escrow.releaseEscrow);
 router.post('/trips/:tripId/dispute', escrow.disputeEscrow);
 router.post('/trips/:tripId/refund', escrow.refundEscrow);
 router.post('/trips/:tripId/arbitrate', escrow.arbitrateEscrow);
+router.post('/trips/:tripId/freeze', escrow.freezeEscrow);
 export default router;

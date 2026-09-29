@@ -11,6 +11,8 @@ router.use(requireAdmin);
 router.get('/tenants', analytics.listTenantsAdmin);
 router.post('/tenants', analytics.upsertTenantAdmin);
 router.get('/pool', analytics.platformPoolOversight);
+router.get('/clearing-ledger', analytics.platformClearingLedger);
+router.get('/escrow', analytics.platformEscrowList);
 router.post('/pool/:jobId/override', analytics.overridePoolJob);
 router.get('/compliance', analytics.platformCompliance);
 router.get('/overview', analytics.platformOverview);

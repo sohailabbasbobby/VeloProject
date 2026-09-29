@@ -118,13 +118,18 @@ export const attachChatGateway = (httpServer: HttpServer): WebSocketServer => {
                         let allowed = existing.rows.length > 0;
                         if (!allowed && threadKey.startsWith('trip-')) {
                             const tripId = threadKey.slice(5);
-                            const participant = await db.query(
-                                `SELECT 1 FROM trips
-                                 WHERE id = $2 AND tenant_id = $1
-                                   AND (private_client_id = $3 OR driver_id = $3) LIMIT 1`,
-                                [meta.tenantId, tripId, meta.actorId]
-                            );
-                            allowed = participant.rows.length > 0;
+                            // Guard the uuid cast: a malformed id must surface as a
+                            // foreign-thread rejection, not a raw Postgres error.
+                            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tripId);
+                            if (isUuid) {
+                                const participant = await db.query(
+                                    `SELECT 1 FROM trips
+                                     WHERE id = $2 AND tenant_id = $1
+                                       AND (private_client_id = $3 OR driver_id = $3) LIMIT 1`,
+                                    [meta.tenantId, tripId, meta.actorId]
+                                );
+                                allowed = participant.rows.length > 0;
+                            }
                         }
                         if (!allowed) {
                             throw new Error('Unknown thread for this tenant.');

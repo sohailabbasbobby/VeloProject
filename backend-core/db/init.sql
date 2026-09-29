@@ -396,6 +396,7 @@ CREATE TABLE private_clients (
     dietary_constraints TEXT,
     cabin_constraints TEXT,
     temperature_preference VARCHAR(40),
+    push_token VARCHAR(512),                               -- device push registration (APNs/FCM pipe)
     music_preference VARCHAR(80),
     privacy_level VARCHAR(20) NOT NULL DEFAULT 'STANDARD', -- STANDARD|GHOST
     vip_notes TEXT,                                      -- private notes, never exposed cross-tenant
@@ -834,11 +835,12 @@ CREATE TABLE telemetry_events (
 CREATE INDEX idx_telemetry_type_time ON telemetry_events(event_type, recorded_at);
 
 CREATE TABLE audit_logs (
-    id BIGSERIAL PRIMARY KEY,
-    actor_type VARCHAR(30) NOT NULL,
-    actor_id VARCHAR(120),
-    tenant_id UUID,
-    action VARCHAR(120) NOT NULL,
+    id BIGSERIAL PRIMARY KEY,    actor_type  VARCHAR(30)    NOT NULL,
+    actor_id    VARCHAR(120),
+    tenant_id   UUID,
+    actor       VARCHAR(120),
+    severity    VARCHAR(10)    NOT NULL DEFAULT 'info' CHECK (severity IN ('info','warning','critical')),
+    action      VARCHAR(120)   NOT NULL,
     entity_type VARCHAR(60),
     entity_id VARCHAR(120),
     metadata JSONB NOT NULL DEFAULT '{}'::jsonb,

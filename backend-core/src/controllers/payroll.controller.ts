@@ -286,6 +286,63 @@ export const massExecutePayouts = asyncHandler(async (req: Request, res: Respons
     res.json({ success: true, data: results });
 });
 
+/** Driver-side ledger (§5 sidebar earnings): the authenticated driver's own entries + payouts. */
+export const getMyLedger = asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, driverId } = getAuthContext(req);
+    if (!driverId) throw forbidden('Driver authentication required.');
+
+    const { rows } = await db.query(
+        `SELECT id, trip_id, entry_type, direction, amount, description, created_at
+         FROM driver_ledgers WHERE tenant_id = $1 AND driver_id = $2
+         ORDER BY created_at DESC LIMIT 200`,
+        [tenantId, driverId]
+    );
+    const payoutsRes = await db.query(
+        `SELECT id, amount, currency, method, status, executed_at, created_at
+         FROM payouts WHERE tenant_id = $1 AND driver_id = $2
+         ORDER BY created_at DESC LIMIT 100`,
+        [tenantId, driverId]
+    );
+
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    let shiftNet = 0;
+    let tipsMtd = 0;
+    let expensesMtd = 0;
+    let outstanding = 0;
+    const paidOut = payoutsRes.rows
+        .filter((p: any) => ['PENDING', 'PROCESSING', 'PAID'].includes(p.status))
+        .reduce((s: number, p: any) => s + Number(p.amount), 0);
+    for (const row of rows) {
+        const amt = Number(row.amount);
+        const signed = amt * (row.direction === 'CREDIT' ? 1 : -1);
+        if (new Date(row.created_at) >= monthStart) {
+            if (row.entry_type === 'TIP') tipsMtd += signed;
+            else if (row.entry_type.startsWith('EXPENSE_')) expensesMtd += amt; // gross expense value, direction-agnostic
+            else shiftNet += signed;
+        }
+    }
+    const totalCredits = rows
+        .filter((r: any) => r.direction === 'CREDIT')
+        .reduce((s: number, r: any) => s + Number(r.amount), 0);
+    outstanding = totalCredits - paidOut;
+
+    res.json({
+        success: true,
+        data: {
+            entries: rows,
+            payouts: payoutsRes.rows,
+            summary: {
+                shiftNet: round2(shiftNet),
+                tipsMtd: round2(tipsMtd),
+                expensesMtd: round2(expensesMtd),
+                outstanding: round2(Math.max(0, outstanding)),
+                paidOut: round2(paidOut),
+            },
+        },
+    });
+});
+
 export const listPayouts = asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = getAuthContext(req);
     const { status } = req.query;

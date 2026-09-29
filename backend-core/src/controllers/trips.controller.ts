@@ -7,6 +7,7 @@ import { VeloClearingEngine } from '../services/veloClearingEngine';
 import { TwilioProxyService } from '../services/twilio.service';
 import { NotificationService } from '../utils/notificationService';
 import { getAuthContext } from '../middleware/tenant.middleware';
+import { writeAuditLog } from './finalmile.controller';
 
 /**
  * TRIPS CONTROLLER — booking lifecycle: creation with fully custom per-trip pricing
@@ -240,6 +241,7 @@ export const createTrip = asyncHandler(async (req: Request, res: Response) => {
         return tripRow;
     });
 
+    writeAuditLog(tenantId, trip.passenger_name || 'Passenger', `Booking created (${trip.task_id})`, 'info', 'TRIP', String(trip.id)).catch(() => undefined);
     res.status(201).json({ success: true, data: trip });
 });
 
@@ -389,6 +391,7 @@ export const advanceTripPhase = asyncHandler(async (req: Request, res: Response)
     if (String(phase).toUpperCase() === 'COMPLETE') {
         await completeTripSettlement(tripId);
     }
+    writeAuditLog(tenantId, `Driver ${driverId}`, `Trip ${tripId} → ${t.to}`, 'info', 'TRIP', tripId).catch(() => undefined);
     res.json({ success: true, data: updated });
 });
 
@@ -523,7 +526,40 @@ export const resolveCancellation = asyncHandler(async (req: Request, res: Respon
             [tripId]
         );
     });
+    writeAuditLog(tenantId, 'Dispatch Admin', `Cancellation approved for trip ${tripId}`, 'warning', 'TRIP', tripId).catch(() => undefined);
     res.json({ success: true, data: { tripId, approval: 'ADMIN_APPROVED' } });
+});
+
+/** Driver-side post-job expense logging (§5): writes a DEBIT driver_ledgers row for the trip. */
+export const logTripExpense = asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, driverId } = getAuthContext(req);
+    if (!driverId) throw forbidden('Driver authentication required.');
+    const tripId = String(req.params.tripId);
+    const { expenseType, amount, customLabel, receiptUrl } = req.body || {};
+    const allowedTypes = ['EXPENSE_PARKING', 'EXPENSE_TOLL', 'EXPENSE_AIRPORT_FEE', 'EXPENSE_CUSTOM'];
+    if (!expenseType || !allowedTypes.includes(String(expenseType))) {
+        throw badRequest(`expenseType must be one of ${allowedTypes.join(', ')}.`);
+    }
+    const amt = Number(amount);
+    if (!Number.isFinite(amt) || amt <= 0) throw badRequest('amount must be a positive number.');
+
+    const tripRes = await db.query(
+        `SELECT id, task_id FROM trips WHERE id = $1 AND tenant_id = $2 AND driver_id = $3`,
+        [tripId, tenantId, driverId]
+    );
+    if (tripRes.rows.length === 0) throw notFound('Trip not found for this driver.');
+
+    const label = expenseType === 'EXPENSE_CUSTOM'
+        ? `Expense (${String(customLabel || 'Custom').slice(0, 60)})`
+        : `Expense (${expenseType.replace('EXPENSE_', '').replace(/_/g, ' ')})`;
+
+    const { rows } = await db.query(
+        `INSERT INTO driver_ledgers (tenant_id, driver_id, trip_id, entry_type, direction, amount, description)
+         VALUES ($1,$2,$3,$4,'DEBIT',$5,$6) RETURNING *`,
+        [tenantId, driverId, tripId, String(expenseType), round2(amt), receiptUrl ? `${label} · receipt: ${String(receiptUrl).slice(0, 180)}` : label]
+    );
+    await writeAuditLog(tenantId, `Driver ${driverId}`, `Trip expense logged on ${tripRes.rows[0].task_id}: ${amt.toFixed(2)}`, 'info', 'TRIP', tripId);
+    res.status(201).json({ success: true, data: rows[0] });
 });
 
 export const submitTripRating = asyncHandler(async (req: Request, res: Response) => {

@@ -10,4 +10,5 @@ router.post('/payouts', payroll.executePayout);
 router.post('/payouts/generate-pending', payroll.createPendingPayoutsFromLedgers);
 router.post('/payouts/mass-execute', payroll.massExecutePayouts);
 router.get('/payouts', payroll.listPayouts);
+router.get('/my/ledger', payroll.getMyLedger);
 export default router;

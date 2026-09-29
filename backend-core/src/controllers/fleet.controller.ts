@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { db, withTransaction } from '../config/db';
 import { asyncHandler, badRequest, notFound, forbidden } from '../utils/httpError';
 import { getAuthContext } from '../middleware/tenant.middleware';
+import { writeAuditLog } from './finalmile.controller';
 
 /**
  * FLEET ASSET MANAGEMENT (§2) — vehicles CRUD with VLO-XXXX reference codes,
@@ -62,13 +63,28 @@ export const getVehicle = asyncHandler(async (req: Request, res: Response) => {
         `SELECT * FROM fleet_general_expenses WHERE vehicle_id = $1 ORDER BY logged_at DESC LIMIT 100`,
         [req.params.id]
     );
-    res.json({ success: true, data: { ...rows[0], maintenanceLogs: maintenance.rows, expenses: expenses.rows } });
+    const odometerLogs = await db.query(
+        `SELECT o.*, d.reference_code AS driver_code, d.first_name || ' ' || d.last_name AS driver_name
+         FROM odometer_logs o LEFT JOIN drivers d ON d.id = o.driver_id
+         WHERE o.vehicle_id = $1 ORDER BY o.logged_at DESC LIMIT 100`,
+        [req.params.id]
+    );
+    res.json({
+        success: true,
+        data: {
+            ...rows[0],
+            maintenanceLogs: maintenance.rows,
+            expenses: expenses.rows,
+            odometerLogs: odometerLogs.rows,
+        },
+    });
 });
 
 export const createVehicle = asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = getAuthContext(req);
     const {
         make, model, year, color, tier = 'EXECUTIVE', plateNumber,
+        currentOdometer = 0,
         passengerCapacity = 4, baggageCapacity = 2, status = 'ACTIVE',
         motExpiry, phvExpiry, insuranceExpiry, roadTaxExpiry,
         leaseProvider, leaseStartDate, leaseEndDate, leaseTotalCost,
@@ -82,14 +98,14 @@ export const createVehicle = asyncHandler(async (req: Request, res: Response) =>
         const res2 = await client.query(
             `INSERT INTO vehicles
                 (tenant_id, reference_code, make, model, year, color, tier, plate_number,
-                 passenger_capacity, baggage_capacity, status,
+                 passenger_capacity, baggage_capacity, status, current_odometer,
                  mot_expiry, phv_expiry, insurance_expiry, road_tax_expiry, photo_url,
                  lease_provider, lease_start_date, lease_end_date, lease_total_cost,
                  monthly_finance_cost_pence, monthly_insurance_cost_pence)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
              RETURNING *`,
             [tenantId, referenceCode, make, model, year || null, color || null, tier, plateNumber,
-             passengerCapacity, baggageCapacity, status,
+             passengerCapacity, baggageCapacity, status, Number(currentOdometer) || 0,
              motExpiry || null, phvExpiry || null, insuranceExpiry || null, roadTaxExpiry || null, photoUrl || null,
              leaseProvider || null, leaseStartDate || null, leaseEndDate || null, leaseTotalCost ? Number(leaseTotalCost) : null,
              monthlyFinanceCostPence, monthlyInsuranceCostPence]
@@ -118,6 +134,8 @@ export const updateVehicle = asyncHandler(async (req: Request, res: Response) =>
 
     const camelToSnake: Record<string, string> = {
         make: 'make', model: 'model', year: 'year', color: 'color', tier: 'tier', plateNumber: 'plate_number',
+        currentOdometer: 'current_odometer', passengerCapacity: 'passenger_capacity', baggageCapacity: 'baggage_capacity',
+        motExpiry: 'mot_expiry', phvExpiry: 'phv_expiry', insuranceExpiry: 'insurance_expiry',
     };
     for (const [camel, snake] of Object.entries(camelToSnake)) {
         if (req.body && req.body[camel] !== undefined) {
@@ -159,6 +177,7 @@ export const assignVehicle = asyncHandler(async (req: Request, res: Response) =>
         );
         return res2.rows[0];
     });
+    writeAuditLog(tenantId, 'Dispatcher', `Vehicle assigned to driver (${assignment.driver_id})`, 'info', 'VEHICLE', String(req.params.id)).catch(() => undefined);
     res.status(201).json({ success: true, data: assignment });
 });
 
@@ -170,6 +189,7 @@ export const unassignVehicle = asyncHandler(async (req: Request, res: Response) 
         [req.params.id, tenantId]
     );
     if (rows.length === 0) throw notFound('No active assignment for this vehicle.');
+    writeAuditLog(tenantId, 'Dispatcher', `Vehicle unassigned`, 'info', 'VEHICLE', String(req.params.id)).catch(() => undefined);
     res.json({ success: true, data: { unassigned: rows.length } });
 });
 

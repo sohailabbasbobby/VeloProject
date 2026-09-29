@@ -219,6 +219,19 @@ export const refundEscrow = asyncHandler(async (req: Request, res: Response) => 
     res.json({ success: true, data: { tripId, state: 'REFUNDED' } });
 });
 
+/** Backoffice freeze override: locks escrow pending arbitration. */
+export const freezeEscrow = asyncHandler(async (req: Request, res: Response) => {
+    const tripId = String(req.params.tripId);
+    const updated = await db.query(
+        `UPDATE escrow_vault SET state = 'FROZEN', updated_at = CURRENT_TIMESTAMP
+         WHERE booking_id = $1 AND state IN ('HELD','DISPUTED')
+         RETURNING id, state`,
+        [tripId]
+    );
+    if (updated.rows.length === 0) throw conflict('No HELD or DISPUTED escrow found for this trip to freeze.');
+    res.json({ success: true, data: { tripId, state: 'FROZEN' } });
+});
+
 /** Backoffice arbitration override for frozen/disputed escrow. */
 export const arbitrateEscrow = asyncHandler(async (req: Request, res: Response) => {
     const tripId = String(req.params.tripId);

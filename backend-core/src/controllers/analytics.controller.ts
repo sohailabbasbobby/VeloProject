@@ -181,6 +181,53 @@ export const platformOverview = asyncHandler(async (req: Request, res: Response)
     res.json({ success: true, data: { tenants: tenantRows[0], trips: tripRows[0], revenue: revenueRows[0], volume: volumeRows } });
 });
 
+/** Platform-wide split-clearing ledger (backoffice StripeLedger) — every network_clearing_ledger row joined to its booking + tenants. */
+export const platformClearingLedger = asyncHandler(async (req: Request, res: Response) => {
+    const { rows } = await db.query(
+        `SELECT l.id, l.booking_id, l.wholesale_fare, l.creator_fee_net, l.creator_fee_gross,
+                l.fulfiller_fee_net, l.fulfiller_fee_gross, l.finder_margin_net, l.created_at,
+                t.task_id, t.passenger_name, t.state AS trip_state,
+                o.name AS originating_tenant, f.name AS fulfilling_tenant,
+                CASE WHEN e.stripe_transfer_id IS NOT NULL THEN 'Stripe Connect Transfer'
+                     WHEN e.state IS NOT NULL THEN 'Escrow Vault (' || e.state || ')'
+                     ELSE 'Awaiting Clearing' END AS disbursal_route
+         FROM network_clearing_ledger l
+         JOIN trips t ON t.id = l.booking_id
+         LEFT JOIN tenants o ON o.id = l.originating_tenant_id
+         LEFT JOIN tenants f ON f.id = l.fulfilling_tenant_id
+         LEFT JOIN escrow_vault e ON e.booking_id = l.booking_id
+         ORDER BY l.created_at DESC LIMIT 500`
+    );
+    const totals = await db.query(
+        `SELECT COALESCE(SUM(wholesale_fare), 0) AS total_wholesale,
+                COALESCE(SUM(creator_fee_net), 0) AS total_creator_fees,
+                COALESCE(SUM(fulfiller_fee_net), 0) AS total_fulfiller_fees,
+                COALESCE(SUM(finder_margin_net), 0) AS total_finder_margins
+         FROM network_clearing_ledger`
+    );
+    res.json({ success: true, data: { rows, totals: totals.rows[0] } });
+});
+
+/** Platform-wide escrow vault view (backoffice EscrowController) with real state totals. */
+export const platformEscrowList = asyncHandler(async (req: Request, res: Response) => {
+    const { rows } = await db.query(
+        `SELECT e.*, t.task_id, t.passenger_name, t.state AS trip_state, tn.name AS holding_tenant
+         FROM escrow_vault e
+         JOIN trips t ON t.id = e.booking_id
+         LEFT JOIN tenants tn ON tn.id = e.tenant_id
+         ORDER BY e.updated_at DESC LIMIT 500`
+    );
+    const totals = await db.query(
+        `SELECT COALESCE(SUM(held_amount), 0) AS held_total,
+                COALESCE(SUM(released_amount), 0) AS released_total,
+                COUNT(*) FILTER (WHERE state = 'HELD') AS held_count,
+                COUNT(*) FILTER (WHERE state = 'DISPUTED') AS disputed_count,
+                COUNT(*) FILTER (WHERE state = 'FROZEN') AS frozen_count
+         FROM escrow_vault`
+    );
+    res.json({ success: true, data: { rows, totals: totals.rows[0] } });
+});
+
 export const listTenantsAdmin = asyncHandler(async (req: Request, res: Response) => {
     const { rows } = await db.query(
         `SELECT t.*, wlc.app_name, wlc.primary_color, wlc.published AS whitelabel_published,

@@ -20,6 +20,7 @@ import aiRoutes from './routes/ai.routes';
 import onboardingRoutes from './routes/onboarding.routes';
 import healthRoutes from './routes/health.routes';
 import mapsRoutes from './routes/maps.routes';
+import finalmileRoutes from './routes/finalmile.routes';
 
 // Import Middleware
 import { resolveAuth } from './middleware/tenant.middleware';
@@ -68,6 +69,7 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/maps', mapsRoutes);
+app.use('/api/fm', finalmileRoutes);
 
 // Global Error-Handling Catch-All Middleware (typed, PostgreSQL-code aware)
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

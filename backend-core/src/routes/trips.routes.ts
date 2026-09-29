@@ -16,6 +16,7 @@ router.post('/:tripId/contact', trips.requestMaskedContact);
 router.post('/:tripId/cancel-request', trips.requestCancellation);
 router.post('/:tripId/cancel-resolve', trips.resolveCancellation);
 router.post('/:tripId/ratings', trips.submitTripRating);
+router.post('/:tripId/expenses', trips.logTripExpense);
 
 // Corporate & private clients (entity-separated, §3.1)
 router.get('/corporate', corporate.listCorporateAccounts);
