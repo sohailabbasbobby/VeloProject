@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { Plus, Building2 } from 'lucide-react';
-import { fetchTenants, upsertTenant, usePolling } from '../utils/api';
+import { Plus, Building2, CreditCard } from 'lucide-react';
+import { fetchTenants, upsertTenant, startTenantStripeOnboarding, usePolling } from '../utils/api';
 
 const gbp = (n) => `£${Number(n || 0).toLocaleString('en-GB')}`;
 
@@ -10,6 +10,21 @@ const TenantManagement = () => {
   const [editing, setEditing] = useState(null); // null | {} (new) | tenant
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null);
+
+  const startStripe = async (t) => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const origin = window.location.origin;
+      const res = await startTenantStripeOnboarding(t.id, { refreshUrl: `${origin}/stripe/refresh`, returnUrl: `${origin}/stripe/return` });
+      setMessage(`Stripe onboarding link created for ${t.name} — opening Stripe…`);
+      window.open(res.onboardingUrl, '_blank', 'noopener');
+    } catch (err) {
+      setMessage(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const toggleSuspend = async (t) => {
     setBusy(true);
@@ -45,7 +60,7 @@ const TenantManagement = () => {
       <table className="sd-table" style={{ width: '100%' }}>
         <thead>
           <tr>
-            <th>COMPANY</th><th>CODE</th><th>PLAN</th><th>STATUS</th><th>DRIVERS</th><th>VEHICLES</th><th>TRIPS</th><th>FINDER MARGIN</th><th>WHITE-LABEL</th><th>ACTIONS</th>
+            <th>COMPANY</th><th>CODE</th><th>PLAN</th><th>STATUS</th><th>DRIVERS</th><th>VEHICLES</th><th>TRIPS</th><th>FINDER MARGIN</th><th>STRIPE PAYOUTS</th><th>WHITE-LABEL</th><th>ACTIONS</th>
           </tr>
         </thead>
         <tbody>
@@ -65,17 +80,34 @@ const TenantManagement = () => {
               <td>{t.vehicle_count}</td>
               <td>{t.trip_count}</td>
               <td>{Math.round(Number(t.finder_margin_rate || 0) * 100)}%</td>
+              <td>
+                {t.stripe_account_id ? (
+                  <span className={`fv-status ${t.stripe_payouts_enabled ? 'ok' : 'warn'}`}>
+                    {t.stripe_payouts_enabled ? 'ENABLED' : 'INCOMPLETE'}
+                  </span>
+                ) : (
+                  <span style={{ color: '#888', fontSize: 11 }}>Not linked</span>
+                )}
+              </td>
               <td>{t.whitelabel_published ? <span className="fv-status ok">PUBLISHED</span> : <span style={{ color: '#888', fontSize: 11 }}>Draft</span>}</td>
               <td style={{ whiteSpace: 'nowrap' }}>
                 <button className="ob-btn-outline" onClick={() => setEditing(t)}>CONFIGURE</button>{' '}
                 <button className="ob-btn-outline" onClick={() => toggleSuspend(t)} disabled={busy}>
                   {t.activation_status === 'ACTIVE' ? 'SUSPEND' : 'REACTIVATE'}
+                </button>{' '}
+                <button
+                  className="ob-btn-outline"
+                  title={t.stripe_account_id ? 'Open a fresh Stripe Connect onboarding link' : 'Link this tenant\'s Stripe account'}
+                  onClick={() => startStripe(t)}
+                  disabled={busy}
+                >
+                  <CreditCard size={11} /> {t.stripe_account_id ? 'STRIPE LINK' : 'STRIPE'}
                 </button>
               </td>
             </tr>
           ))}
           {!loading && (tenants || []).length === 0 && (
-            <tr><td colSpan={10} style={{ textAlign: 'center', color: '#888', padding: 18 }}>No tenants onboarded yet.</td></tr>
+            <tr><td colSpan={11} style={{ textAlign: 'center', color: '#888', padding: 18 }}>No tenants onboarded yet.</td></tr>
           )}
         </tbody>
       </table>
