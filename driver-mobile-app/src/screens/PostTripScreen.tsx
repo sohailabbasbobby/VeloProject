@@ -15,9 +15,10 @@ interface PostTripScreenProps {
     tip?: number;
   };
   onComplete: (stars: number, feedback: string) => void;
+  onLogExpenses?: () => void;
 }
 
-export function PostTripScreen({ trip, onComplete }: PostTripScreenProps) {
+export function PostTripScreen({ trip, onComplete, onLogExpenses }: PostTripScreenProps) {
   const { t } = useTranslation();
   const [feedback, setFeedback] = useState('');
   const [rating, setRating] = useState(5);
@@ -73,6 +74,12 @@ export function PostTripScreen({ trip, onComplete }: PostTripScreenProps) {
         />
       </View>
 
+      {onLogExpenses ? (
+        <TouchableOpacity style={styles.expenseModalBtn} onPress={onLogExpenses}>
+          <Text style={styles.expenseModalBtnText}>+ LOG POST-JOB EXPENSE</Text>
+        </TouchableOpacity>
+      ) : null}
+
       <View style={{ marginTop: 10 }}>
         <VeloSwipeTrack 
           text=">>>  RETURN TO RADAR POOL  >>>" 
@@ -98,4 +105,6 @@ const styles = StyleSheet.create({
   starsRow: { flexDirection: 'row', justifyContent: 'center' },
   starIcon: { fontSize: 42, marginHorizontal: 8 },
   feedbackInput: { backgroundColor: COLOURS.bg, height: 60, borderRadius: 8, borderWidth: 1, borderColor: '#1C1C1E', color: '#FFF', paddingHorizontal: 12, paddingTop: 12, fontSize: 13, marginTop: 14, width: '100%', fontWeight: '600' },
+  expenseModalBtn: { paddingVertical: 12, borderRadius: 8, borderWidth: 1, borderColor: COLOURS.gold, alignItems: 'center', marginTop: 6 },
+  expenseModalBtnText: { color: COLOURS.gold, fontSize: 11, fontWeight: '900', letterSpacing: 1 },
 });

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Switch } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Switch, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { COLOURS } from '../constants/theme';
 import { VeloSwipeTrack } from './VeloSwipeTrack';
 import { IconUpcoming, IconHistory, IconEarnings, IconOperators, IconSettings, IconExpenses } from './SidebarIcons';
+import * as Api from '../api/client';
 
 type SidebarTab = 'NONE' | 'PROFILE' | 'EXPENSES' | 'UPCOMING' | 'HISTORY' | 'EARNINGS' | 'OPERATORS' | 'ROSTER' | 'ISSUES' | 'SETTINGS';
 
@@ -15,30 +16,22 @@ interface SidebarDrawerProps {
   activeTab: SidebarTab;
   setActiveTab: (t: SidebarTab) => void;
   odometerValue: string;
-  tripExpenses: { [key: string]: Array<{ name: string; amount: string; timestamp: string, receiptImageUrl?: string }> };
-  globalExpenses: Array<{ id: string, name: string, amount: string, timestamp: string, receiptImageUrl?: string }>;
-  onAddGlobalExpense: (name: string, amount: string, receiptImageUrl?: string) => void;
-  customTripExpenseName: string;
-  setCustomTripExpenseName: (v: string) => void;
-  customTripExpenseAmount: string;
-  setCustomTripExpenseAmount: (v: string) => void;
-  onAddTripExpense: (tripId: string, name: string, amount?: string) => void;
   onClose: () => void;
   onGoOffline: () => void;
 }
+
+const fmtGbp = (n: any) => `£${Number(n || 0).toFixed(2)}`;
 
 export function SidebarDrawer({
   driverProfile, setDriverProfile,
   tenantPayrollType, setTenantPayrollType,
   activeTab, setActiveTab,
   odometerValue,
-  tripExpenses, globalExpenses, onAddGlobalExpense, customTripExpenseName, setCustomTripExpenseName,
-  customTripExpenseAmount, setCustomTripExpenseAmount,
-  onAddTripExpense, onClose, onGoOffline,
+  onClose, onGoOffline,
 }: SidebarDrawerProps) {
   const { t, i18n } = useTranslation();
 
-  // Upcoming Trips Timer State
+  // Upcoming-trip countdown ticker
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>;
@@ -48,39 +41,62 @@ export function SidebarDrawer({
     return () => clearInterval(timer);
   }, [activeTab]);
 
-  // Fake App Settings State
+  // Device-local personalisation toggles (clearly local-only; not presented as server state)
   const [autoAccept, setAutoAccept] = useState(false);
-  const [voicePrompts, setVoicePrompts] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
 
-  // Data State
-  const [trips, setTrips] = useState<any[]>([]);
-  const [upcomingTrips, setUpcomingTrips] = useState<any[]>([]);
+  // Live data
+  const [queues, setQueues] = useState<{ upcoming: any[]; history: any[] }>({ upcoming: [], history: [] });
+  const [queuesError, setQueuesError] = useState<string | null>(null);
+  const [ledger, setLedger] = useState<any>(null);
+  const [ledgerError, setLedgerError] = useState<string | null>(null);
+  const [operators, setOperators] = useState<any[]>([]);
+  const [operatorsError, setOperatorsError] = useState<string | null>(null);
+  const [roster, setRoster] = useState<any[]>([]);
+  const [rosterError, setRosterError] = useState<string | null>(null);
+  const [issues, setIssues] = useState<any[]>([]);
+  const [issuesError, setIssuesError] = useState<string | null>(null);
+
+  const loadQueues = useCallback(() => {
+    Api.fetchDriverQueues()
+      .then((d: any) => { setQueues({ upcoming: d?.upcoming || [], history: d?.history || [] }); setQueuesError(null); })
+      .catch((e: any) => setQueuesError(e?.message || 'Failed to load trips.'));
+  }, []);
+  const loadLedger = useCallback(() => {
+    Api.fetchMyLedger()
+      .then((d: any) => { setLedger(d); setLedgerError(null); })
+      .catch((e: any) => setLedgerError(e?.message || 'Failed to load ledger.'));
+  }, []);
+  const loadOperators = useCallback(() => {
+    Api.fetchMyOperators()
+      .then((d: any) => { setOperators(d || []); setOperatorsError(null); })
+      .catch((e: any) => setOperatorsError(e?.message || 'Failed to load operators.'));
+  }, []);
+  const loadRoster = useCallback(() => {
+    Api.fetchMyRoster()
+      .then((d: any) => { setRoster(d || []); setRosterError(null); })
+      .catch((e: any) => setRosterError(e?.message || 'Failed to load roster.'));
+  }, []);
+  const loadIssues = useCallback(() => {
+    Api.fetchVehicleIssues()
+      .then((d: any) => { setIssues(d || []); setIssuesError(null); })
+      .catch((e: any) => setIssuesError(e?.message || 'Failed to load fault log.'));
+  }, []);
 
   useEffect(() => {
-    // Fetch live queues from backend when opening the drawer
-    const fetchTrips = async () => {
-      try {
-        const response = await fetch('http://localhost:8000/api/driver/trips', {
-           headers: { 'x-driver-id': 'current-driver-uuid', 'x-tenant-id': 'TENANT-01' }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setTrips(data.history || []);
-          setUpcomingTrips(data.upcoming || []);
-        }
-      } catch (error) {
-        console.error("Failed to load driver trips", error);
-      }
-    };
-    if (activeTab === 'UPCOMING' || activeTab === 'HISTORY' || activeTab === 'EARNINGS') {
-      fetchTrips();
-    }
-  }, [activeTab]);
+    if (['UPCOMING', 'HISTORY', 'EARNINGS'].includes(activeTab)) loadQueues();
+    if (activeTab === 'EARNINGS') loadLedger();
+    if (activeTab === 'OPERATORS') loadOperators();
+    if (activeTab === 'ROSTER') loadRoster();
+    if (activeTab === 'ISSUES') loadIssues();
+  }, [activeTab, loadQueues, loadLedger, loadOperators, loadRoster, loadIssues]);
+
+  // Expenses State
+  const [expenseFilter, setExpenseFilter] = useState<'TODAY'|'WEEK'|'MONTH'|'YEAR'>('TODAY');
 
   const formatCountdown = (targetTime: number) => {
     const diff = targetTime - now;
-    if (diff <= 0) return 'IN 00:00:00';
+    if (diff <= 0) return 'NOW';
     const hours = Math.floor(diff / 3600000);
     if (hours >= 24) {
       const days = Math.floor(hours / 24);
@@ -94,7 +110,7 @@ export function SidebarDrawer({
   const isPercent = tenantPayrollType === 'PERCENTAGE_SPLIT';
 
   const [localProfile, setLocalProfile] = useState(driverProfile);
-  const hasProfileChanges = localProfile.phone !== driverProfile.phone || localProfile.address !== driverProfile.address;
+  const hasProfileChanges = localProfile.phone !== driverProfile.phone;
 
   useEffect(() => {
     if (activeTab === 'PROFILE') {
@@ -102,32 +118,52 @@ export function SidebarDrawer({
     }
   }, [activeTab, driverProfile]);
 
-  // Expenses State
-  const [expenseFilter, setExpenseFilter] = useState<'TODAY'|'WEEK'|'MONTH'|'YEAR'>('TODAY');
-  const [globalExpenseType, setGlobalExpenseType] = useState('Fuel');
-  const [globalExpenseCustom, setGlobalExpenseCustom] = useState('');
-  const [globalExpenseAmount, setGlobalExpenseAmount] = useState('');
-  const [globalExpensePhoto, setGlobalExpensePhoto] = useState(false); // Mock
+  const saveProfile = async () => {
+    try {
+      if (!(driverProfile as any).id) {
+        Alert.alert('Profile', 'Profile record not loaded yet — cannot save.');
+        return;
+      }
+      await Api.updateDriver((driverProfile as any).id, { phone: localProfile.phone });
+      setDriverProfile({ ...driverProfile, phone: localProfile.phone });
+      setActiveTab('NONE');
+    } catch (e: any) {
+      Alert.alert('Save failed', e?.message || 'Unable to update profile.');
+    }
+  };
+
+  const selectLanguage = (langId: string) => {
+    if (i18n) i18n.changeLanguage(langId);
+    // Best-effort persistence of the preference on the driver record (no local-only fake state).
+    if ((driverProfile as any).id) {
+      Api.updateDriver((driverProfile as any).id, { preferredLanguage: langId }).catch(() => undefined);
+    }
+  };
 
   // --- Render Functions for Tabs ---
 
   const renderUpcoming = () => (
     <View style={styles.drawerSubContentCard}>
-      {upcomingTrips.map(trip => (
+      {queuesError ? <Text style={styles.tabErrorText}>{queuesError}</Text> : null}
+      {queues.upcoming.map((trip: any) => (
         <View key={trip.id} style={styles.tripHistoryItemCard}>
           <Text style={styles.tripVehicleTag}>{trip.tenant}</Text>
           <Text style={styles.tripRouteString}>{trip.route}</Text>
           <View style={styles.countdownBadge}>
-            <Text style={styles.countdownText}>{formatCountdown(trip.targetTime)}</Text>
+            <Text style={styles.countdownText}>{trip.targetTime ? formatCountdown(trip.targetTime) : 'ASAP'}</Text>
           </View>
         </View>
       ))}
+      {queues.upcoming.length === 0 && !queuesError ? (
+        <Text style={styles.emptyTabText}>No upcoming assignments — new dispatches appear here live.</Text>
+      ) : null}
     </View>
   );
 
   const renderHistory = () => (
     <View style={styles.drawerSubContentCard}>
-      {trips.map(trip => (
+      {queuesError ? <Text style={styles.tabErrorText}>{queuesError}</Text> : null}
+      {queues.history.map((trip: any) => (
         <View key={trip.id} style={styles.tripHistoryItemCard}>
           <Text style={styles.tripVehicleTag}>{trip.car}</Text>
           <Text style={styles.tripRouteString}>{trip.route}</Text>
@@ -136,121 +172,100 @@ export function SidebarDrawer({
               {isPercent ? `Net Earnings: ${trip.net}` : 'Salaried Contract Run'}
             </Text>
           </View>
-          {(tripExpenses[trip.id] || []).map((exp, idx) => (
-            <View key={idx} style={styles.individualExpensePillRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.individualExpenseText}>• {exp.name}</Text>
-                <Text style={styles.microTimestampText}>{exp.timestamp}</Text>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.individualExpenseValue}>{exp.amount}</Text>
-                {exp.receiptImageUrl && <Text style={{ fontSize: 10, color: COLOURS.blue, marginTop: 2 }}>{t('expenses.photo_added', '✓ Photo')}</Text>}
-              </View>
-            </View>
-          ))}
-          <Text style={styles.expenseNestedHeader}>[ ADD TRIP LOGGED EXPENSE ]</Text>
-          <View style={styles.classificationPresetsRow}>
-            {['Parking', 'Tolls', 'Airport'].map(p => (
-              <TouchableOpacity key={p} style={styles.presetExpensePill} onPress={() => onAddTripExpense(trip.id, p, '5.00')}>
-                <Text style={styles.presetText}>+ {p}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <TextInput style={styles.customFieldInputBox} placeholder="Custom expense name..." placeholderTextColor="#3A3A3C" value={customTripExpenseName} onChangeText={setCustomTripExpenseName} />
-          <View style={{ flexDirection: 'row', marginTop: 6 }}>
-            <TextInput style={[styles.customFieldInputBox, { flex: 1, marginTop: 0 }]} placeholder="Amount (£)" placeholderTextColor="#3A3A3C" keyboardType="numeric" value={customTripExpenseAmount} onChangeText={setCustomTripExpenseAmount} />
-            <TouchableOpacity style={styles.inlineAddBtn} onPress={() => onAddTripExpense(trip.id, customTripExpenseName, customTripExpenseAmount)}>
-              <Text style={styles.inlineAddBtnText}>COMMIT</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       ))}
+      {queues.history.length === 0 && !queuesError ? (
+        <Text style={styles.emptyTabText}>No completed trips yet.</Text>
+      ) : null}
     </View>
   );
 
-  const renderExpenses = () => {
-    const expenseTypes = [t('expenses.type_fuel', 'Fuel'), t('expenses.type_charging', 'Charging'), t('expenses.type_parking', 'Parking'), t('expenses.type_toll', 'Toll'), t('expenses.type_wash', 'Car Wash'), t('expenses.type_cleaning', 'Cleaning'), t('expenses.type_maintenance', 'Maintenance'), t('expenses.type_repair', 'Repairs'), t('expenses.type_custom', 'Custom')];
-    
+  const renderExpenses = () => (
+    <View style={styles.drawerSubContentCard}>
+      <Text style={styles.subCardTitle}>{t('expenses.expense_report', 'EXPENSE REPORT')}</Text>
+      {ledgerError ? <Text style={styles.tabErrorText}>{ledgerError}</Text> : null}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+        {(['TODAY', 'WEEK', 'MONTH', 'YEAR'] as const).map((f) => (
+          <TouchableOpacity
+            key={f}
+            onPress={() => setExpenseFilter(f)}
+            style={{ paddingVertical: 6, paddingHorizontal: 8, borderBottomWidth: 2, borderBottomColor: expenseFilter === f ? COLOURS.gold : 'transparent' }}
+          >
+            <Text style={{ color: expenseFilter === f ? COLOURS.gold : COLOURS.textDim, fontSize: 11, fontWeight: '800' }}>
+              {t(`expenses.filter_${f.toLowerCase()}`, f)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {(ledger?.entries || [])
+        .filter((e: any) => e.entry_type.startsWith('EXPENSE_'))
+        .slice(0, 30)
+        .map((e: any) => (
+          <View key={e.id} style={styles.individualExpensePillRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.individualExpenseText}>• {e.description || e.entry_type.replace(/_/g, ' ')}</Text>
+              <Text style={styles.microTimestampText}>{new Date(e.created_at).toLocaleString()}</Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={styles.individualExpenseValue}>{fmtGbp(e.amount)}</Text>
+            </View>
+          </View>
+        ))}
+      {ledger && (ledger.entries || []).filter((e: any) => e.entry_type.startsWith('EXPENSE_')).length === 0 && !ledgerError ? (
+        <Text style={styles.emptyTabText}>No expenses logged yet — add one from a completed trip.</Text>
+      ) : null}
+      {ledger?.summary ? (
+        <View style={[styles.payrollCalculationBadge, { marginTop: 12 }]}>
+          <Text style={styles.payrollCalculationText}>TOTAL: {fmtGbp(ledger.summary.expensesMtd)}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+
+  const renderEarnings = () => {
+    const s = ledger?.summary;
     return (
       <View style={styles.drawerSubContentCard}>
-        <Text style={styles.subCardTitle}>{t('expenses.add_expense', 'ADD EXPENSE')}</Text>
-        
-        {/* Type Selection */}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
-          {expenseTypes.map(type => (
-            <TouchableOpacity key={type} onPress={() => setGlobalExpenseType(type)} style={[styles.presetExpensePill, { margin: 4, minWidth: '28%', backgroundColor: globalExpenseType === type ? 'rgba(212,175,55,0.1)' : '#161619', borderColor: globalExpenseType === type ? COLOURS.gold : '#2A2A2D' }]}>
-              <Text style={{ color: globalExpenseType === type ? COLOURS.gold : '#EAEAEA', fontSize: 11, fontWeight: '700' }}>{type}</Text>
-            </TouchableOpacity>
-          ))}
+        {ledgerError ? <Text style={styles.tabErrorText}>{ledgerError}</Text> : null}
+        <View style={styles.shiftMetricsGrid}>
+          <View style={[styles.metricBlock, { borderColor: COLOURS.gold }]}>
+            <Text style={styles.metricLabelText}>{isPercent ? 'NET (MTD)' : 'SALARIED REGISTER'}</Text>
+            <Text style={styles.metricValueText}>{s ? fmtGbp(s.shiftNet) : '—'}</Text>
+          </View>
+          <View style={[styles.metricBlock, { borderColor: COLOURS.green }]}>
+            <Text style={styles.metricLabelText}>TIPS (MTD)</Text>
+            <Text style={[styles.metricValueText, { color: COLOURS.green }]}>{s ? fmtGbp(s.tipsMtd) : '—'}</Text>
+          </View>
+        </View>
+        <View style={styles.shiftMetricsGrid}>
+          <View style={styles.metricBlock}>
+            <Text style={styles.metricLabelText}>EXPENSES (MTD)</Text>
+            <Text style={styles.metricValueText}>{s ? fmtGbp(s.expensesMtd) : '—'}</Text>
+          </View>
+          <View style={styles.metricBlock}>
+            <Text style={styles.metricLabelText}>OUTSTANDING</Text>
+            <Text style={styles.metricValueText}>{s ? fmtGbp(s.outstanding) : '—'}</Text>
+          </View>
         </View>
 
-        {globalExpenseType === t('expenses.type_custom', 'Custom') && (
-          <TextInput style={styles.drawerInput} placeholder={t('expenses.custom_name_placeholder', 'Enter custom expense name...')} placeholderTextColor={COLOURS.textDim} value={globalExpenseCustom} onChangeText={setGlobalExpenseCustom} />
-        )}
-        
-        <TextInput style={styles.drawerInput} placeholder={t('expenses.amount_placeholder', 'Amount (£)')} placeholderTextColor={COLOURS.textDim} keyboardType="numeric" value={globalExpenseAmount} onChangeText={setGlobalExpenseAmount} />
-
-        {/* Mock Photo Button */}
-        <TouchableOpacity style={[styles.saveProfileButton, { backgroundColor: globalExpensePhoto ? 'rgba(52, 199, 89, 0.1)' : '#1C1C1E', borderColor: globalExpensePhoto ? COLOURS.green : '#222', borderWidth: 1, marginTop: 12 }]} onPress={() => setGlobalExpensePhoto(true)}>
-          <Text style={{ color: globalExpensePhoto ? COLOURS.green : COLOURS.textDim, fontSize: 12, fontWeight: '900' }}>
-            {globalExpensePhoto ? t('expenses.photo_added', '✓ Photo Captured') : t('expenses.add_photo', '📷 Add Photo (Optional)')}
-          </Text>
-        </TouchableOpacity>
-
-        {/* Submit */}
-        <TouchableOpacity style={styles.saveProfileButton} onPress={() => {
-          const name = globalExpenseType === t('expenses.type_custom', 'Custom') ? globalExpenseCustom : globalExpenseType;
-          if (!name || !globalExpenseAmount) return;
-          onAddGlobalExpense(name, globalExpenseAmount.startsWith('£') ? globalExpenseAmount : '£' + globalExpenseAmount, globalExpensePhoto ? 'mock_url' : undefined);
-          setGlobalExpenseAmount('');
-          setGlobalExpenseCustom('');
-          setGlobalExpensePhoto(false);
-        }}>
-          <Text style={styles.saveProfileBtnText}>{t('expenses.submit', 'SUBMIT EXPENSE')}</Text>
-        </TouchableOpacity>
-
-        {/* Report Section */}
-        <Text style={[styles.subCardTitle, { marginTop: 32 }]}>{t('expenses.expense_report', 'EXPENSE REPORT')}</Text>
-        
-        {/* Filters */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-          {['TODAY', 'WEEK', 'MONTH', 'YEAR'].map(filter => (
-            <TouchableOpacity key={filter} onPress={() => setExpenseFilter(filter as any)} style={{ paddingVertical: 6, paddingHorizontal: 8, borderBottomWidth: 2, borderBottomColor: expenseFilter === filter ? COLOURS.gold : 'transparent' }}>
-              <Text style={{ color: expenseFilter === filter ? COLOURS.gold : COLOURS.textDim, fontSize: 11, fontWeight: '800' }}>
-                {t(`expenses.filter_${filter.toLowerCase()}`, filter)}
+        <Text style={[styles.subCardTitle, { marginTop: 16 }]}>ITEMISED LEDGER ENTRIES</Text>
+        {(ledger?.entries || []).slice(0, 20).map((e: any) => (
+          <View key={e.id} style={styles.tripHistoryItemCard}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', flex: 1 }}>{e.description || e.entry_type}</Text>
+              <Text style={{ color: e.direction === 'CREDIT' ? COLOURS.green : '#FF6B60', fontSize: 13, fontWeight: '900' }}>
+                {e.direction === 'CREDIT' ? '+' : '−'}{fmtGbp(e.amount)}
               </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* List */}
-        {globalExpenses.length === 0 ? (
-          <Text style={{ color: COLOURS.textMuted, fontSize: 12, textAlign: 'center', paddingVertical: 20 }}>{t('expenses.empty_state', 'No expenses logged for this period.')}</Text>
-        ) : (
-          globalExpenses.map(exp => (
-            <View key={exp.id} style={styles.individualExpensePillRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.individualExpenseText}>• {exp.name}</Text>
-                <Text style={styles.microTimestampText}>{exp.timestamp}</Text>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.individualExpenseValue}>{exp.amount}</Text>
-                {exp.receiptImageUrl && <Text style={{ fontSize: 10, color: COLOURS.blue, marginTop: 2 }}>{t('expenses.photo_added', '✓ Photo')}</Text>}
-              </View>
             </View>
-          ))
-        )}
-
-        {/* Exports */}
-        <View style={{ flexDirection: 'row', marginTop: 16 }}>
-          <TouchableOpacity style={[styles.saveProfileButton, { flex: 1, backgroundColor: '#1A1A1C', marginTop: 0, marginRight: 6 }]} onPress={() => {}}>
-            <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '800' }}>{t('expenses.export_csv', 'Export CSV')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.saveProfileButton, { flex: 1, backgroundColor: '#1A1A1C', marginTop: 0, marginLeft: 6 }]} onPress={() => {}}>
-            <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '800' }}>{t('expenses.export_pdf', 'Export PDF')}</Text>
-          </TouchableOpacity>
-        </View>
-
+            <Text style={{ color: COLOURS.textDim, fontSize: 10, fontWeight: '600', marginTop: 4 }}>
+              {String(e.entry_type).replace(/_/g, ' ')} · {new Date(e.created_at).toLocaleString()}
+            </Text>
+          </View>
+        ))}
+        {ledger && (ledger.entries || []).length === 0 && !ledgerError ? (
+          <Text style={styles.emptyTabText}>No ledger entries yet.</Text>
+        ) : null}
       </View>
     );
   };
@@ -258,49 +273,72 @@ export function SidebarDrawer({
   const renderOperators = () => (
     <View style={styles.drawerSubContentCard}>
       <Text style={styles.subCardTitle}>MULTI-TENANT DISPATCH CHANNELS</Text>
-      {['Elite Limos', 'Blacklane UK', 'Velo Private Aviation'].map((operator, index) => (
-        <View key={index} style={styles.tripHistoryItemCard}>
-          <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>{operator}</Text>
-          <Text style={{ color: COLOURS.green, fontSize: 11, fontWeight: '700', marginTop: 4 }}>• ACTIVE & RECEIVING DISPATCHES</Text>
+      {operatorsError ? <Text style={styles.tabErrorText}>{operatorsError}</Text> : null}
+      {operators.map((op: any) => (
+        <View key={op.id} style={styles.tripHistoryItemCard}>
+          <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>{op.name}</Text>
+          <Text style={{ color: op.membership_status === 'ACTIVE' ? COLOURS.green : COLOURS.textMuted, fontSize: 11, fontWeight: '700', marginTop: 4 }}>
+            • {String(op.membership_status || 'MEMBER').toUpperCase()}
+            {op.membership_status === 'ACTIVE' ? ' & RECEIVING DISPATCHES' : ''}
+          </Text>
         </View>
       ))}
+      {operators.length === 0 && !operatorsError ? (
+        <Text style={styles.emptyTabText}>No operator memberships on file.</Text>
+      ) : null}
     </View>
   );
 
-  const renderEarnings = () => (
+  const renderRoster = () => (
     <View style={styles.drawerSubContentCard}>
-      <View style={styles.shiftMetricsGrid}>
-        <View style={[styles.metricBlock, { borderColor: COLOURS.gold }]}>
-          <Text style={styles.metricLabelText}>{isPercent ? 'SHIFT NET EARNINGS' : 'SALARIED REGISTER'}</Text>
-          <Text style={styles.metricValueText}>{isPercent ? '£100.80' : 'Active Account'}</Text>
-        </View>
-        <View style={[styles.metricBlock, { borderColor: COLOURS.green }]}>
-          <Text style={styles.metricLabelText}>TIPS RECEIVED</Text>
-          <Text style={[styles.metricValueText, { color: COLOURS.green }]}>£15.00</Text>
-        </View>
-      </View>
-
-      <Text style={[styles.subCardTitle, { marginTop: 16 }]}>ITEMISED SHIFT INCOME</Text>
-      {trips.map(trip => (
-        <View key={trip.id} style={styles.tripHistoryItemCard}>
-          <Text style={styles.tripRouteString}>{trip.route}</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-            <Text style={{ color: COLOURS.textMuted, fontSize: 12, fontWeight: '800' }}>Trip Net Income</Text>
-            <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '900' }}>{isPercent ? trip.net : '--'}</Text>
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
-            <Text style={{ color: COLOURS.textMuted, fontSize: 12, fontWeight: '800' }}>Gratuity Tip</Text>
-            <Text style={{ color: COLOURS.green, fontSize: 13, fontWeight: '900' }}>{trip.tip}</Text>
-          </View>
+      <Text style={styles.subCardTitle}>MY SHIFTS</Text>
+      {rosterError ? <Text style={styles.tabErrorText}>{rosterError}</Text> : null}
+      {roster.map((s: any) => (
+        <View key={s.id} style={styles.tripHistoryItemCard}>
+          <Text style={{ color: COLOURS.gold, fontSize: 12, fontWeight: '800' }}>
+            {new Date(s.start_time).toLocaleDateString([], { weekday: 'short', day: '2-digit', month: 'short' }).toUpperCase()}
+          </Text>
+          <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', marginTop: 4 }}>
+            {new Date(s.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – {new Date(s.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Text>
+          <Text style={{ color: COLOURS.textDim, fontSize: 11, fontWeight: '700', marginTop: 4 }}>
+            {String(s.shift_type || 'SHIFT').replace(/_/g, ' ')}{s.plate_number ? ` · Vehicle ${s.plate_number}` : ''}
+          </Text>
         </View>
       ))}
+      {roster.length === 0 && !rosterError ? (
+        <Text style={styles.emptyTabText}>No shifts scheduled — your rota is empty.</Text>
+      ) : null}
+    </View>
+  );
+
+  const renderIssues = () => (
+    <View style={styles.drawerSubContentCard}>
+      <Text style={styles.subCardTitle}>VEHICLE FAULT LOG</Text>
+      {issuesError ? <Text style={styles.tabErrorText}>{issuesError}</Text> : null}
+      {issues.map((i: any) => (
+        <View key={i.id} style={styles.tripHistoryItemCard}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', flex: 1 }}>{i.description}</Text>
+            <Text style={{ color: i.severity === 'CRITICAL' ? COLOURS.red : i.severity === 'MAJOR' ? COLOURS.gold : COLOURS.textDim, fontSize: 11, fontWeight: '900' }}>
+              {i.severity}
+            </Text>
+          </View>
+          <Text style={{ color: COLOURS.textDim, fontSize: 10, fontWeight: '600', marginTop: 4 }}>
+            {i.vehicle_code ? `${i.vehicle_code} · ` : ''}{i.status} · {new Date(i.reported_at).toLocaleDateString()}
+          </Text>
+        </View>
+      ))}
+      {issues.length === 0 && !issuesError ? (
+        <Text style={styles.emptyTabText}>No defects on your vehicle — clean fault log.</Text>
+      ) : null}
     </View>
   );
 
   const renderSettings = () => (
     <View style={styles.drawerSubContentCard}>
       <Text style={styles.inputLabelField}>PERSONALISATION TOGGLES</Text>
-      
+
       <View style={styles.settingToggleRow}>
         <Text style={styles.settingToggleLabel}>Auto-Accept Radar Dispatches</Text>
         <Switch value={autoAccept} onValueChange={setAutoAccept} trackColor={{ false: '#3A3A3C', true: COLOURS.gold }} />
@@ -325,12 +363,10 @@ export function SidebarDrawer({
           { id: 'ro', label: 'Română' },
           { id: 'pl', label: 'Polski' }
         ].map(lang => (
-          <TouchableOpacity 
+          <TouchableOpacity
             key={lang.id}
             style={{ width: '48%', alignItems: 'center', padding: 10, borderWidth: 1, borderColor: i18n?.language === lang.id ? COLOURS.gold : '#2A2A2D', borderRadius: 8, margin: '1%', backgroundColor: i18n?.language === lang.id ? 'rgba(212,175,55,0.1)' : 'transparent' }}
-            onPress={() => {
-              if (i18n) i18n.changeLanguage(lang.id);
-            }}
+            onPress={() => selectLanguage(lang.id)}
           >
             <Text style={{ color: i18n?.language === lang.id ? COLOURS.gold : '#8A8A8E', fontWeight: 'bold', fontSize: 12 }}>
               {lang.label}
@@ -339,14 +375,14 @@ export function SidebarDrawer({
         ))}
       </View>
 
-      <Text style={[styles.inputLabelField, { marginTop: 24 }]}>BACK OFFICE PAYROLL CONFIG OVERRIDE</Text>
+      <Text style={[styles.inputLabelField, { marginTop: 24 }]}>PAY MODEL (SET BY BACK OFFICE)</Text>
       <View style={{ flexDirection: 'row', marginTop: 8 }}>
-        <TouchableOpacity style={[styles.inlineAddBtn, { flex: 1, marginLeft: 0, backgroundColor: isPercent ? COLOURS.gold : '#1A1A1B' }]} onPress={() => setTenantPayrollType('PERCENTAGE_SPLIT')}>
+        <View style={[styles.payModelPill, { backgroundColor: isPercent ? COLOURS.gold : '#1A1A1B' }]}>
           <Text style={{ color: '#FFF', fontSize: 10, fontWeight: '900' }}>PERCENTAGE (80/20)</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.inlineAddBtn, { flex: 1, backgroundColor: !isPercent ? COLOURS.gold : '#1A1A1B' }]} onPress={() => setTenantPayrollType('FIXED_WAGE')}>
+        </View>
+        <View style={[styles.payModelPill, { backgroundColor: !isPercent ? COLOURS.gold : '#1A1A1B' }]}>
           <Text style={{ color: '#FFF', fontSize: 10, fontWeight: '900' }}>WAGE CONTRACT</Text>
-        </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -354,22 +390,26 @@ export function SidebarDrawer({
   const renderMenuRows = () => {
     if (activeTab === 'PROFILE') return null;
 
-    const TABS = [
+    const TABS: Array<{ id: SidebarTab; label: string; icon: React.ComponentType<{ color: string; size: number }>; content: React.ReactNode }> = [
       { id: 'EXPENSES', label: t('sidebar.expenses', 'Expenses'), icon: IconExpenses, content: renderExpenses() },
       { id: 'UPCOMING', label: t('sidebar.upcoming_bookings'), icon: IconUpcoming, content: renderUpcoming() },
       { id: 'HISTORY', label: t('sidebar.trip_history'), icon: IconHistory, content: renderHistory() },
       { id: 'OPERATORS', label: t('sidebar.operators', 'Operators'), icon: IconOperators, content: renderOperators() },
+      { id: 'ROSTER', label: 'My Roster', icon: IconUpcoming, content: renderRoster() },
+      { id: 'ISSUES', label: 'Vehicle Faults', icon: IconHistory, content: renderIssues() },
       { id: 'EARNINGS', label: t('sidebar.ledger_earnings'), icon: IconEarnings, content: renderEarnings() },
       { id: 'SETTINGS', label: t('sidebar.fleet_settings', 'App Settings'), icon: IconSettings, content: renderSettings() },
     ];
 
     return TABS.map(tab => {
-      // Hide other tabs when one is active
       if (activeTab !== 'NONE' && activeTab !== tab.id) return null;
-      
+
       return (
         <View key={tab.id}>
-          <TouchableOpacity style={[styles.menuRowItem, activeTab === tab.id && styles.menuRowActive]} onPress={() => setActiveTab(activeTab === tab.id ? 'NONE' : tab.id as SidebarTab)}>
+          <TouchableOpacity
+            style={[styles.menuRowItem, activeTab === tab.id && styles.menuRowActive]}
+            onPress={() => setActiveTab(activeTab === tab.id ? 'NONE' : tab.id)}
+          >
             <View style={styles.menuRowLabelWrapper}>
               <View style={styles.iconCircleWrapper}>
                 <tab.icon color={COLOURS.gold} size={14} />
@@ -378,7 +418,7 @@ export function SidebarDrawer({
             </View>
             <Text style={styles.chevronIndicator}>{activeTab === tab.id ? '▲' : '▼'}</Text>
           </TouchableOpacity>
-          {activeTab === tab.id && tab.content}
+          {activeTab === tab.id ? tab.content : null}
         </View>
       );
     });
@@ -394,14 +434,13 @@ export function SidebarDrawer({
 
       <ScrollView style={styles.sidebarMenuScroller} contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }} showsVerticalScrollIndicator={false}>
 
-        {/* Top Header Cards - ONLY visible when nothing else is active! */}
-        {activeTab === 'NONE' && (
+        {activeTab === 'NONE' ? (
           <>
             <TouchableOpacity activeOpacity={0.9} style={styles.driverHeaderCardTrigger} onPress={() => setActiveTab('PROFILE')}>
               <View style={styles.avatarPlaceholderLarge} />
               <View style={{ marginLeft: 16, flex: 1 }}>
                 <Text style={styles.sidebarDriverName}>{driverProfile.name}</Text>
-                <Text style={styles.sidebarDriverId}>{t('profile.chauffeur_id')}AV-4092</Text>
+                <Text style={styles.sidebarDriverId}>{t('profile.chauffeur_id')}{(driverProfile as any).referenceCode || '—'}</Text>
                 <Text style={styles.editProfileNoticeText}>{t('sidebar.update_profile')}</Text>
               </View>
             </TouchableOpacity>
@@ -409,50 +448,42 @@ export function SidebarDrawer({
             <TouchableOpacity activeOpacity={0.9} style={styles.shiftSummaryWidgetCard} onPress={() => setActiveTab('EARNINGS')}>
               <Text style={styles.widgetHeader}>SHIFT NET REVENUE JOURNAL</Text>
               <Text style={styles.widgetValue}>
-                {isPercent ? 'Net Earnings: £100.80' : 'Fixed Salaried Assignment'}
+                {ledger?.summary
+                  ? `${isPercent ? 'Net (MTD)' : 'Register'}: ${fmtGbp(ledger.summary.shiftNet)}`
+                  : 'Tap to load your live ledger'}
               </Text>
             </TouchableOpacity>
           </>
-        )}
+        ) : null}
 
-        {/* Profile editor */}
-        {activeTab === 'PROFILE' && (
+        {/* Profile editor — saves phone via live PUT /api/onboarding/drivers/:id */}
+        {activeTab === 'PROFILE' ? (
           <View style={styles.drawerSubContentCard}>
             <TouchableOpacity style={{ alignSelf: 'flex-start', marginBottom: 20 }} onPress={() => setActiveTab('NONE')}>
               <Text style={{ color: COLOURS.gold, fontSize: 13, fontWeight: '900', letterSpacing: 0.5 }}>{t('profile.back')}</Text>
             </TouchableOpacity>
 
             <Text style={styles.subCardTitle}>{t('profile.account_details')}</Text>
-            
+
             <View style={styles.avatarUpdateSection}>
               <View style={[styles.avatarPlaceholderLarge, { width: 64, height: 64, borderRadius: 32 }]} />
-              <TouchableOpacity style={styles.updatePhotoBtn}>
-                <Text style={styles.updatePhotoBtnText}>{t('profile.update_photo')}</Text>
-              </TouchableOpacity>
             </View>
 
             <Text style={styles.inputLabelField}>{t('profile.name')}</Text>
             <TextInput style={[styles.drawerInput, { color: COLOURS.textDim, backgroundColor: '#141416' }]} value={driverProfile.name} editable={false} />
-            
+
             <View style={styles.labelRow}>
               <Text style={styles.inputLabelFieldInline}>{t('profile.phone')}</Text>
-              <TouchableOpacity><Text style={styles.inlineUpdateLink}>[ UPDATE ]</Text></TouchableOpacity>
             </View>
             <TextInput style={styles.drawerInput} value={localProfile.phone} onChangeText={v => setLocalProfile({ ...localProfile, phone: v })} keyboardType="phone-pad" />
-            
-            <View style={styles.labelRow}>
-              <Text style={styles.inputLabelFieldInline}>{t('profile.address')}</Text>
-              <TouchableOpacity><Text style={styles.inlineUpdateLink}>[ UPDATE ]</Text></TouchableOpacity>
-            </View>
-            <TextInput style={styles.drawerInput} value={localProfile.address} onChangeText={v => setLocalProfile({ ...localProfile, address: v })} multiline />
-            
-            {hasProfileChanges && (
-              <TouchableOpacity style={styles.saveProfileButton} onPress={() => { setDriverProfile(localProfile); setActiveTab('NONE'); }}>
+
+            {hasProfileChanges ? (
+              <TouchableOpacity style={styles.saveProfileButton} onPress={saveProfile}>
                 <Text style={styles.saveProfileBtnText}>{t('profile.save')}</Text>
               </TouchableOpacity>
-            )}
+            ) : null}
           </View>
-        )}
+        ) : null}
 
         {renderMenuRows()}
 
@@ -480,57 +511,51 @@ const styles = StyleSheet.create({
   widgetHeader:               { color: COLOURS.textDim, fontSize: 10, fontWeight: '800', letterSpacing: 1 },
   widgetValue:                { color: COLOURS.textPrimary, fontSize: 14, fontWeight: '800', marginTop: 2 },
   sidebarMenuScroller:        { flex: 1, paddingHorizontal: 22 },
-  
+
   menuRowItem:                { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderWidth: 1, borderColor: COLOURS.gold, borderRadius: 12, marginBottom: 10, backgroundColor: COLOURS.surface },
   menuRowActive:              { backgroundColor: '#1A1A1D' },
   menuRowLabelWrapper:        { flexDirection: 'row', alignItems: 'center' },
   iconCircleWrapper:          { width: 32, height: 32, borderRadius: 16, borderWidth: 1.5, borderColor: COLOURS.gold, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
   menuRowLabelText:           { color: COLOURS.gold, fontSize: 15, fontWeight: '900', letterSpacing: 0.5 },
   chevronIndicator:           { color: COLOURS.gold, fontSize: 14, fontWeight: 'bold' },
-  
+
   drawerSubContentCard:       { backgroundColor: COLOURS.surface, padding: 16, borderRadius: 12, marginTop: 6, marginBottom: 12, borderWidth: 1, borderColor: '#222' },
   subCardTitle:               { color: COLOURS.gold, fontSize: 12, fontWeight: '800', letterSpacing: 1, marginBottom: 12 },
-  
+
   avatarUpdateSection:        { alignItems: 'center', marginVertical: 10 },
-  updatePhotoBtn:             { marginTop: 10 },
-  updatePhotoBtnText:         { color: COLOURS.gold, fontSize: 11, fontWeight: '900', letterSpacing: 1 },
-  
+
   labelRow:                   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 },
   inputLabelField:            { color: COLOURS.textDim, fontSize: 11, fontWeight: '800', marginTop: 12, letterSpacing: 0.5 },
   inputLabelFieldInline:      { color: COLOURS.textDim, fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
-  inlineUpdateLink:           { color: COLOURS.gold, fontSize: 10, fontWeight: '900', letterSpacing: 1 },
   drawerInput:                { backgroundColor: COLOURS.bg, borderRadius: 8, height: 44, borderColor: '#1C1C1E', borderWidth: 1, color: '#FFF', paddingHorizontal: 12, fontSize: 14, fontWeight: '700', marginTop: 6 },
   saveProfileButton:          { backgroundColor: COLOURS.gold, height: 44, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 24 },
   saveProfileBtnText:         { color: COLOURS.bg, fontSize: 12, fontWeight: '900', letterSpacing: 0.5 },
-  
+
   tripHistoryItemCard:        { backgroundColor: COLOURS.bg, padding: 14, borderRadius: 10, marginBottom: 12, borderWidth: 1, borderColor: '#1A1A1C' },
   tripVehicleTag:             { color: COLOURS.gold, fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
   tripRouteString:            { color: '#FFF', fontSize: 15, fontWeight: '800', marginTop: 6 },
   payrollCalculationBadge:    { backgroundColor: '#141416', padding: 8, borderRadius: 6, marginTop: 6, borderWidth: 0.5, borderColor: '#222' },
   payrollCalculationText:     { color: COLOURS.green, fontSize: 12, fontWeight: '800' },
-  
+
   countdownBadge:             { backgroundColor: 'rgba(212,175,55,0.1)', padding: 10, borderRadius: 6, marginTop: 10, borderWidth: 1, borderColor: COLOURS.gold },
   countdownText:              { color: COLOURS.gold, fontSize: 14, fontWeight: '900', textAlign: 'center', letterSpacing: 1 },
-  
+
   individualExpensePillRow:   { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#141416', paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, marginTop: 6, borderWidth: 1, borderColor: '#1A1A1D' },
   individualExpenseText:      { color: '#EAEAEA', fontSize: 13, fontWeight: '700' },
   microTimestampText:         { color: COLOURS.textDim, fontSize: 10, fontWeight: '600', marginTop: 2 },
   individualExpenseValue:     { color: COLOURS.gold, fontSize: 13, fontWeight: '900' },
-  expenseNestedHeader:        { color: COLOURS.textDim, fontSize: 10, fontWeight: '800', letterSpacing: 1, marginTop: 14, marginBottom: 6 },
-  classificationPresetsRow:   { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  presetExpensePill:          { flex: 1, marginHorizontal: 2, backgroundColor: '#161619', height: 32, borderRadius: 6, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#2A2A2D' },
-  presetText:                 { color: '#EAEAEA', fontSize: 12, fontWeight: '700' },
-  customFieldInputBox:        { backgroundColor: COLOURS.bg, height: 40, borderRadius: 6, borderWidth: 1, borderColor: '#1A1A1C', color: '#FFF', paddingHorizontal: 12, fontSize: 13, marginTop: 4, fontWeight: '600' },
-  inlineAddBtn:               { backgroundColor: COLOURS.gold, width: 85, marginLeft: 8, borderRadius: 6, justifyContent: 'center', alignItems: 'center' },
-  inlineAddBtnText:           { color: COLOURS.bg, fontSize: 11, fontWeight: '900' },
-  
+
   shiftMetricsGrid:           { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6, marginBottom: 4 },
   metricBlock:                { width: '48%', backgroundColor: COLOURS.bg, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#1C1C1E' },
   metricLabelText:            { color: COLOURS.textDim, fontSize: 10, fontWeight: '800' },
   metricValueText:            { color: '#FFF', fontSize: 15, fontWeight: '900', marginTop: 4 },
-  
+
   settingToggleRow:           { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderColor: '#1A1A1C' },
   settingToggleLabel:         { color: '#FFF', fontSize: 14, fontWeight: '700' },
-  
+
+  tabErrorText:               { color: '#FF6B60', fontSize: 11, fontWeight: '700', marginBottom: 8 },
+  emptyTabText:               { color: COLOURS.textMuted, fontSize: 12, textAlign: 'center', paddingVertical: 20 },
+
   sidebarSliderFixedFooter:   { backgroundColor: COLOURS.bg, paddingHorizontal: 20, paddingBottom: 25, paddingTop: 15, borderTopWidth: 1, borderTopColor: COLOURS.surface },
+  payModelPill:               { flex: 1, marginHorizontal: 4, paddingVertical: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
 });

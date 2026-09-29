@@ -27,6 +27,10 @@ import { DispatchScreen } from './src/screens/DispatchScreen';
 import { ActiveRideScreen } from './src/screens/ActiveRideScreen';
 import { PostTripScreen } from './src/screens/PostTripScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
+import { DefectReportScreen } from './src/screens/DefectReportScreen';
+import { FaultLogScreen } from './src/screens/FaultLogScreen';
+import { RosterScreen } from './src/screens/RosterScreen';
+import { MessagingScreen } from './src/screens/MessagingScreen';
 import { AnimatedStatusDot } from './src/components/AnimatedStatusDot';
 import { BottomStatusSheet } from './src/components/BottomStatusSheet';
 import { restoreSession, signOut, onSessionExpired } from './src/api/auth';
@@ -34,6 +38,7 @@ import * as Api from './src/api/client';
 
 type AppStage = 'STAGE1' | 'STAGE2_IDLE' | 'STAGE2_TAKEOVER' | 'STAGE3' | 'STAGE4_POST_TRIP' | 'LANDSCAPE_PAGING';
 type SidebarTab = 'NONE' | 'PROFILE' | 'EXPENSES' | 'UPCOMING' | 'HISTORY' | 'EARNINGS' | 'OPERATORS' | 'ROSTER' | 'ISSUES' | 'SETTINGS';
+type OverlayScreen = null | 'DEFECT_REPORT' | 'FAULT_LOG' | 'ROSTER' | 'MESSAGING';
 
 interface OfferRow {
   offer_id: string;
@@ -80,6 +85,8 @@ export default function App() {
   const [currentStage, setCurrentStage] = useState<AppStage>('STAGE1');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [sidebarActiveTab, setSidebarActiveTab] = useState<SidebarTab>('NONE');
+  const [overlayScreen, setOverlayScreen] = useState<OverlayScreen>(null);
+  const [expenseModalTrip, setExpenseModalTrip] = useState<any>(null);
 
   // ── Driver (live) ───────────────────────────────────────────────────────────
   const [driverProfile, setDriverProfile] = useState({ name: '—', phone: '', address: '', vehicleId: '' as string | null });
@@ -150,6 +157,48 @@ export default function App() {
     const t = setInterval(ping, 30000);
     return () => clearInterval(t);
   }, [isAuthed, currentStage]);
+
+  // ── Push registration (final-mile §2): register this device after sign-in ────
+  useEffect(() => {
+    if (!isAuthed) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        // Platform is reported honestly: Android → FCM token, iOS → APNs token.
+        // Without FCM/APNs credentials the backend registers the token and reports
+        // deliveryConfigured: false — registration still succeeds (fail-open).
+        const platform = Platform.OS === 'ios' ? 'APNS' : 'FCM';
+        const PushNotification = require('react-native-push-notification').default;
+        void PushNotification;
+        // Token provisioning via react-native-push-notification / @react-native-firebase/messaging
+        // requires the native modules on-device. Until the on-device build exists the
+        // registration call is made with the honest simulator placeholder only if the
+        // native module is available; otherwise we log and skip silently.
+        const nativeToken = await new Promise<string | null>((resolve) => {
+          try {
+            const firebaseMessaging = require('@react-native-firebase/messaging');
+            const messaging = firebaseMessaging?.default || firebaseMessaging;
+            messaging()
+              .getToken()
+              .then((t: string) => resolve(t || null))
+              .catch(() => resolve(null));
+          } catch {
+            resolve(null);
+          }
+        });
+        if (!nativeToken) {
+          console.log('[push] No native FCM/APNs token available on this build; device not registered.');
+          return;
+        }
+        if (cancelled) return;
+        const result = await Api.registerPushToken(nativeToken, platform);
+        console.log('[push] registered:', result?.registered, '| delivery configured:', result?.deliveryConfigured);
+      } catch (e: any) {
+        console.log('[push] registration failed (non-fatal):', e?.message);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isAuthed]);
 
   // Load driver profile after sign-in
   useEffect(() => {
@@ -367,16 +416,13 @@ export default function App() {
             tenantPayrollType={tenantPayrollType}
             setTenantPayrollType={setTenantPayrollType}
             activeTab={sidebarActiveTab}
-            setActiveTab={setSidebarActiveTab}
+            setActiveTab={(tab) => {
+              // ROSTER / ISSUES open as dedicated first-class screens over the workspace.
+              if (tab === 'ROSTER') { setIsSidebarOpen(false); setSidebarActiveTab('NONE'); setOverlayScreen('ROSTER'); return; }
+              if (tab === 'ISSUES') { setIsSidebarOpen(false); setSidebarActiveTab('NONE'); setOverlayScreen('FAULT_LOG'); return; }
+              setSidebarActiveTab(tab);
+            }}
             odometerValue={odometerValue}
-            tripExpenses={{}}
-            globalExpenses={[]}
-            onAddGlobalExpense={() => undefined}
-            customTripExpenseName=""
-            setCustomTripExpenseName={() => undefined}
-            customTripExpenseAmount=""
-            setCustomTripExpenseAmount={() => undefined}
-            onAddTripExpense={() => undefined}
             onClose={() => { setIsSidebarOpen(false); setSidebarActiveTab('NONE'); }}
             onGoOffline={async () => {
               try { await Api.goOffline(); } catch { /* offline anyway */ }
@@ -384,6 +430,39 @@ export default function App() {
             }}
           />
         )}
+
+        {/* Sidebar quick-actions for the four dedicated screens (reachable from STAGE 2/3) */}
+        {isSidebarOpen && (
+          <View style={styles.sidebarQuickActions}>
+            <TouchableOpacity style={styles.quickActionBtn} onPress={() => { setIsSidebarOpen(false); setOverlayScreen('DEFECT_REPORT'); }}>
+              <Text style={styles.quickActionText}>⚠ REPORT DEFECT</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.quickActionBtn} onPress={() => { setIsSidebarOpen(false); setOverlayScreen('MESSAGING'); }}>
+              <Text style={styles.quickActionText}>✉ DISPATCH CHAT</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Full-screen overlays: Defect Report / Fault Log / Roster / Messaging */}
+        {overlayScreen ? (
+          <View style={styles.overlayContainer}>
+            <TouchableOpacity style={styles.overlayCloseBtn} onPress={() => setOverlayScreen(null)}>
+              <Text style={styles.overlayCloseText}>✕ CLOSE</Text>
+            </TouchableOpacity>
+            {overlayScreen === 'DEFECT_REPORT' && <DefectReportScreen />}
+            {overlayScreen === 'FAULT_LOG' && <FaultLogScreen />}
+            {overlayScreen === 'ROSTER' && <RosterScreen />}
+            {overlayScreen === 'MESSAGING' && <MessagingScreen />}
+          </View>
+        ) : null}
+
+        {/* Post-Job Expense Modal — dedicated modal for logging expenses against the completed trip */}
+        {expenseModalTrip ? (
+          <PostJobExpenseModal
+            trip={expenseModalTrip}
+            onClose={() => setExpenseModalTrip(null)}
+          />
+        ) : null}
 
         {/* STAGE 1 — Compliance Gatekeeper */}
         {currentStage === 'STAGE1' && (
@@ -480,6 +559,7 @@ export default function App() {
                   setActiveTrip(null);
                   setCurrentStage('STAGE2_IDLE');
                 }}
+                onLogExpenses={() => setExpenseModalTrip(activeTrip)}
               />
             )}
 
@@ -512,4 +592,99 @@ const styles = StyleSheet.create({
 
   landscapeContainer: { flex: 1, backgroundColor: COLOURS.bg, width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' },
   landscapePagingText: { color: '#FFFFFF', fontSize: 68, fontWeight: '900', letterSpacing: 6 },
+
+  overlayContainer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: COLOURS.bg, zIndex: 500, paddingTop: 60 },
+  overlayCloseBtn: { alignSelf: 'flex-end', marginHorizontal: 20, marginBottom: 4, paddingVertical: 8, paddingHorizontal: 16, backgroundColor: COLOURS.surface, borderRadius: 8, borderWidth: 1, borderColor: '#222' },
+  overlayCloseText: { color: COLOURS.gold, fontSize: 11, fontWeight: '900', letterSpacing: 1 },
+
+  sidebarQuickActions: { position: 'absolute', top: 80, right: 15, flexDirection: 'column', gap: 8, zIndex: 200 },
+  quickActionBtn: { backgroundColor: COLOURS.surface, borderRadius: 10, borderWidth: 1, borderColor: COLOURS.gold, paddingVertical: 10, paddingHorizontal: 14 },
+  quickActionText: { color: COLOURS.gold, fontSize: 11, fontWeight: '900', letterSpacing: 0.5 },
+
+  expenseOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(7,7,8,0.92)', zIndex: 1200, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  expenseCard: { backgroundColor: COLOURS.surface, borderRadius: 16, borderWidth: 1, borderColor: COLOURS.gold, padding: 22, width: '100%' },
+  expenseTitle: { color: COLOURS.gold, fontSize: 15, fontWeight: '900', letterSpacing: 1.5 },
+  expenseTrip: { color: COLOURS.textMuted, fontSize: 11, fontWeight: '700', marginTop: 6 },
+  expensePill: { flex: 1, paddingVertical: 10, borderRadius: 8, borderWidth: 1, borderColor: '#2A2A2D', alignItems: 'center', marginHorizontal: 3 },
+  expenseInput: { backgroundColor: COLOURS.bg, borderRadius: 8, borderWidth: 1, borderColor: '#1C1C1E', color: '#FFF', paddingHorizontal: 12, height: 44, fontSize: 14, fontWeight: '700', marginTop: 10 },
+  expenseError: { color: '#FF6B60', fontSize: 11, fontWeight: '700', marginTop: 8 },
+  expenseBtn: { paddingVertical: 13, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flex: 1 },
 });
+
+/**
+ * POST-JOB EXPENSE MODAL — the dedicated per-trip expense logger (moved out of the
+ * sidebar flow). Writes real DEBIT driver_ledgers rows via POST /api/trips/:id/expenses.
+ */
+function PostJobExpenseModal({ trip, onClose }: { trip: any; onClose: () => void }) {
+  const PRESETS: Array<{ key: string; label: string }> = [
+    { key: 'EXPENSE_PARKING', label: 'Parking' },
+    { key: 'EXPENSE_TOLL', label: 'Toll' },
+    { key: 'EXPENSE_AIRPORT_FEE', label: 'Airport Fee' },
+  ];
+  const [expenseType, setExpenseType] = useState('EXPENSE_PARKING');
+  const [customLabel, setCustomLabel] = useState('');
+  const [amount, setAmount] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    setError(null);
+    const amt = Number(amount);
+    if (!Number.isFinite(amt) || amt <= 0) { setError('Enter a valid amount.'); return; }
+    if (expenseType === 'EXPENSE_CUSTOM' && !customLabel.trim()) { setError('Name the custom expense.'); return; }
+    setSaving(true);
+    try {
+      await Api.logTripExpense(trip.id, expenseType, amt, customLabel.trim() || undefined);
+      onClose();
+    } catch (e: any) {
+      setError(e?.message || 'Failed to log expense.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <View style={styles.expenseOverlay}>
+      <View style={styles.expenseCard}>
+        <Text style={styles.expenseTitle}>LOG TRIP EXPENSE</Text>
+        <Text style={styles.expenseTrip}>{trip.task_id ? `${trip.task_id} · ` : ''}{trip.pickup_address} → {trip.dropoff_address}</Text>
+
+        <View style={{ flexDirection: 'row', marginTop: 16 }}>
+          {PRESETS.map((p) => (
+            <TouchableOpacity
+              key={p.key}
+              onPress={() => setExpenseType(p.key)}
+              style={[styles.expensePill, expenseType === p.key && { borderColor: COLOURS.gold, backgroundColor: 'rgba(212,175,55,0.1)' }]}
+            >
+              <Text style={{ color: expenseType === p.key ? COLOURS.gold : '#8A8A8E', fontSize: 12, fontWeight: '800' }}>{p.label}</Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity
+            onPress={() => setExpenseType('EXPENSE_CUSTOM')}
+            style={[styles.expensePill, expenseType === 'EXPENSE_CUSTOM' && { borderColor: COLOURS.gold, backgroundColor: 'rgba(212,175,55,0.1)' }]}
+          >
+            <Text style={{ color: expenseType === 'EXPENSE_CUSTOM' ? COLOURS.gold : '#8A8A8E', fontSize: 12, fontWeight: '800' }}>Custom</Text>
+          </TouchableOpacity>
+        </View>
+
+        {expenseType === 'EXPENSE_CUSTOM' ? (
+          <TextInput style={styles.expenseInput} placeholder="Custom expense name…" placeholderTextColor="#555" value={customLabel} onChangeText={setCustomLabel} />
+        ) : null}
+        <TextInput style={styles.expenseInput} placeholder="Amount (£)" placeholderTextColor="#555" keyboardType="numeric" value={amount} onChangeText={setAmount} />
+
+        {error ? <Text style={styles.expenseError}>{error}</Text> : null}
+
+        <View style={{ flexDirection: 'row', marginTop: 18 }}>
+          <TouchableOpacity style={[styles.expenseBtn, { backgroundColor: '#1C1C1E', borderColor: '#2A2A2D', borderWidth: 1, marginRight: 8 }]} onPress={onClose}>
+            <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 12 }}>CANCEL</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.expenseBtn, { backgroundColor: COLOURS.gold, flex: 1 }]} onPress={submit} disabled={saving}>
+            {saving
+              ? <ActivityIndicator size="small" color="#0B0B0C" />
+              : <Text style={{ color: '#0B0B0C', fontWeight: '900', fontSize: 12 }}>COMMIT EXPENSE</Text>}
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+}

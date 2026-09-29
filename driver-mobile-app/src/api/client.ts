@@ -68,6 +68,7 @@ export const api = {
 export const fetchMyProfile = () => api.get('/api/onboarding/drivers');
 export const fetchMyOperators = () => api.get('/api/onboarding/my/operators');
 export const fetchMyRoster = () => api.get('/api/onboarding/my/roster');
+export const fetchMyLedger = () => api.get('/api/payroll/my/ledger');
 
 // ------------------------------------------------------------------ Offers & trips
 export const fetchMyOffers = () => api.get('/api/trips');
@@ -85,7 +86,6 @@ export const submitGatekeeper = (body: { vehicleId: string; cleanliness: boolean
 export const goOffline = () => api.post('/api/onboarding/go-offline');
 
 // ------------------------------------------------------------------ Money
-export const fetchMyLedger = () => api.get('/api/payroll/my/ledger');
 export const fetchMyPayouts = () => api.get('/api/payroll/payouts');
 export const logTripExpense = (tripId: string, expenseType: string, amount: number, customLabel?: string, receiptUrl?: string) =>
     api.post(`/api/trips/${tripId}/expenses`, { expenseType, amount, customLabel, receiptUrl });
@@ -94,9 +94,20 @@ export const logTripExpense = (tripId: string, expenseType: string, amount: numb
 export const fetchMyVehicle = () => api.get('/api/fleet/vehicles');
 export const logOdometer = (vehicleId: string, reading: number, eventType: string) =>
     api.post(`/api/fleet/vehicles/${vehicleId}/odometer`, { reading, eventType });
-export const reportDefect = (vehicleId: string, issueDescription: string, severity: string) =>
-    api.post(`/api/fleet/vehicles/${vehicleId}/defects`, { issueDescription, severity });
-export const fetchVehicleIssues = () => api.get('/api/fleet/issues');
+// Defects flow through the final-mile controller (vehicle_issues table)
+export const reportDefect = (vehicleId: string, description: string, severity: string) =>
+    api.post(`/api/fm/vehicles/${vehicleId}/defects`, { description, severity });
+export const fetchVehicleIssues = () => api.get('/api/fm/issues');
+
+// ------------------------------------------------------------------ Sidebar queues & profile
+export const fetchDriverQueues = () => api.get('/api/fm/driver/queues');
+export const updateDriver = (driverId: string, body: Record<string, unknown>) =>
+    api.put(`/api/onboarding/drivers/${driverId}`, body);
+
+// ------------------------------------------------------------------ Push registration
+export const registerPushToken = (token: string, platform: string) =>
+    api.post('/api/fm/push/register', { token, platform });
+export const testPushDelivery = () => api.post('/api/fm/push/test');
 
 // ------------------------------------------------------------------ Messaging & telemetry
 export const fetchMessages = (threadKey: string) =>
