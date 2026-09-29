@@ -112,7 +112,7 @@ export const SettingsScreen = ({ onClose }) => {
               <TouchableOpacity 
                 key={`comm-${lang.id}`}
                 style={{ width: '31%', alignItems: 'center', padding: 10, borderWidth: 1, borderColor: '#2A2A2D', borderRadius: 8, margin: '1%' }}
-                onPress={() => alert(`Communication language set to ${lang.label}. This will update your Firestore profile in Phase 2.`)}
+                onPress={() => Alert.alert('Notice', `Communication language set to ${lang.label}. This will update your Firestore profile in Phase 2.`)}
               >
                 <Text style={{ color: '#8A8A8E', fontWeight: 'bold', fontSize: 12 }}>
                   {lang.label}

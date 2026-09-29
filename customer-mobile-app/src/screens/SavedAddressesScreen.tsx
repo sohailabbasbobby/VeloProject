@@ -1,22 +1,41 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { fetchSavedAddresses, createSavedAddress, deleteSavedAddress } from '../api/client';
 
 export const SavedAddressesScreen = ({ onClose }) => {
-  const [addresses, setAddresses] = useState([
-    { id: '1', name: 'Home', address: '123 Mayfair Ln, London', lat: 51.5074, lng: -0.1278 },
-    { id: '2', name: 'Office', address: 'Canary Wharf, Level 42', lat: 51.5054, lng: -0.0271 },
-    { id: '3', name: 'Mom', address: '45 Kensington High St', lat: 51.5014, lng: -0.1881 }
-  ]);
+  // Server-persisted address book (saved_addresses table) — not local-only state
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
 
-  const handleAdd = () => {
-    if (newName && newAddress) {
-      setAddresses([...addresses, { id: Date.now().toString(), name: newName, address: newAddress, lat: 51.5, lng: -0.1 }]);
-      setIsAdding(false);
+  const load = () => {
+    fetchSavedAddresses()
+      .then((rows) => { setAddresses(rows || []); setLoading(false); })
+      .catch((err) => { Alert.alert('Load failed', err.message); setLoading(false); });
+  };
+  useEffect(load, []);
+
+  const handleAdd = async () => {
+    if (!newName || !newAddress) return;
+    try {
+      await createSavedAddress({ label: newName, address: newAddress });
       setNewName('');
       setNewAddress('');
+      setIsAdding(false);
+      load();
+    } catch (err: any) {
+      Alert.alert('Save failed', err.message);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteSavedAddress(id);
+      load();
+    } catch (err: any) {
+      Alert.alert('Delete failed', err.message);
     }
   };
 
@@ -59,18 +78,22 @@ export const SavedAddressesScreen = ({ onClose }) => {
       )}
 
       <ScrollView showsVerticalScrollIndicator={false}>
+        {loading && <ActivityIndicator color="#D4AF37" style={{ marginTop: 20 }} />}
         {addresses.map(item => (
           <View key={item.id} style={styles.addressCard}>
             <Text style={styles.icon}>⚲</Text>
             <View style={{ flex: 1 }}>
-              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.name}>{item.label}</Text>
               <Text style={styles.addressText}>{item.address}</Text>
             </View>
-            <TouchableOpacity>
-              <Text style={styles.editIcon}>⚙︎</Text>
+            <TouchableOpacity onPress={() => handleDelete(item.id)}>
+              <Text style={{ color: '#FF3B30', fontSize: 16, fontWeight: 'bold' }}>✕</Text>
             </TouchableOpacity>
           </View>
         ))}
+        {!loading && addresses.length === 0 && (
+          <Text style={{ color: '#8A8A8E', textAlign: 'center', marginTop: 20 }}>No saved addresses yet.</Text>
+        )}
       </ScrollView>
     </View>
   );

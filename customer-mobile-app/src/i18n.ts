@@ -54,8 +54,7 @@ i18n
   .init({
     resources: RESOURCES,
     fallbackLng: 'en',
-    compatibilityJSON: 'v3',
-    interpolation: {
+        interpolation: {
       escapeValue: false // not needed for react as it escapes by default
     },
     react: {

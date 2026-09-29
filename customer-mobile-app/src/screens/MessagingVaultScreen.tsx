@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-export const MessagingVaultScreen = () => {
+export const MessagingVaultScreen = ({ onClose }: { onClose?: () => void }) => {
+  void onClose;
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language || 'en';
   

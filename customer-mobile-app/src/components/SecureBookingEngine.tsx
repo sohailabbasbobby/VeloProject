@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
+import { fetchSavedAddresses } from '../api/client';
 
 export const SecureBookingEngine = ({ stops, setStops, instructions, setInstructions, pickupTimeType, setPickupTimeType, scheduledTime, setScheduledTime, onQuoteRequest, bookingDetails, onOpenVehicleSelection }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -9,26 +10,21 @@ export const SecureBookingEngine = ({ stops, setStops, instructions, setInstruct
   const [activeInputId, setActiveInputId] = useState(null);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
 
-  const mockSavedAddresses = [
-    { name: 'Home', address: '123 Mayfair Ln, London', lat: 51.5074, lng: -0.1278 },
-    { name: 'Office', address: 'Canary Wharf, Level 42', lat: 51.5054, lng: -0.0271 },
-    { name: 'Mom', address: '45 Kensington High St', lat: 51.5014, lng: -0.1881 }
-  ];
+  // LIVE saved addresses from the passenger's server-persisted address book (§6)
+  const [savedAddresses, setSavedAddresses] = useState<Array<{ label: string; address: string; lat: number | null; lng: number | null }>>([]);
 
-  const mockLocations = [
-    { address: 'Heathrow Airport, Longford, UK', lat: 51.4700, lng: -0.4543 },
-    { address: 'Manchester Piccadilly, Manchester, UK', lat: 53.4774, lng: -2.2309 },
-    { address: 'Buckingham Palace, London, UK', lat: 51.5014, lng: -0.1419 },
-    { address: 'The Shard, London, UK', lat: 51.5045, lng: -0.0865 },
-    { address: 'London Waterloo, London, UK', lat: 51.5032, lng: -0.1123 },
-    { address: 'Manchester Airport, Manchester, UK', lat: 53.3537, lng: -2.2750 },
-    { address: 'Canary Wharf, London, UK', lat: 51.5054, lng: -0.0271 }
-  ];
+  useEffect(() => {
+    fetchSavedAddresses()
+      .then((rows) => setSavedAddresses(rows || []))
+      .catch(() => setSavedAddresses([]));
+  }, []);
 
-  const combinedLocations = [
-    ...mockSavedAddresses.map(s => ({ address: s.address, alias: s.name, lat: s.lat, lng: s.lng })),
-    ...mockLocations
-  ];
+  const combinedLocations = savedAddresses.map((s) => ({
+    address: s.address,
+    alias: s.label,
+    lat: s.lat,
+    lng: s.lng,
+  }));
 
   const updateStop = (id, text) => {
     setStops(stops.map(s => s.id === id ? { ...s, address: text } : s));

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, SafeAreaView , Alert } from 'react-native';
+// Alert available via react-native import below
 import { useTranslation } from 'react-i18next';
 import { COLOURS } from '../constants/theme';
 import { IconUpcoming, IconHistory, IconSettings, IconAddress, IconPayment } from './SidebarIcons';
@@ -128,7 +129,7 @@ export const SideMenuDrawer = ({ visible, onClose, onSelectRole, currentRole, on
 
             <View style={{height: 15}} />
             
-            <TouchableOpacity style={[styles.menuRowItem, { borderColor: '#1A1A1C', backgroundColor: '#070708' }]} onPress={() => { alert('Logged out'); onClose(); }}>
+            <TouchableOpacity style={[styles.menuRowItem, { borderColor: '#1A1A1C', backgroundColor: '#070708' }]} onPress={() => { Alert.alert('Coming soon', 'Logged out'); onClose(); }}>
               <View style={styles.menuRowLabelWrapper}>
                 <View style={[styles.iconCircleWrapper, { borderColor: '#2A2A2D' }]}>
                   <Text style={{color: '#8A8A8E', fontSize: 16, top: -1}}>⎋</Text>
@@ -137,7 +138,7 @@ export const SideMenuDrawer = ({ visible, onClose, onSelectRole, currentRole, on
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.menuRowItem, { borderColor: '#1A1A1C', backgroundColor: '#070708' }]} onPress={() => { alert('Account deletion requested'); onClose(); }}>
+            <TouchableOpacity style={[styles.menuRowItem, { borderColor: '#1A1A1C', backgroundColor: '#070708' }]} onPress={() => { Alert.alert('Coming soon', 'Account deletion requested'); onClose(); }}>
               <View style={styles.menuRowLabelWrapper}>
                 <View style={[styles.iconCircleWrapper, { borderColor: '#2A2A2D' }]}>
                   <Text style={{color: '#FF3B30', fontSize: 16, top: -1}}>⨂</Text>

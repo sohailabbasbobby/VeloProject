@@ -1,35 +1,22 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { fetchUpcomingTrips } from '../api/client';
 
 export const UpcomingBookingsScreen = ({ onClose }) => {
   const [selectedTrip, setSelectedTrip] = useState(null);
 
-  const mockUpcomingTrips = [
-    {
-      id: '1',
-      date: 'Oct 20, 2026',
-      time: '08:00',
-      from: '123 Mayfair Ln, London',
-      to: 'Heathrow Airport, Terminal 5',
-      channel: 'Personal Account',
-      status: 'Scheduled',
-      driver: 'Pending Assignment',
-      vehicle: 'Executive Class',
-      price: '£85.00 (Est)'
-    },
-    {
-      id: '2',
-      date: 'Oct 25, 2026',
-      time: '18:30',
-      from: 'Canary Wharf, Level 42',
-      to: 'The Shard',
-      channel: 'Acme Corp Ltd',
-      status: 'Confirmed',
-      driver: 'Pending Assignment',
-      vehicle: 'First Class',
-      price: '£120.00 (Est)'
-    }
-  ];
+  const [trips, setTrips] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchUpcomingTrips()
+      .then((rows) => { setTrips(rows || []); setLoading(false); })
+      .catch((err) => { setError(err.message); setLoading(false); });
+  }, []);
+
+  const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—');
+  const fmtTime = (d: string | null) => (d ? new Date(d).toLocaleTimeString().slice(0, 5) : '—');
 
   return (
     <View style={styles.container}>
@@ -41,7 +28,21 @@ export const UpcomingBookingsScreen = ({ onClose }) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        {mockUpcomingTrips.map(trip => {
+        {loading && <ActivityIndicator color="#D4AF37" style={{ marginTop: 30 }} />}
+        {error && <Text style={{ color: '#ff6b6b', textAlign: 'center', marginTop: 20 }}>Live feed error: {error}</Text>}
+        {trips.map(rawTrip => {
+          const trip = {
+            id: rawTrip.id,
+            date: fmtDate(rawTrip.scheduled_at || rawTrip.created_at),
+            time: fmtTime(rawTrip.scheduled_at),
+            from: rawTrip.pickup_address,
+            to: rawTrip.dropoff_address,
+            channel: rawTrip.channel === 'POOL' ? 'B2B Network' : rawTrip.channel === 'CORPORATE' ? 'Corporate Account' : 'Personal Account',
+            status: String(rawTrip.state).replace(/_/g, ' '),
+            driver: rawTrip.driver_name || 'Awaiting assignment',
+            vehicle: rawTrip.requested_tier ? String(rawTrip.requested_tier).replace('_', ' ') : '—',
+            price: `£${Number(rawTrip.final_price || rawTrip.custom_price || 0).toFixed(2)}`,
+          };
           const isSelected = selectedTrip === trip.id;
           return (
             <TouchableOpacity 

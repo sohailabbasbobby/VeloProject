@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 
-export const TravelLedgerScreen = () => {
+export const TravelLedgerScreen = ({ onClose }: { onClose?: () => void }) => {
+  void onClose;
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <Text style={styles.headerTitle}>TRAVEL LEDGER</Text>

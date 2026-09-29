@@ -21,14 +21,13 @@ export const InteractiveMap = ({ stops, onMarkerDragEnd, tripStatus = 'NONE' }) 
         showsUserLocation={true}
       >
         {stops.map((stop, index) => {
-          // Fallback static offsets for MVP if stops lack real lat/lng
-          const mockLat = initialRegion.latitude + (index * 0.01);
-          const mockLng = initialRegion.longitude + (index * 0.01);
+          const fallbackLat = stop.latitude ?? initialRegion.latitude + (index * 0.01);
+          const fallbackLng = stop.longitude ?? initialRegion.longitude + (index * 0.01);
           
           return (
             <Marker
               key={stop.id}
-              coordinate={{ latitude: stop.latitude || mockLat, longitude: stop.longitude || mockLng }}
+              coordinate={{ latitude: fallbackLat, longitude: fallbackLng }}
               title={index === 0 ? "Pickup" : "Dropoff"}
               description={stop.address}
               pinColor={index === 0 ? '#34C759' : '#FF3B30'}

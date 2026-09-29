@@ -1,47 +1,26 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { fetchMyTrips } from '../api/client';
 
 export const TripHistoryScreen = ({ onClose }) => {
   const [selectedTrip, setSelectedTrip] = useState(null);
 
-  const mockTrips = [
-    {
-      id: '1',
-      date: 'Oct 12, 2026',
-      time: '14:30',
-      from: 'Heathrow Airport, Terminal 5',
-      to: '123 Mayfair Ln, London',
-      channel: 'Personal Account',
-      status: 'Completed',
-      driver: 'Michael S.',
-      vehicle: 'Mercedes-Benz S-Class',
-      price: '£85.00'
-    },
-    {
-      id: '2',
-      date: 'Oct 10, 2026',
-      time: '09:00',
-      from: 'Canary Wharf, Level 42',
-      to: 'London City Airport',
-      channel: 'Acme Corp Ltd',
-      status: 'Completed',
-      driver: 'David B.',
-      vehicle: 'Range Rover Autobiography',
-      price: '£65.00'
-    },
-    {
-      id: '3',
-      date: 'Oct 05, 2026',
-      time: '18:15',
-      from: 'Buckingham Palace',
-      to: 'The Shard',
-      channel: 'Personal Account',
-      status: 'Cancelled',
-      driver: 'N/A',
-      vehicle: 'N/A',
-      price: '£10.00 (Fee)'
-    }
-  ];
+  const [trips, setTrips] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchMyTrips()
+      .then((rows) => {
+        // Completed / cancelled only, matching this screen's purpose
+        setTrips((rows || []).filter((r: any) => ['COMPLETED', 'CANCELLED'].includes(r.state)));
+        setLoading(false);
+      })
+      .catch((err) => { setError(err.message); setLoading(false); });
+  }, []);
+
+  const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—');
+  const fmtTime = (d: string | null) => (d ? new Date(d).toLocaleTimeString().slice(0, 5) : '—');
 
   return (
     <View style={styles.container}>
@@ -53,7 +32,21 @@ export const TripHistoryScreen = ({ onClose }) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        {mockTrips.map(trip => {
+        {loading && <ActivityIndicator color="#D4AF37" style={{ marginTop: 30 }} />}
+        {error && <Text style={{ color: '#ff6b6b', textAlign: 'center', marginTop: 20 }}>Live feed error: {error}</Text>}
+        {trips.map(rawTrip => {
+          const trip = {
+            id: rawTrip.id,
+            date: fmtDate(rawTrip.completed_at || rawTrip.created_at),
+            time: fmtTime(rawTrip.completed_at || rawTrip.scheduled_at),
+            from: rawTrip.pickup_address,
+            to: rawTrip.dropoff_address,
+            channel: rawTrip.channel === 'POOL' ? 'B2B Network' : rawTrip.channel === 'CORPORATE' ? 'Corporate Account' : 'Personal Account',
+            status: rawTrip.state === 'COMPLETED' ? 'Completed' : rawTrip.state === 'CANCELLED' ? 'Cancelled' : rawTrip.state,
+            driver: rawTrip.driver_name || '—',
+            vehicle: rawTrip.requested_tier ? String(rawTrip.requested_tier).replace('_', ' ') : '—',
+            price: `£${Number(rawTrip.final_price || rawTrip.custom_price || 0).toFixed(2)}`,
+          };
           const isSelected = selectedTrip === trip.id;
           return (
             <TouchableOpacity 
