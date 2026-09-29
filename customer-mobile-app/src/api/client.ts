@@ -102,3 +102,8 @@ export const rateTrip = (tripId: string, stars: number, feedback: string) =>
 
 // ------------------------------------------------------------------ Vehicle capacity (real DB validation)
 export const fetchVehicleClasses = () => api.get('/api/trips/vehicle-classes');
+
+// ------------------------------------------------------------------ Push registration (fail-open; delivery no-ops without provider keys)
+export const registerPushToken = (token: string, platform: string) =>
+  api.post('/api/fm/push/register', { token, platform });
+export const testPushDelivery = () => api.post('/api/fm/push/test');
