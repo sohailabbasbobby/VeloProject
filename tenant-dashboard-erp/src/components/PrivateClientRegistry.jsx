@@ -1,213 +1,157 @@
-import React, { useState } from 'react';
-import { Filter, Search, Mail, Plus, AlertTriangle, ShieldCheck, Shield, User } from 'lucide-react';
-import { useEntityLinker } from '../contexts/EntityLinkerContext';
-import EntityLink from './EntityLink';
+import React, { useState, useCallback } from 'react';
+import { Plus, Key } from 'lucide-react';
 import './PrivateClientRegistry.css';
-import './UniversalGrid.css';
-import { MOCK_PRIV_CLIENTS as MOCK_CLIENTS } from '../data/mockDatabase';
-
+import { fetchPrivateClients, createPrivateClient, usePolling } from '../utils/api';
+import { useEntityLinker } from '../contexts/EntityLinkerContext';
 
 const PrivateClientRegistry = () => {
-  const { openClientProfile, openSummaryModal } = useEntityLinker();
-
-  const handleOnboardClient = () => {
-    openClientProfile('New Client');
-  };
-
-
+  const load = useCallback(() => fetchPrivateClients(), []);
+  const { data: clients, loading, error, refresh } = usePolling(load, 30000);
+  const { openClientProfile } = useEntityLinker();
+  const [isAddOpen, setIsAddOpen] = useState(false);
 
   return (
-    <div className="pcr-container">
-      {/* Header & Metrics */}
+    <div className="private-registry">
       <div className="pcr-header">
-        <div className="pcr-title-group">
-          <h1 className="pcr-title">Private Client Registry</h1>
-          <span className="pcr-subtitle">Exclusive concierge management for high-net-worth individuals.</span>
+        <div>
+          <h2>PRIVATE CLIENT REGISTRY</h2>
+          <span className="pcr-subtitle">
+            {loading ? 'Syncing live registry…' : error ? `Live feed error: ${error.message}` : `${(clients || []).length} VIP private clients · live from database`}
+          </span>
         </div>
-        <div className="pcr-alert-badge">
-          <AlertTriangle size={14} />
-          2 VIP BOOKINGS PENDING CONFIRMATION
-        </div>
+        <button className="pcr-add-btn" onClick={() => setIsAddOpen(true)}>
+          <Plus size={14} /> Add Private Client
+        </button>
       </div>
 
-      <div className="pcr-metrics-row">
-        <div className="pcr-metric-card">
-          <span className="pcr-metric-title">ACTIVE PRIVATE CLIENTS</span>
-          <div className="pcr-metric-val">342 <span className="pcr-metric-sub">+12 this month</span></div>
-        </div>
-        <div className="pcr-metric-card">
-          <span className="pcr-metric-title">PENDING REQUESTS</span>
-          <div className="pcr-metric-val">8 <span className="pcr-metric-sub danger" style={{ fontSize: '10px' }}>Action Required</span></div>
-        </div>
-        <div className="pcr-metric-card">
-          <span className="pcr-metric-title">VIP ACCOUNTS</span>
-          <div className="pcr-metric-val">45 <span className="pcr-metric-sub" style={{ fontSize: '10px', color: '#d8b4fe' }}>Top Tier</span></div>
-        </div>
-        <div className="pcr-metric-card">
-          <span className="pcr-metric-title">COMPLIANCE STATUS</span>
-          <div className="pcr-metric-val">
-            100% <span className="pcr-badge-verified">VERIFIED</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Portfolio Grid */}
-      <div className="pcr-portfolio-header">
-        <h2 className="pcr-portfolio-title">Client Portfolio</h2>
-        <div className="pcr-filters">
-          <div style={{ position: 'relative' }}>
-            <Filter size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-            <input type="text" className="pcr-filter-input" placeholder="Filter by type..." style={{ paddingLeft: '36px' }} />
-          </div>
-          <div style={{ position: 'relative' }}>
-            <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-            <input type="text" className="pcr-filter-input" placeholder="Search client name..." style={{ paddingLeft: '36px' }} />
-          </div>
-        </div>
-      </div>
-
-      <div className="u-grid">
-        {MOCK_CLIENTS.map((c, i) => (
-          <div key={i} className="u-card" onClick={() => openClientProfile(c.name)} style={{ cursor: 'pointer' }}>
-            <div className="u-card-header">
-              <div className="u-card-header-left">
-                <span className="u-card-id" style={{ fontSize: '10px' }}>{c.type || 'Private Client'}</span>
-              </div>
-              <span className={`u-badge ${c.statusClass}`}>{c.status}</span>
+      <div className="pcr-grid">
+        {(clients || []).map((c) => (
+          <div key={c.id} className="pcr-card half-height" onClick={() => openClientProfile(c.reference_code || c.full_name)}>
+            <div className="pcr-card-top">
+              <Key size={15} className="text-gold" />
+              <div className="pcr-card-name">{c.full_name}</div>
+              <span className={`pcr-tier ${String(c.tier || 'BLACK').toLowerCase()}`}>VELO {String(c.tier || 'BLACK')}</span>
             </div>
-            
-            <div className="u-card-body">
-              <div className="u-card-image-container">
-                {(() => {
-                  const imgUrl = c.client_photo_url || c.logo_url || c.image_url || c.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80';
-                  return (
-                    <img 
-                      src={imgUrl} 
-                      srcSet={`${imgUrl} 1x, ${imgUrl} 2x`}
-                      loading="eager"
-                      onError={(e) => {
-                        console.error('Image failed to load:', e.target.src);
-                        e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80';
-                      }}
-                      alt={c.name} 
-                      className="u-card-image"
-                    />
-                  );
-                })()}
-              </div>
-              <div className="u-card-title">{c.name}</div>
-              
-              <div className="u-card-metrics">
-                <div className="u-card-metric">
-                  <span className="u-card-metric-label">TOTAL SPEND</span>
-                  <span className="u-card-metric-value gold">{c.spend}</span>
-                </div>
-                <div className="u-card-metric">
-                  <span className="u-card-metric-label">CONCIERGE</span>
-                  <span className="u-card-metric-value">{c.manager}</span>
-                </div>
-              </div>
+            <div className="pcr-card-mid">
+              <span className="pcr-meta">{c.preferred_vehicle_tier ? `Prefers ${String(c.preferred_vehicle_tier).replace('_', ' ')}` : 'No class preference'}</span>
+              {c.dietary_constraints && <span className="pcr-meta">🍽 {c.dietary_constraints}</span>}
+              {c.cabin_constraints && <span className="pcr-meta">🚪 {c.cabin_constraints}</span>}
+              {c.privacy_level === 'GHOST' && <span className="pcr-meta gold">GHOST PROTOCOL</span>}
             </div>
-
-            <div className="u-card-footer">
-              <div className="u-card-actions" style={{ justifyContent: 'flex-end' }}>
-                <button className="u-btn" style={{ flex: '0 0 32px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}><Mail size={14} /></button>
-              </div>
+            <div className="pcr-card-bottom">
+              <span className="pcr-trips">{c.total_trips || 0} lifetime trips</span>
+              {c.vip_notes && <span className="pcr-notes" title={c.vip_notes}>{c.vip_notes.slice(0, 60)}{c.vip_notes.length > 60 ? '…' : ''}</span>}
             </div>
           </div>
         ))}
-
-        <div className="u-card-onboard" onClick={handleOnboardClient}>
-          <div className="pcr-avatar" style={{ backgroundColor: 'rgba(212, 175, 55, 0.1)', borderColor: 'rgba(212, 175, 55, 0.3)' }}>
-            <Plus size={16} color="var(--color-gold)" />
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ color: 'var(--color-gold)', fontWeight: '700', fontSize: '14px' }}>Onboard Client</div>
-            <div style={{ color: 'var(--color-text-secondary)', fontSize: '11px', marginTop: '4px' }}>Initiate Security & Profile</div>
-          </div>
-        </div>
+        {!loading && (clients || []).length === 0 && (
+          <div className="pcr-empty">No private clients registered yet.</div>
+        )}
       </div>
 
-      {/* Bottom Sections */}
-      <div className="pcr-bottom-grid">
-        {/* Booking Audit */}
-        <div className="pcr-panel">
-          <div className="pcr-panel-header">
-            Recent Booking Audit
-            <span className="pcr-panel-link">FULL REPORT</span>
-          </div>
-          <table className="pcr-table">
-            <thead>
-              <tr>
-                <th>CLIENT</th>
-                <th>ROUTE</th>
-                <th>CLASS</th>
-                <th>SECURITY</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
-                title: 'Booking Audit', subtitle: 'Alexander Sterling', status: 'Completed', icon: 'file',
-                primaryMetric: { label: 'CLASS', value: 'First Class' },
-                fields: [{label: 'Route', value: 'LHR ➔ Mayfair'}, {label: 'Security', value: 'CLEARED'}]
-              })}>
-                <td><EntityLink type="Client">Alexander Sterling</EntityLink></td>
-                <td style={{ color: 'var(--color-text-secondary)' }}>LHR ➔ Mayfair</td>
-                <td className="pcr-val-gold">First Class</td>
-                <td><span className="pcr-val-encrypted">CLEARED</span></td>
-              </tr>
-              <tr className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
-                title: 'Booking Audit', subtitle: 'Lady Victoria Hughes', status: 'Completed', icon: 'file',
-                primaryMetric: { label: 'CLASS', value: 'First Class' },
-                fields: [{label: 'Route', value: 'Kensington ➔ Farnborough'}, {label: 'Security', value: 'CLEARED'}]
-              })}>
-                <td><EntityLink type="Client">Lady Victoria Hughes</EntityLink></td>
-                <td style={{ color: 'var(--color-text-secondary)' }}>Kensington ➔ Farnborough</td>
-                <td className="pcr-val-gold">First Class</td>
-                <td><span className="pcr-val-encrypted">CLEARED</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      {isAddOpen && (
+        <QuickPrivateClientForm
+          onClose={() => setIsAddOpen(false)}
+          onSaved={() => { setIsAddOpen(false); refresh(); }}
+        />
+      )}
+      <div className="security-footer">Verified by Velo AI Security Protocol</div>
+    </div>
+  );
+};
 
-        {/* System Security */}
-        <div className="pcr-panel">
-          <div className="pcr-panel-header">System Security</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div className="pcr-security-item">
-              <ShieldCheck size={16} color="var(--color-gold)" />
-              <div className="pcr-security-text">
-                <span className="pcr-sec-title">Velo AI Core</span>
-                <span className="pcr-sec-sub">Privacy masking active</span>
-              </div>
-            </div>
-            <div className="pcr-security-item">
-              <Shield size={16} color="var(--color-gold)" />
-              <div className="pcr-security-text">
-                <span className="pcr-sec-title">Identity Lock</span>
-                <span className="pcr-sec-sub">Biometric verification</span>
-              </div>
-            </div>
-          </div>
-          <div style={{ fontStyle: 'italic', fontSize: '10px', color: 'var(--color-text-muted)', marginTop: '8px' }}>
-            "Discretion is the ultimate luxury."
-          </div>
-        </div>
-      </div>
+const QuickPrivateClientForm = ({ onClose, onSaved }) => {
+  const [fullName, setFullName] = useState('');
+  const [tier, setTier] = useState('BLACK');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [preferredVehicleTier, setPreferredVehicleTier] = useState('');
+  const [dietaryConstraints, setDietaryConstraints] = useState('');
+  const [cabinConstraints, setCabinConstraints] = useState('');
+  const [vipNotes, setVipNotes] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
-      <div className="pcr-footer">
-        <div>
-          <span style={{ color: 'var(--color-gold)', fontWeight: '700', marginRight: '16px' }}>VELO EXECUTIVE</span>
-          Verified by Velo AI Security Protocol
+  const submit = async () => {
+    if (!fullName) { setError('Full name is required.'); return; }
+    setSaving(true);
+    try {
+      await createPrivateClient({
+        fullName, tier, email, phone,
+        preferredVehicleTier: preferredVehicleTier || undefined,
+        dietaryConstraints: dietaryConstraints || undefined,
+        cabinConstraints: cabinConstraints || undefined,
+        vipNotes: vipNotes || undefined,
+      });
+      onSaved();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="u-modal-overlay" onClick={onClose}>
+      <div className="u-modal-container" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
+        <div className="u-modal-header">
+          <h2 className="u-modal-title">Add Private Client</h2>
+          <button className="u-modal-btn-close" onClick={onClose}><Plus size={18} style={{ transform: 'rotate(45deg)' }} /></button>
         </div>
-        <div className="pcr-footer-links">
-          <span>Terms of Service</span>
-          <span>Privacy Policy</span>
-          <span>Compliance</span>
+        <div className="u-modal-body" style={{ display: 'grid', gap: 10 }}>
+          <label style={lbl}>FULL NAME *</label>
+          <input style={inp} value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Lady Violet Ashworth" />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div>
+              <label style={lbl}>TIER</label>
+              <select style={inp} value={tier} onChange={(e) => setTier(e.target.value)}>
+                <option value="BLACK">Velo Black</option>
+                <option value="GOLD">Velo Gold</option>
+                <option value="PLATINUM">Velo Platinum</option>
+              </select>
+            </div>
+            <div>
+              <label style={lbl}>VEHICLE CLASS PREFERENCE</label>
+              <select style={inp} value={preferredVehicleTier} onChange={(e) => setPreferredVehicleTier(e.target.value)}>
+                <option value="">No preference</option>
+                <option value="EXECUTIVE">Executive</option>
+                <option value="PREMIUM_MPV">Premium MPV</option>
+                <option value="FIRST_CLASS">First-Class Luxury</option>
+                <option value="ULTRA_LUXURY">Ultra-Luxury</option>
+              </select>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div>
+              <label style={lbl}>EMAIL</label>
+              <input style={inp} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div>
+              <label style={lbl}>PHONE</label>
+              <input style={inp} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+44 7700 900000" />
+            </div>
+          </div>
+          <label style={lbl}>DIETARY / CABIN CONSTRAINTS</label>
+          <input style={inp} value={dietaryConstraints} onChange={(e) => setDietaryConstraints(e.target.value)} placeholder="Still water, no mint" />
+          <input style={inp} value={cabinConstraints} onChange={(e) => setCabinConstraints(e.target.value)} placeholder="Cabin 20°C, silence protocol" />
+          <label style={lbl}>PRIVATE NOTES (never exposed cross-tenant)</label>
+          <textarea style={{ ...inp, minHeight: 60 }} value={vipNotes} onChange={(e) => setVipNotes(e.target.value)} />
+          {error && <div style={{ color: '#ff6b6b', fontSize: 12 }}>{error}</div>}
         </div>
+        <div className="u-modal-footer" style={{ justifyContent: 'space-between' }}>
+          <button className="ob-btn-draft" onClick={onClose}>CANCEL</button>
+          <button className="ob-btn-complete" onClick={submit} disabled={saving}>{saving ? 'SAVING…' : 'CREATE CLIENT'}</button>
+        </div>
+        <div className="security-footer">Verified by Velo AI Security Protocol</div>
       </div>
     </div>
   );
+};
+
+const lbl = { fontSize: 10, color: '#888', letterSpacing: '0.08em' };
+const inp = {
+  backgroundColor: '#0B0B0C', border: '1px solid #2a2a2c', borderRadius: 6, color: '#fff',
+  padding: '8px 10px', fontSize: 13, width: '100%', boxSizing: 'border-box',
 };
 
 export default PrivateClientRegistry;

@@ -8,18 +8,6 @@ import OfficeStaffOnboarding from './onboarding/OfficeStaffOnboarding';
 import { useEntityLinker } from '../contexts/EntityLinkerContext';
 import EntityLink from './EntityLink';
 
-const MOCK_ACTIVITY = [
-  { id: 'ACT-01', date: '2026-06-08', action: 'Approved Job', target: 'JOB-9841', type: 'Job', details: 'LHR T5 to The Savoy', status: 'Completed' },
-  { id: 'ACT-02', date: '2026-06-08', action: 'Modified Asset', target: 'VLO-8000', type: 'Vehicle', details: 'Updated maintenance schedule', status: 'Logged' },
-  { id: 'ACT-03', date: '2026-06-07', action: 'Created Invoice', target: 'Veridian Systems', type: 'Client', details: 'Monthly billing generated', status: 'Sent' },
-  { id: 'ACT-04', date: '2026-06-07', action: 'Assigned Driver', target: 'Julian R.', type: 'Driver', details: 'Assigned to JOB-9838', status: 'Completed' },
-  { id: 'ACT-05', date: '2026-06-06', action: 'Approved Job', target: 'JOB-9835', type: 'Job', details: 'The Shard to O2 Arena', status: 'Completed' },
-  { id: 'ACT-06', date: '2026-06-06', action: 'Modified Asset', target: 'VLO-8004', type: 'Vehicle', details: 'Logged minor scratch', status: 'Logged' },
-  { id: 'ACT-07', date: '2026-06-05', action: 'Assigned Driver', target: 'Sebastian C.', type: 'Driver', details: 'Assigned to JOB-9831', status: 'Completed' },
-  { id: 'ACT-08', date: '2026-06-05', action: 'System Login', target: 'Staff Portal', type: 'System', details: 'IP: 192.168.1.1', status: 'Authorized' },
-  { id: 'ACT-09', date: '2026-06-04', action: 'Created Invoice', target: 'Aetheris Global', type: 'Client', details: 'Ad-hoc trip billing', status: 'Sent' },
-  { id: 'ACT-10', date: '2026-06-04', action: 'Modified Profile', target: 'Grace W.', type: 'Driver', details: 'Updated PCO expiry date', status: 'Logged' },
-];
 
 const StaffProfileModal = ({ staff, isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -147,7 +135,7 @@ const StaffProfileModal = ({ staff, isOpen, onClose }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {MOCK_ACTIVITY.map((act) => (
+                  {(staff?.shifts || []).map((shift) => (
                     <tr key={act.id} className="cc-card-row" style={{ cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }} onClick={() => openSummaryModal({
                       title: 'Activity Log', subtitle: act.action, status: act.status, icon: 'file',
                       primaryMetric: { label: 'TARGET', value: act.target },

@@ -1,144 +1,134 @@
-import React, { useState, useMemo } from 'react';
-import { Mail, MessageSquare, ArrowLeft, Paperclip, Send } from 'lucide-react';
-import { MOCK_THREADS } from '../data/mockDatabase';
+import React, { useState, useEffect, useCallback } from 'react';
+import { MessageSquare, ArrowLeft, Send, Loader2 } from 'lucide-react';
 import './ConciergeFeed.css';
+import { api } from '../utils/api';
 
-const ConciergeFeed = ({ clientName }) => {
-  const [activeThread, setActiveThread] = useState(null);
+/**
+ * CLIENT ENGAGEMENT FEED — real message threads from the `messages` table
+ * (thread_type CLIENT_ENGAGEMENT, thread_key = client reference). Sending writes
+ * through the live API; the old mock thread generator and alert() sends are gone.
+ */
+const ConciergeFeed = ({ clientRef, clientName }) => {
+  const [activeThreadId, setActiveThreadId] = useState(null);
   const [replyText, setReplyText] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  const clientThreads = useMemo(() => {
-    const found = MOCK_THREADS.filter(t => t.clientName === clientName);
-    if (found.length > 0) return found;
-    
-    // Force-inject 10 mock communication threads into the Engagement tab if empty
-    return Array.from({length: 10}).map((_, i) => ({
-      id: `MSG-F${100+i}`,
-      clientName: clientName,
-      subject: `Automated Chauffeur Update #${i+1}`,
-      status: i === 0 ? 'Urgent' : (i < 3 ? 'In-Progress' : 'Archived'),
-      lastMessageTime: `2026-06-0${8-i}`,
-      preview: `System notification regarding status update and shift alignment.`,
-      messages: [
-        { sender: 'System Admin', time: `2026-06-0${8-i}`, text: `System notification regarding status update and shift alignment.` }
-      ]
-    }));
-  }, [clientName]);
+  const load = useCallback(async () => {
+    if (!clientRef) return;
+    setLoading(true);
+    try {
+      const rows = await api.get(`/api/trips/messages?threadType=CLIENT_ENGAGEMENT&threadKey=${encodeURIComponent(clientRef)}`);
+      setMessages(rows || []);
+    } catch {
+      setMessages([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [clientRef]);
 
-  const handleSendReply = () => {
+  useEffect(() => { load(); }, [load]);
+
+  const send = async () => {
     if (!replyText.trim()) return;
-    alert(`[Mock Send] Message sent to ${clientName} on thread ${activeThread.id}`);
-    setReplyText('');
+    setSending(true);
+    try {
+      await api.post('/api/trips/messages', {
+        threadType: 'CLIENT_ENGAGEMENT',
+        threadKey: clientRef,
+        senderType: 'DISPATCHER',
+        body: replyText.trim(),
+      });
+      setReplyText('');
+      await load();
+    } finally {
+      setSending(false);
+    }
   };
 
-  if (activeThread) {
+  const active = messages.find((m) => m.id === activeThreadId);
+
+  if (active) {
     return (
       <div className="cf-thread-view">
         <div className="cf-thread-header">
-          <button className="cf-back-btn" onClick={() => setActiveThread(null)}>
+          <button className="cf-back-btn" onClick={() => setActiveThreadId(null)}>
             <ArrowLeft size={18} />
           </button>
           <div className="cf-thread-title-group">
-            <h3 className="cf-thread-subject">{activeThread.subject}</h3>
+            <h3 className="cf-thread-subject">Engagement · {clientName || clientRef}</h3>
             <div className="cf-thread-meta">
-              <span className="cf-thread-id">{activeThread.id}</span>
-              <span>•</span>
-              <span>{activeThread.lastMessageTime}</span>
+              <span className="cf-thread-id">{clientRef}</span>
             </div>
           </div>
-          <div className={`cf-badge ${activeThread.status === 'Urgent' ? 'urgent' : activeThread.status === 'In-Progress' ? 'progress' : 'archived'}`}>
-            {activeThread.status}
-          </div>
         </div>
-
         <div className="cf-message-list">
-          {activeThread.messages?.map((msg, idx) => (
-            <div key={idx} className={`cf-message ${msg.sender === 'System Admin' ? 'sent' : 'received'}`}>
-              <div className="cf-message-bubble">
-                {msg.text}
-              </div>
-              <div className="cf-message-info">
-                <span>{msg.sender}</span> • <span>{msg.time}</span>
+          {[...messages].filter((m) => m.thread_key === active.thread_key).reverse().map((m) => (
+            <div key={m.id} className={`cf-message ${m.sender_type === 'DISPATCHER' ? 'outbound' : 'inbound'}`}>
+              <div className="cf-bubble">
+                <div className="cf-sender">{m.sender_type}</div>
+                <div className="cf-text">{m.body}</div>
+                <div className="cf-time">{new Date(m.created_at).toLocaleString()}</div>
               </div>
             </div>
           ))}
         </div>
+        <div className="cf-reply-bar">
+          <input
+            className="cf-reply-input"
+            placeholder="Reply to client…"
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && send()}
+          />
+          <button className="cf-send-btn" onClick={send} disabled={sending}>
+            {sending ? <Loader2 size={15} className="spin" /> : <Send size={15} />}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-        {activeThread.status !== 'Archived' && (
-          <div className="cf-reply-box">
-            <textarea 
-              className="cf-reply-input" 
-              placeholder="Type your reply here..." 
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-            />
-            <div className="cf-reply-actions">
-              <div className="cf-reply-tools">
-                <button className="cf-tool-btn"><Paperclip size={16} /></button>
-              </div>
-              <button className="cf-btn-primary" style={{ flex: 'none' }} onClick={handleSendReply}>
-                <Send size={14} /> Send Message
-              </button>
+  // Group into threads by day for the list view
+  const list = messages;
+  return (
+    <div className="cf-feed">
+      <div className="cf-list-header">
+        <MessageSquare size={14} />
+        <span>ENGAGEMENT & COMMUNICATION · {clientName || clientRef}</span>
+      </div>
+      {loading && <div style={{ color: '#888', padding: 14, fontSize: 12 }}>Loading live engagement history…</div>}
+      <div className="cf-thread-list">
+        {list.slice(0, 30).map((m) => (
+          <div
+            key={m.id}
+            className={`cf-thread-row ${activeThreadId === m.id ? 'active' : ''}`}
+            onClick={() => setActiveThreadId(m.id)}
+          >
+            <div className="cf-row-main">
+              <div className="cf-row-subject">{m.body.slice(0, 64)}{m.body.length > 64 ? '…' : ''}</div>
+              <div className="cf-row-preview">{m.sender_type} · {new Date(m.created_at).toLocaleString()}</div>
             </div>
+          </div>
+        ))}
+        {!loading && list.length === 0 && (
+          <div style={{ color: '#888', padding: 14, fontSize: 12 }}>
+            No engagement messages yet — replies you send here are stored against this client's live thread.
           </div>
         )}
       </div>
-    );
-  }
-
-  if (clientThreads.length === 0) {
-    return (
-      <div className="cf-container" style={{ alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
-        <MessageSquare size={32} style={{ marginBottom: '16px', opacity: 0.5 }} />
-        <p>No engagement threads found for {clientName}.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="cf-container">
-      <div className="cf-feed-list">
-        {clientThreads.map(thread => {
-          let badgeClass = 'archived';
-          if (thread.status === 'Urgent') badgeClass = 'urgent';
-          if (thread.status === 'In-Progress') badgeClass = 'progress';
-
-          return (
-            <div key={thread.id} className="cf-card" onClick={() => setActiveThread(thread)}>
-              <div className="cf-card-header">
-                <h3 className="cf-card-subject">{thread.subject}</h3>
-                <span className={`cf-badge ${badgeClass}`}>{thread.status}</span>
-              </div>
-              
-              <div className="cf-card-meta">
-                <span className="cf-thread-sender" style={{fontWeight: 'bold', color: 'var(--color-gold)'}}>{thread.clientName || 'System'}</span>
-                <span>•</span>
-                <span className="cf-thread-id">{thread.id}</span>
-                <span>•</span>
-                <span>{thread.lastMessageTime}</span>
-              </div>
-
-              <div className="cf-card-preview">
-                "{thread.preview}"
-              </div>
-
-              <div className="cf-card-actions">
-                <button className="cf-btn-primary" onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveThread(thread);
-                }}>
-                  Open Thread
-                </button>
-                <button className="cf-btn-secondary" onClick={(e) => {
-                  e.stopPropagation();
-                  alert(`[Mock Send] Quick reply to ${thread.id}`);
-                }}>
-                  <Mail size={14} />
-                </button>
-              </div>
-            </div>
-          );
-        })}
+      <div className="cf-reply-bar">
+        <input
+          className="cf-reply-input"
+          placeholder={`Message ${clientName || 'client'}…`}
+          value={replyText}
+          onChange={(e) => setReplyText(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && send()}
+        />
+        <button className="cf-send-btn" onClick={send} disabled={sending}>
+          {sending ? <Loader2 size={15} className="spin" /> : <Send size={15} />}
+        </button>
       </div>
     </div>
   );

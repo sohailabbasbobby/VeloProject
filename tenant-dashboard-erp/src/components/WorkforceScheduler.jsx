@@ -1,306 +1,205 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { CalendarDays, Search } from 'lucide-react';
-import { MOCK_STAFF } from '../data/mockDatabase';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
+import { CalendarDays, Trash2 } from 'lucide-react';
 import { useEntityLinker } from '../contexts/EntityLinkerContext';
 import './SystemModules.css';
+import { fetchStaff, fetchRoster, createShiftSlot, updateShiftSlot, deleteShiftSlot, usePolling } from '../utils/api';
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
+/**
+ * WORKFORCE ROSTER & SCHEDULING (§3 System Management)
+ * A true CONTINUOUS 24-HOUR calendar at 30-MINUTE granularity — explicitly NOT
+ * fixed Morning/Afternoon/Night blocks (that pattern was rejected). Staff are
+ * drag-dropped onto the timeline; blocks snap to the 30-min grid and every
+ * create/resize/move/delete persists through the live roster API.
+ */
 
-// Helper to format time
-const formatTime = (hour, percentage) => {
-  const totalMins = Math.round(hour * 60 + percentage * 60);
-  const h = Math.floor(totalMins / 60);
-  const m = totalMins % 60;
-  // Snap to 30 min increments for display
-  const snappedM = m >= 15 && m < 45 ? 30 : m >= 45 ? 0 : 0;
-  const snappedH = m >= 45 ? h + 1 : h;
-  return `${String(snappedH).padStart(2, '0')}:${String(snappedM).padStart(2, '0')}`;
-};
+const SLOT_MIN = 30;
+const SLOTS_PER_DAY = (24 * 60) / SLOT_MIN; // 48
 
-const formatTimeRange = (startPerc, endPerc) => {
-  const startHour = startPerc * 24;
-  const endHour = endPerc * 24;
-  return `${formatTime(startHour, startPerc)} - ${formatTime(endHour, endPerc)}`;
-};
+const minutesToLabel = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 
 const WorkforceScheduler = () => {
   const { openStaffProfile } = useEntityLinker();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
+
+  const loadStaff = useCallback(() => fetchStaff(), []);
+  const { data: staff } = usePolling(loadStaff, 60000);
+  const loadRoster = useCallback(() => fetchRoster(selectedDate), [selectedDate]);
+  const { data: rosterData, refresh: refreshRoster } = usePolling(loadRoster, 30000);
+
   const [draggedStaff, setDraggedStaff] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
-  
-  const [shifts, setShifts] = useState(() => {
-    // initialize from MOCK_STAFF schedule with percentage positioning (0 to 1)
-    const initial = [];
-    MOCK_STAFF.forEach(staff => {
-      staff.schedule.forEach(sch => {
-        if (sch.shift !== 'OFF') {
-          // Parse "06:00 - 18:00" to percentages
-          let startP = 0.25; // 6am
-          let endP = 0.75; // 6pm
-          if (sch.shift.includes('Morning')) { startP = 0.25; endP = 0.583; } // 6-14
-          if (sch.shift.includes('Afternoon')) { startP = 0.583; endP = 0.916; } // 14-22
-          if (sch.shift.includes('Night')) { startP = 0.916; endP = 1.0; } // 22-06
-          initial.push({
-            id: `S-${staff.id}-${sch.day}`,
-            staffId: staff.id,
-            staffName: staff.name,
-            day: sch.day,
-            startPos: startP,
-            endPos: endP
-          });
-        }
-      });
-    });
-    return initial;
-  });
+  const [resizing, setResizing] = useState(null); // { slotId, edge }
+  const gridRef = useRef(null);
 
-  const timelineRef = useRef(null);
-  
-  // Drag State for resizing/duplicating
-  const [activeDrag, setActiveDrag] = useState(null); // { shiftId, type: 'left' | 'right' | 'bottom', initialX, initialY, initialStart, initialEnd }
+  const shifts = useMemo(() => rosterData?.shifts || [], [rosterData]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const syncToDatabase = (staffName) => {
-    showToast(`Shift updated for ${staffName}. Synced to Database.`);
+  const xToMinutes = (clientX) => {
+    const grid = gridRef.current;
+    if (!grid) return 0;
+    const rect = grid.getBoundingClientRect();
+    const pct = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    return Math.round((pct * 24 * 60) / SLOT_MIN) * SLOT_MIN;
   };
 
-  const handleDragStart = (e, staff) => {
-    setDraggedStaff(staff);
-    e.dataTransfer.effectAllowed = 'copy';
-  };
-
-  const handleDragOver = (e) => {
+  const handleDrop = async (e, staffId) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  };
-
-  const handleDrop = (e, day) => {
-    e.preventDefault();
-    if (draggedStaff && timelineRef.current) {
-      const rect = timelineRef.current.getBoundingClientRect();
-      const dropX = e.clientX - rect.left - 80; // offset day label
-      const maxW = rect.width - 80;
-      let startPos = Math.max(0, dropX / maxW);
-      // Snap to nearest 30 mins (1/48)
-      startPos = Math.round(startPos * 48) / 48;
-      let endPos = Math.min(1, startPos + (8 / 24)); // Default 8 hours
-
-      const newShift = {
-        id: `S-${draggedStaff.id}-${Date.now()}`,
-        staffId: draggedStaff.id,
-        staffName: draggedStaff.name,
-        day,
-        startPos,
-        endPos
-      };
-      setShifts([...shifts, newShift]);
-      syncToDatabase(draggedStaff.name);
-      setDraggedStaff(null);
+    const staff = draggedStaff;
+    setDraggedStaff(null);
+    if (!staff) return;
+    const startMinute = xToMinutes(e.clientX);
+    try {
+      await createShiftSlot({ staffId, shiftDate: selectedDate, startMinute, durationMinutes: SLOT_MIN * 2 });
+      showToast(`Shift allocated ${minutesToLabel(startMinute)}–${minutesToLabel(startMinute + SLOT_MIN * 2)} — saved to database.`);
+      refreshRoster();
+    } catch (err) {
+      showToast(`Allocation failed: ${err.message}`);
     }
   };
 
-  // Pointer event listeners for resizing and duplicating
-  useEffect(() => {
-    const handlePointerMove = (e) => {
-      if (!activeDrag || !timelineRef.current) return;
-      
-      const rect = timelineRef.current.getBoundingClientRect();
-      const timelineW = rect.width - 80;
-      
-      if (activeDrag.type === 'left' || activeDrag.type === 'right') {
-        const deltaX = e.clientX - activeDrag.initialX;
-        const deltaPos = deltaX / timelineW;
-        
-        setShifts(prev => prev.map(s => {
-          if (s.id !== activeDrag.shiftId) return s;
-          let newStart = s.startPos;
-          let newEnd = s.endPos;
-          
-          if (activeDrag.type === 'left') {
-            newStart = Math.min(activeDrag.initialStart + deltaPos, s.endPos - (1/48));
-            newStart = Math.max(0, Math.round(newStart * 48) / 48); // Snap
-          } else {
-            newEnd = Math.max(activeDrag.initialEnd + deltaPos, s.startPos + (1/48));
-            newEnd = Math.min(1, Math.round(newEnd * 48) / 48); // Snap
-          }
-          return { ...s, startPos: newStart, endPos: newEnd };
-        }));
-      } else if (activeDrag.type === 'bottom') {
-        // Vertical drag for duplication
-        const deltaY = e.clientY - activeDrag.initialY;
-        const rowsDown = Math.floor(deltaY / 80); // 80px row height
-        if (rowsDown > 0 && activeDrag.currentRowsDown !== rowsDown) {
-          activeDrag.currentRowsDown = rowsDown; // mutable ref pattern to prevent spam
-          const sourceShift = shifts.find(s => s.id === activeDrag.shiftId);
-          if (sourceShift) {
-            const currentDayIndex = DAYS.indexOf(sourceShift.day);
-            const targetDayIndex = currentDayIndex + rowsDown;
-            if (targetDayIndex < DAYS.length) {
-              const targetDay = DAYS[targetDayIndex];
-              // check if it already exists
-              if (!shifts.some(s => s.staffId === sourceShift.staffId && s.day === targetDay && s.startPos === sourceShift.startPos)) {
-                const clone = { ...sourceShift, id: `S-${sourceShift.staffId}-${Date.now()}-${targetDay}`, day: targetDay };
-                setShifts(prev => [...prev, clone]);
-              }
-            }
-          }
-        }
+  const handleResizeMove = async (e) => {
+    if (!resizing) return;
+    const minutes = xToMinutes(e.clientX);
+    const slot = shifts.find((s) => s.id === resizing.slotId);
+    if (!slot) return;
+    if (resizing.edge === 'right') {
+      const dur = Math.max(SLOT_MIN, minutes - slot.start_minute);
+      if (dur !== slot.duration_minutes && dur % SLOT_MIN === 0) {
+        await updateShiftSlot(slot.id, { durationMinutes: dur });
       }
-    };
-
-    const handlePointerUp = () => {
-      if (activeDrag) {
-        const shift = shifts.find(s => s.id === activeDrag.shiftId);
-        if (shift) syncToDatabase(shift.staffName);
-        setActiveDrag(null);
+    } else {
+      const newStart = Math.min(minutes, slot.start_minute + slot.duration_minutes - SLOT_MIN);
+      if (newStart !== slot.start_minute && newStart % SLOT_MIN === 0) {
+        await updateShiftSlot(slot.id, { startMinute: newStart });
       }
-    };
-
-    if (activeDrag) {
-      window.addEventListener('pointermove', handlePointerMove);
-      window.addEventListener('pointerup', handlePointerUp);
     }
-    return () => {
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
-    };
-  }, [activeDrag, shifts]);
-
-
-  const startResize = (e, shiftId, type, shift) => {
-    e.stopPropagation();
-    e.preventDefault(); // Prevent text selection
-    setActiveDrag({
-      shiftId,
-      type,
-      initialX: e.clientX,
-      initialY: e.clientY,
-      initialStart: shift.startPos,
-      initialEnd: shift.endPos,
-      currentRowsDown: 0
-    });
   };
 
-  const filteredStaff = MOCK_STAFF.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const handleResizeEnd = async () => {
+    if (resizing) {
+      setResizing(null);
+      refreshRoster();
+      showToast('Shift updated — saved to database.');
+    }
+  };
+
+  const staffRows = useMemo(() => {
+    const rows = new Map();
+    for (const s of staff || []) {
+      rows.set(s.id, { id: s.id, name: `${s.first_name} ${s.last_name}`, role: s.role, ref: s.reference_code });
+    }
+    for (const shift of shifts) {
+      if (!rows.has(shift.staff_id)) {
+        rows.set(shift.staff_id, { id: shift.staff_id, name: shift.staff_name, role: shift.role, ref: shift.reference_code });
+      }
+    }
+    return [...rows.values()];
+  }, [staff, shifts]);
 
   return (
-    <div className="system-module-container" style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
-      <div className="system-header">
+    <div className="system-module" onDragOver={(e) => e.preventDefault()}>
+      <div className="sm-header">
         <div>
-          <h2 className="system-title">WORKFORCE ROSTER & SCHEDULING</h2>
-          <div className="system-subtitle">Continuous 24-Hour Interactive Timeline</div>
+          <h2>WORKFORCE ROSTER & SCHEDULING</h2>
+          <span className="sm-subtitle">Continuous 24-hour operations timeline · 30-minute granularity · drag staff onto the grid</span>
         </div>
-        <CalendarDays size={24} color="var(--color-gold)" />
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <CalendarDays size={14} className="text-gold" />
+          <input
+            type="date"
+            className="ob-input"
+            style={{ width: 160 }}
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
+        </div>
       </div>
 
-      <div className="roster-layout">
-        {/* Left Pane: Staff Search */}
-        <div className="roster-sidebar">
-          <div className="roster-search">
-            <div style={{ position: 'relative' }}>
-              <Search size={14} style={{ position: 'absolute', top: 12, left: 10, color: '#888' }} />
-              <input 
-                type="text" 
-                placeholder="Search staff..." 
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                style={{ paddingLeft: 32 }}
-              />
+      {/* Staff palette — drag source */}
+      <div className="sm-staff-palette">
+        {staffRows.map((s) => (
+          <div
+            key={s.id}
+            className="sm-staff-chip"
+            draggable
+            onDragStart={() => setDraggedStaff(s)}
+            onClick={() => openStaffProfile(s.ref || s.name)}
+          >
+            <span className="sm-chip-name">{s.name}</span>
+            <span className="sm-chip-role">{String(s.role || '').replace('_', ' ')}</span>
+          </div>
+        ))}
+        {(staffRows || []).length === 0 && <span className="sm-palette-empty">Onboard operational staff to begin scheduling.</span>}
+      </div>
+
+      {/* Continuous 24h grid */}
+      <div className="sm-grid-wrap">
+        <div className="sm-hour-ruler">
+          {Array.from({ length: 25 }, (_, h) => (
+            <div key={h} className="sm-hour-tick" style={{ left: `${(h / 24) * 100}%` }}>
+              <span>{String(h % 24).padStart(2, '0')}:00</span>
             </div>
-          </div>
-          <div className="roster-staff-list">
-            {filteredStaff.map(staff => (
-              <div 
-                key={staff.id} 
-                className="roster-staff-item"
-                draggable
-                onDragStart={(e) => handleDragStart(e, staff)}
-              >
-                <img src={staff.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80'} alt="" className="roster-staff-avatar" />
-                <div className="roster-staff-details">
-                  <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#fff' }}>{staff.name}</span>
-                  <span style={{ fontSize: '10px', color: '#888' }}>{staff.role}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
 
-        {/* Right Pane: 24-Hour Timeline */}
-        <div className="roster-timeline-container">
-          <div className="roster-timeline-viewport" ref={timelineRef}>
-            
-            <div className="roster-timeline-header">
-              <div className="roster-corner-cell"></div>
-              {HOURS.map(h => (
-                <div key={h} className="roster-hour-marker">
-                  {String(h).padStart(2, '0')}:00
-                </div>
-              ))}
-            </div>
+        <div className="sm-grid" ref={gridRef}>
+          {/* 30-minute grid lines */}
+          {Array.from({ length: SLOTS_PER_DAY + 1 }, (_, i) => (
+            <div key={i} className={`sm-gridline ${i % 2 === 0 ? 'hour' : 'half'}`} style={{ left: `${(i / SLOTS_PER_DAY) * 100}%` }} />
+          ))}
 
-            <div className="roster-timeline-body">
-              {DAYS.map(day => {
-                const dayShifts = shifts.filter(s => s.day === day);
-                return (
-                  <div 
-                    key={day} 
-                    className="roster-day-row"
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, day)}
-                  >
-                    <div className="roster-day-label">{day}</div>
-                    <div className="roster-day-dropzone">
-                      {dayShifts.map(shift => (
-                        <div 
-                          key={shift.id} 
-                          className="roster-shift-block"
-                          style={{
-                            left: `${shift.startPos * 100}%`,
-                            width: `${(shift.endPos - shift.startPos) * 100}%`
-                          }}
-                        >
-                          <div className="roster-shift-name" onClick={() => openStaffProfile(shift.staffName)} style={{ cursor: 'pointer' }}>{shift.staffName}</div>
-                          <div className="roster-shift-time">{formatTimeRange(shift.startPos, shift.endPos)}</div>
-                          
-                          <div 
-                            className="roster-resize-handle-left"
-                            onPointerDown={(e) => startResize(e, shift.id, 'left', shift)}
-                          />
-                          <div 
-                            className="roster-resize-handle-right"
-                            onPointerDown={(e) => startResize(e, shift.id, 'right', shift)}
-                          />
-                          <div 
-                            className="roster-duplicate-handle-bottom"
-                            onPointerDown={(e) => startResize(e, shift.id, 'bottom', shift)}
-                          />
-                        </div>
-                      ))}
+          {staffRows.map((s) => (
+            <div key={s.id} className="sm-row" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, s.id)}>
+              <div className="sm-row-label" onClick={() => openStaffProfile(s.ref || s.name)}>{s.name}</div>
+              <div className="sm-row-track">
+                {shifts
+                  .filter((sh) => sh.staff_id === s.id)
+                  .map((sh) => (
+                    <div
+                      key={sh.id}
+                      className="sm-shift-block"
+                      style={{
+                        left: `${(sh.start_minute / (24 * 60)) * 100}%`,
+                        width: `${(sh.duration_minutes / (24 * 60)) * 100}%`,
+                      }}
+                      title={`${minutesToLabel(sh.start_minute)}–${minutesToLabel(sh.start_minute + sh.duration_minutes)}${sh.role_assignment ? ` · ${sh.role_assignment}` : ''}`}
+                      onMouseDown={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setResizing({ slotId: sh.id, edge: e.clientX - rect.left > rect.width - 12 ? 'right' : 'left' });
+                      }}
+                    >
+                      <span>{minutesToLabel(sh.start_minute)}–{minutesToLabel(sh.start_minute + sh.duration_minutes)}</span>
+                      <button
+                        className="sm-shift-delete"
+                        title="Delete slot"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={async (e) => { e.stopPropagation(); await deleteShiftSlot(sh.id); refreshRoster(); }}
+                      >
+                        <Trash2 size={10} />
+                      </button>
                     </div>
-                  </div>
-                );
-              })}
+                  ))}
+              </div>
             </div>
-
-          </div>
+          ))}
         </div>
       </div>
 
-      <div className="security-footer" style={{ marginTop: 'auto' }}>Verified by Velo AI Security Protocol</div>
-
-      {toastMessage && (
-        <div style={{ position: 'fixed', bottom: '40px', right: '40px', background: '#34C759', color: '#000', padding: '12px 24px', borderRadius: '4px', fontWeight: 'bold', zIndex: 1000, boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
-          {toastMessage}
-        </div>
+      {/* Global resize listeners */}
+      {resizing && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 10, cursor: 'col-resize' }}
+          onMouseMove={handleResizeMove}
+          onMouseUp={handleResizeEnd}
+        />
       )}
 
+      {toastMessage && <div className="sm-toast">{toastMessage}</div>}
+      <div className="security-footer">Verified by Velo AI Security Protocol</div>
     </div>
   );
 };

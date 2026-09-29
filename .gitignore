@@ -20,3 +20,9 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Playwright artifacts
+tenant-dashboard-erp/test-results/
+tenant-dashboard-erp/playwright-report/
+backoffice-dashboard/test-results/
+backoffice-dashboard/playwright-report/

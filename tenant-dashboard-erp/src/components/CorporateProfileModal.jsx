@@ -33,19 +33,7 @@ const FastCarIcon = ({ size = 20, className = "" }) => (
   </svg>
 );
 
-const MOCK_ACTIVE_BOOKINGS = [
-  { id: '#VELO-9842', channel: 'Velo Black', status: 'On Trip',              driver: 'James Smith',  vehicle: 'RR Phantom (KX21)',  passenger: 'C. Harrington',   client: 'J.P. Morgan',    route: 'Heathrow T5 to Mayfair',      progress: 75,  timeToFree: '12m'  },
-  { id: '#VELO-9844', channel: 'Velo Core',  status: 'Completed',            driver: 'Marcus F.',    vehicle: 'S-Class (Black)',    passenger: 'R. Goldman',      client: 'Goldman Sachs',  route: 'Luton to Canary Wharf',        progress: 100, timeToFree: 'Now'  },
-  { id: '#VELO-9848', channel: 'Velo Black', status: 'On Trip',              driver: 'Tom W.',       vehicle: 'RR Ghost',           passenger: 'L. Morgan',       client: 'Morgan Stanley', route: 'City Airport to O2 Arena',    progress: 90,  timeToFree: '4m'   },
-  { id: '#VELO-9851', channel: 'Pool',       status: 'Assigned',             driver: 'Elena R.',     vehicle: 'Bentley Bentayga',   passenger: 'Sir J. Whitmore', client: 'HSBC Capital',   route: 'Canary Wharf to LHR T5',      progress: 0,   timeToFree: '35m'  },
-  { id: '#VELO-9852', channel: 'Velo Core',  status: 'On the way to Pickup', driver: 'A. Patel',     vehicle: 'S-Class (Midnight)', passenger: 'P. Chen',         client: 'Barclays Corp',  route: 'St. James to Heathrow T4',    progress: 20,  timeToFree: '18m'  },
-];
 
-const MOCK_INVOICES = [
-  { id: 'INV-2026-041', date: '04 Jun 2026', amount: '$4,250', status: 'Paid', trips: 14 },
-  { id: 'INV-2026-042', date: '11 Jun 2026', amount: '$3,800', status: 'Outstanding', trips: 11 },
-  { id: 'INV-2026-043', date: '18 Jun 2026', amount: '$5,100', status: 'Upcoming', trips: 16 },
-];
 
 const getStatusClass = (status) => {
   switch(status) {
@@ -148,7 +136,7 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew, client }) => {
   const financeEmail = client?.contact?.financeEmail || "finance@example.com";
   
   const authorizedUsers = client?.authorizedUsers || [];
-  const invoices = client?.invoices?.length ? client.invoices : (MOCK_CORP_CLIENTS?.[0]?.invoices || MOCK_INVOICES || []);
+  const invoices = client?.invoices || [];
 
   return (
     <div className="u-modal-overlay" onClick={onClose}>
@@ -398,7 +386,7 @@ const CorporateProfileModal = ({ isOpen, onClose, isNew, client }) => {
               </div>
               {/* Universal trip table — same layout as home screen */}
               <UniversalTripTable
-                trips={MOCK_ACTIVE_BOOKINGS}
+                trips={[]}
                 onTripClick={trip => setSelectedTrip(trip)}
                 showChannel={true}
                 emptyMessage="No active bookings for this account."

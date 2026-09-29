@@ -3,8 +3,8 @@ import { X, Building2, Calendar, Search, FileText, Plus, ShieldCheck, PieChart, 
 import './VehicleProfileModal.css';
 import './UniversalModal.css';
 import { useEntityLinker } from '../contexts/EntityLinkerContext';
+import { fetchSettings } from '../utils/api';
 import EntityLink from './EntityLink';
-import { MOCK_GLOBAL_SETTINGS } from '../data/mockDatabase';
 import AddVehicleModal from './modals/AddVehicleModal';
 
 const INITIAL_LOGS = [
@@ -12,6 +12,8 @@ const INITIAL_LOGS = [
   { id: 2, title: 'Annual Service A', date: '01 NOV 2023', status: 'SCHEDULED', desc: 'Scheduled at Mercedes-Benz London.', reportedBy: 'System Auto-Schedule', shop: 'Mercedes-Benz London', cost: '£850.00' },
   { id: 3, title: 'Tyre Replacement', date: '22 SEP 2023', status: 'RESOLVED', desc: 'Rear left puncture. Replaced with Michelin PS4.', reportedBy: 'Sarah W.', shop: 'Kwik Fit Mobile', cost: '£285.00' }
 ];
+
+let VAT_RATE = 0.20;
 
 const VehicleProfileModal = ({ vehicle, onClose }) => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -312,7 +314,7 @@ const VehicleProfileModal = ({ vehicle, onClose }) => {
                         
                         <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
                           <div className="wl-field-group" style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <label className="wl-label" style={{ color: '#888', fontSize: '10px', marginBottom: '0' }}>INCLUDE VAT ({MOCK_GLOBAL_SETTINGS.VAT_RATE * 100}%)</label>
+                            <label className="wl-label" style={{ color: '#888', fontSize: '10px', marginBottom: '0' }}>INCLUDE VAT ({VAT_RATE * 100}%)</label>
                             <div className={`mock-toggle ${includeVat ? 'active' : ''}`} onClick={() => setIncludeVat(!includeVat)} style={{ cursor: 'pointer' }}>
                               <div className="toggle-knob"></div>
                             </div>
@@ -351,12 +353,12 @@ const VehicleProfileModal = ({ vehicle, onClose }) => {
                             <span style={{ color: '#fff', fontSize: '12px' }}>£{parseFloat(resolutionAmount || 0).toFixed(2)}</span>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>
-                            <span style={{ color: '#888', fontSize: '12px' }}>VAT ({MOCK_GLOBAL_SETTINGS.VAT_RATE * 100}%)</span>
-                            <span style={{ color: '#fff', fontSize: '12px' }}>£{(includeVat ? parseFloat(resolutionAmount || 0) * MOCK_GLOBAL_SETTINGS.VAT_RATE : 0).toFixed(2)}</span>
+                            <span style={{ color: '#888', fontSize: '12px' }}>VAT ({VAT_RATE * 100}%)</span>
+                            <span style={{ color: '#fff', fontSize: '12px' }}>£{(includeVat ? parseFloat(resolutionAmount || 0) * VAT_RATE : 0).toFixed(2)}</span>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>TOTAL</span>
-                            <span style={{ color: 'var(--color-gold)', fontSize: '18px', fontWeight: 'bold' }}>£{(parseFloat(resolutionAmount || 0) + (includeVat ? parseFloat(resolutionAmount || 0) * MOCK_GLOBAL_SETTINGS.VAT_RATE : 0)).toFixed(2)}</span>
+                            <span style={{ color: 'var(--color-gold)', fontSize: '18px', fontWeight: 'bold' }}>£{(parseFloat(resolutionAmount || 0) + (includeVat ? parseFloat(resolutionAmount || 0) * VAT_RATE : 0)).toFixed(2)}</span>
                           </div>
                         </div>
 
@@ -369,8 +371,8 @@ const VehicleProfileModal = ({ vehicle, onClose }) => {
                               id: selectedLogId,
                               subtotal: parseFloat(resolutionAmount || 0),
                               vat_applied: includeVat,
-                              vat_rate: MOCK_GLOBAL_SETTINGS.VAT_RATE,
-                              total: parseFloat(resolutionAmount || 0) + (includeVat ? parseFloat(resolutionAmount || 0) * MOCK_GLOBAL_SETTINGS.VAT_RATE : 0)
+                              vat_rate: VAT_RATE,
+                              total: parseFloat(resolutionAmount || 0) + (includeVat ? parseFloat(resolutionAmount || 0) * VAT_RATE : 0)
                             });
                             setMaintenanceLogs(logs => logs.map(l => l.id === selectedLogId ? { ...l, status: 'RESOLVED' } : l));
                             setSelectedLogId(null);

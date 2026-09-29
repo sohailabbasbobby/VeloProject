@@ -3,7 +3,6 @@ import { X, User, CreditCard, Star, ShieldCheck, FileText, Lock, Shield, Camera,
 import privateAvatar from '../assets/private-avatar-placeholder.png';
 import './PrivateClientProfileModal.css';
 import './UniversalModal.css';
-import { MOCK_PRIV_CLIENTS } from '../data/mockDatabase';
 import ConciergeFeed from './ConciergeFeed';
 import './CommandCenter.css';
 import LiveTripModal from './LiveTripModal';
@@ -35,15 +34,7 @@ const FastCarIcon = ({ size = 20, className = "" }) => (
   </svg>
 );
 
-const MOCK_ACTIVE_BOOKINGS = [
-  { id: '#VELO-9855', channel: 'Private (VIP)', status: 'On Trip', driver: 'Sarah Jenkins', vehicle: 'Bentley Bentayga', route: 'Gatwick South to The Shard', progress: 45, timeToFree: '1h 15m', passenger: 'Alexander Sterling', client: 'Alexander Sterling' },
-  { id: '#VELO-9861', channel: 'Private (VIP)', status: 'Arrived at pickup', driver: 'A. Patel', vehicle: 'S-Class (Blue)', route: 'Battersea to Heathrow T5', progress: 25, timeToFree: '22m', passenger: 'Alexander Sterling', client: 'Alexander Sterling' },
-];
 
-const MOCK_INVOICES = [
-  { id: 'INV-2026-088', date: '01 Jun 2026', amount: '$1,200', status: 'Paid', trips: 3 },
-  { id: 'INV-2026-092', date: '15 Jun 2026', amount: '$850', status: 'Outstanding', trips: 2 },
-];
 
 const getStatusClass = (status) => {
   switch(status) {
@@ -79,7 +70,7 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew, client }) => {
   const email = client?.contact?.email || "email@example.com";
   const assistant = client?.contact?.assistant || "None";
   
-  const rides = client?.rides?.length ? client.rides : (MOCK_PRIV_CLIENTS?.[0]?.rides || []);
+  const rides = client?.trips || [];
 
   return (
     <div className="u-modal-overlay" onClick={onClose}>
@@ -283,7 +274,7 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew, client }) => {
 
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px', minHeight: 0 }}>
                 <UniversalTripTable
-                  trips={MOCK_ACTIVE_BOOKINGS}
+                  trips={[]}
                   onTripClick={trip => setSelectedTrip(trip)}
                   showChannel={true}
                   emptyMessage="No active bookings for this client."
@@ -321,22 +312,8 @@ const PrivateClientProfileModal = ({ isOpen, onClose, isNew, client }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {MOCK_INVOICES.map(inv => (
-                      <tr key={inv.id} className="cc-card-row" style={{ cursor: 'pointer' }} onClick={() => openSummaryModal({
-                        title: 'Private Invoice Detail', subtitle: inv.id, status: inv.status, icon: 'financial',
-                        primaryMetric: { label: 'AMOUNT', value: inv.amount },
-                        fields: [
-                          { label: 'Date Issued', value: inv.date },
-                          { label: 'Total Trips', value: inv.trips },
-                          { label: 'Status', value: inv.status }
-                        ]
-                      })}>
-                        <td className="text-gold font-bold">{inv.id}</td>
-                        <td className="text-white">{inv.date}</td>
-                        <td className="text-white">{inv.trips}</td>
-                        <td className="text-white font-bold">{inv.amount}</td>
-                        <td><span className={`cc-status-badge ${getStatusClass(inv.status)}`}>{inv.status}</span></td>
-                      </tr>
+                    {(client?.invoices || []).map(inv => (
+                      <tr key={inv.id}><td>{inv.invoice_number}</td><td>£{Number(inv.customer_retail_fare || 0).toFixed(2)}</td><td>{inv.status}</td></tr>
                     ))}
                   </tbody>
                 </table>

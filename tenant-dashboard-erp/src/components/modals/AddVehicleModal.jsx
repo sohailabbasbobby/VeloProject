@@ -1,325 +1,162 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, X, Camera, AlertCircle, Award, Shield, Upload, Building2, MapPin, User, FileText, ShieldCheck } from 'lucide-react';
+import { HelpCircle, X } from 'lucide-react';
 import '../FleetVault.css';
+import { createVehicle, updateVehicle } from '../../utils/api';
 
+/**
+ * ADD VEHICLE MODAL (Global Rule 7) — real, validated onboarding form saving
+ * through live POST/PUT. Edit mode pre-fills from the passed database record.
+ */
 const AddVehicleModal = ({ isOpen, onClose, data = null, isEditMode = false, onSave = null }) => {
-  const [onboardType, setOnboardType] = useState('Fleet');
-  const [vehiclePassengers, setVehiclePassengers] = useState(4);
-  const [vehicleBags, setVehicleBags] = useState(3);
-  
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
+  const [tier, setTier] = useState('EXECUTIVE');
   const [registration, setRegistration] = useState('');
   const [exteriorColor, setExteriorColor] = useState('');
   const [initialMileage, setInitialMileage] = useState('');
-
+  const [vehiclePassengers, setVehiclePassengers] = useState(4);
+  const [vehicleBags, setVehicleBags] = useState(3);
+  const [motExpiry, setMotExpiry] = useState('');
+  const [phvExpiry, setPhvExpiry] = useState('');
+  const [insuranceExpiry, setInsuranceExpiry] = useState('');
   const [monthlyInstallment, setMonthlyInstallment] = useState('');
-  const [outstandingBalance, setOutstandingBalance] = useState('');
-  const [assetValuation, setAssetValuation] = useState('');
   const [leaseStartDate, setLeaseStartDate] = useState('');
   const [leaseEndDate, setLeaseEndDate] = useState('');
-  const [totalLeaseTerm, setTotalLeaseTerm] = useState('');
+  const [totalLeaseCost, setTotalLeaseCost] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (isEditMode && data) {
       setMake(data.make || '');
       setModel(data.model || '');
-      setRegistration(data.registration || '');
+      setTier(data.tier || 'EXECUTIVE');
+      setRegistration(data.plate_number || data.registration || '');
       setExteriorColor(data.color || '');
-      setInitialMileage(data.mileage || 0);
-      setVehiclePassengers(data.passengers || 4);
-      setVehicleBags(data.bags || 3);
-      if (data.financials) {
-        setMonthlyInstallment(data.financials.monthlyInstallment || '');
-        setOutstandingBalance(data.financials.outstandingBalance || '');
-        setAssetValuation(data.financials.assetValuation || '');
-        setLeaseStartDate(data.financials.leaseStartDate || '');
-        setLeaseEndDate(data.financials.leaseEndDate || '');
-        setTotalLeaseTerm(data.financials.totalLeaseTerm || '');
-      }
+      setInitialMileage(data.current_odometer || 0);
+      setVehiclePassengers(data.passenger_capacity || 4);
+      setVehicleBags(data.baggage_capacity || 3);
+      setMotExpiry(data.mot_expiry ? String(data.mot_expiry).slice(0, 10) : '');
+      setPhvExpiry(data.phv_expiry ? String(data.phv_expiry).slice(0, 10) : '');
+      setInsuranceExpiry(data.insurance_expiry ? String(data.insurance_expiry).slice(0, 10) : '');
+      setMonthlyInstallment(data.monthly_finance_cost_pence ? String(data.monthly_finance_cost_pence / 100) : '');
+      setLeaseStartDate(data.lease_start_date ? String(data.lease_start_date).slice(0, 10) : '');
+      setLeaseEndDate(data.lease_end_date ? String(data.lease_end_date).slice(0, 10) : '');
+      setTotalLeaseCost(data.lease_total_cost ? String(data.lease_total_cost) : '');
     } else if (!isOpen) {
-      setMake('');
-      setModel('');
-      setRegistration('');
-      setExteriorColor('');
-      setInitialMileage('');
-      setMonthlyInstallment('');
-      setOutstandingBalance('');
-      setAssetValuation('');
-      setLeaseStartDate('');
-      setLeaseEndDate('');
-      setTotalLeaseTerm('');
+      setMake(''); setModel(''); setTier('EXECUTIVE'); setRegistration(''); setExteriorColor('');
+      setInitialMileage(''); setMotExpiry(''); setPhvExpiry(''); setInsuranceExpiry('');
+      setMonthlyInstallment(''); setLeaseStartDate(''); setLeaseEndDate(''); setTotalLeaseCost('');
     }
   }, [isOpen, isEditMode, data]);
 
-  const handleSubmit = () => {
-    const payload = {
-      make, model, registration, exteriorColor, initialMileage, vehiclePassengers, vehicleBags,
-      financials: {
-        monthlyInstallment, outstandingBalance, assetValuation, leaseStartDate, leaseEndDate, totalLeaseTerm
-      }
-    };
-    if (isEditMode) {
-      console.log(`[PUT/PATCH] Updating vehicle ${data?.id}`, payload);
-    } else {
-      console.log(`[POST] Creating new vehicle`, payload);
-    }
-    if (onSave) onSave(payload);
-    onClose();
-  };
-
   if (!isOpen) return null;
+
+  const handleSubmit = async () => {
+    setError(null);
+    if (!make || !model || !registration) {
+      setError('Make, model and registration are required.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = {
+        make, model, tier, plateNumber: registration.toUpperCase(), color: exteriorColor,
+        currentOdometer: initialMileage ? Number(initialMileage) : 0,
+        passengerCapacity: Number(vehiclePassengers), baggageCapacity: Number(vehicleBags),
+        motExpiry: motExpiry || undefined, phvExpiry: phvExpiry || undefined,
+        insuranceExpiry: insuranceExpiry || undefined,
+        monthlyFinanceCostPence: monthlyInstallment ? Math.round(Number(monthlyInstallment) * 100) : 0,
+        leaseStartDate: leaseStartDate || undefined, leaseEndDate: leaseEndDate || undefined,
+        leaseTotalCost: totalLeaseCost ? Number(totalLeaseCost) : undefined,
+      };
+      const saved = isEditMode && (data?.id || data?.vehicle?.id)
+        ? await updateVehicle(data.id || data.vehicle.id, payload)
+        : await createVehicle(payload);
+      if (onSave) onSave(saved);
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Save failed.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content add-vehicle-modal surface-panel" style={{ padding: 0 }}>
-         {/* Sticky Header */}
-         <div className="flex-row space-between p-xl border-bottom-subtle" style={{ position: 'sticky', top: 0, backgroundColor: 'var(--color-surface)', zIndex: 10, borderTopLeftRadius: 'var(--border-radius-md)', borderTopRightRadius: 'var(--border-radius-md)' }}>
-           <div>
-             {/* Heading moved below */}
-           </div>
-           <div className="flex-row gap-md">
-             <button className="text-muted hover-white" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><HelpCircle size={20}/></button>
-             <button className="text-muted hover-white" onClick={onClose} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
-               <X size={20} />
-             </button>
-           </div>
-         </div>
-         
-         {/* Scrollable Body */}
-         <div className="modal-body add-vehicle-body p-xl">
-           <div className="modal-split-layout" style={{ margin: 0 }}>
-             
-             {/* LEFT COLUMN */}
-             <div className="flex-col gap-sm">
-               
-               <h2 className="text-white m-0 mb-md">{isEditMode ? 'Edit Vehicle' : 'Add New Vehicle'}</h2>
+        {/* Sticky Header */}
+        <div className="flex-row space-between p-xl border-bottom-subtle" style={{ position: 'sticky', top: 0, backgroundColor: 'var(--color-surface)', zIndex: 10, borderTopLeftRadius: 'var(--border-radius-md)', borderTopRightRadius: 'var(--border-radius-md)' }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: 16, color: '#fff' }}>{isEditMode ? 'Edit Vehicle' : 'Add New Vehicle'}</h2>
+            <span style={{ fontSize: 10, color: 'var(--color-gold)' }}>{(data && (data.reference_code || data.id)) || 'VLO-XXXX'}</span>
+          </div>
+          <div className="flex-row gap-md">
+            <button className="text-muted hover-white" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><HelpCircle size={20} /></button>
+            <button className="text-muted hover-white" onClick={onClose} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
+              <X size={20} />
+            </button>
+          </div>
+        </div>
 
-               {/* 1. Fleet Category */}
-               <div style={{ marginBottom: 0 }}>
-                 <h3 className="text-xs text-muted font-bold tracking-wider mb-sm">1. FLEET CATEGORY</h3>
-                 <div className="flex-row gap-md">
-                   <div 
-                     className={`category-card flex-1 ${onboardType === 'Fleet' ? 'active' : ''}`}
-                     onClick={() => setOnboardType('Fleet')}
-                   >
-                     <div className="p-sm rounded" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}><Building2 size={24} color={onboardType === 'Fleet' ? 'var(--color-gold)' : 'var(--color-muted)'} /></div>
-                     <div className="flex-col">
-                       <span className="text-white font-bold">Owned Fleet</span>
-                       <span className="text-xs text-muted">Corporate-managed asset</span>
-                     </div>
-                   </div>
-                   <div 
-                     className={`category-card flex-1 ${onboardType === 'Owner' ? 'active' : ''}`}
-                     onClick={() => setOnboardType('Owner')}
-                   >
-                     <div className="p-sm rounded" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}><MapPin size={24} color={onboardType === 'Owner' ? 'var(--color-gold)' : 'var(--color-muted)'} /></div>
-                     <div className="flex-col">
-                       <span className="text-white font-bold">Owner-Driver</span>
-                       <span className="text-xs text-muted">Contractor-provided asset</span>
-                     </div>
-                   </div>
-                 </div>
-               </div>
+        {/* Scrollable Body */}
+        <div style={{ padding: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, overflowY: 'auto' }}>
+          <label style={lbl}>MAKE *</label>
+          <input style={inp} value={make} onChange={(e) => setMake(e.target.value)} placeholder="Mercedes-Benz" />
+          <label style={lbl}>MODEL *</label>
+          <input style={inp} value={model} onChange={(e) => setModel(e.target.value)} placeholder="S-Class" />
+          <label style={lbl}>REGISTRATION *</label>
+          <input style={inp} value={registration} onChange={(e) => setRegistration(e.target.value)} placeholder="LK21 XYZ" />
+          <label style={lbl}>VEHICLE CLASS</label>
+          <select style={inp} value={tier} onChange={(e) => setTier(e.target.value)}>
+            <option value="EXECUTIVE">Executive (E-Class/5-Series)</option>
+            <option value="PREMIUM_MPV">Premium MPV (V-Class/EQV)</option>
+            <option value="FIRST_CLASS">First-Class Luxury (S-Class/7-Series)</option>
+            <option value="ULTRA_LUXURY">Ultra-Luxury (Rolls-Royce/Bentley/Maybach)</option>
+          </select>
+          <label style={lbl}>COLOUR</label>
+          <input style={inp} value={exteriorColor} onChange={(e) => setExteriorColor(e.target.value)} placeholder="Obsidian Black" />
+          <label style={lbl}>ODOMETER (MI)</label>
+          <input style={inp} type="number" value={initialMileage} onChange={(e) => setInitialMileage(e.target.value)} />
+          <label style={lbl}>PASSENGER CAPACITY</label>
+          <input style={inp} type="number" min="1" value={vehiclePassengers} onChange={(e) => setVehiclePassengers(e.target.value)} />
+          <label style={lbl}>BAGGAGE CAPACITY</label>
+          <input style={inp} type="number" min="0" value={vehicleBags} onChange={(e) => setVehicleBags(e.target.value)} />
+          <label style={lbl}>MOT EXPIRY</label>
+          <input style={inp} type="date" value={motExpiry} onChange={(e) => setMotExpiry(e.target.value)} />
+          <label style={lbl}>PHV/PCO LICENCE EXPIRY</label>
+          <input style={inp} type="date" value={phvExpiry} onChange={(e) => setPhvExpiry(e.target.value)} />
+          <label style={lbl}>INSURANCE EXPIRY</label>
+          <input style={inp} type="date" value={insuranceExpiry} onChange={(e) => setInsuranceExpiry(e.target.value)} />
+          <label style={lbl}>MONTHLY FINANCE (£)</label>
+          <input style={inp} type="number" step="0.01" value={monthlyInstallment} onChange={(e) => setMonthlyInstallment(e.target.value)} />
+          <label style={lbl}>LEASE START</label>
+          <input style={inp} type="date" value={leaseStartDate} onChange={(e) => setLeaseStartDate(e.target.value)} />
+          <label style={lbl}>LEASE END</label>
+          <input style={inp} type="date" value={leaseEndDate} onChange={(e) => setLeaseEndDate(e.target.value)} />
+          <label style={lbl}>TOTAL LEASE COST (£)</label>
+          <input style={inp} type="number" step="0.01" value={totalLeaseCost} onChange={(e) => setTotalLeaseCost(e.target.value)} />
+        </div>
 
-               {/* 2. Visual Assets */}
-               <div style={{ marginBottom: 0 }}>
-                 <h3 className="text-xs text-muted font-bold tracking-wider mb-sm">2. VISUAL ASSETS</h3>
-                 <div className="drag-drop-zone flex-col align-center justify-center" style={{ height: '80px', borderStyle: 'dashed' }}>
-                   <div className="p-sm rounded-full mb-xs" style={{ backgroundColor: 'rgba(212,175,55,0.1)' }}>
-                     <Camera size={32} color="var(--color-gold)" />
-                   </div>
-                   <span className="text-white font-bold text-sm mb-xs">Drag and drop vehicle images</span>
-                   <span className="text-muted" style={{ fontSize: '10px' }}>Supported: JPEG, PNG, HEIC (Max 15MB)</span>
-                 </div>
-               </div>
+        {error && <div style={{ color: '#ff6b6b', padding: '0 16px 8px', fontSize: 12 }}>{error}</div>}
 
-               {/* 3. Primary Details */}
-               <div style={{ marginBottom: 0 }}>
-                 <h3 className="text-xs text-muted font-bold tracking-wider mb-sm">3. PRIMARY DETAILS</h3>
-                 <div className="form-grid" style={{ gridAutoRows: 'min-content' }}>
-                   <div className="form-group">
-                     <label>Make</label>
-                     <input type="text" className="input-field" placeholder="e.g. Mercedes-Benz" value={make} onChange={(e) => setMake(e.target.value)} />
-                   </div>
-                   <div className="form-group">
-                     <label>Model</label>
-                     <input type="text" className="input-field" placeholder="e.g. S-Class" value={model} onChange={(e) => setModel(e.target.value)} />
-                   </div>
-                   <div className="form-group">
-                     <label>Registration Number</label>
-                     <input type="text" className="input-field" placeholder="LV72 XXX" value={registration} onChange={(e) => setRegistration(e.target.value)} />
-                   </div>
-                   <div className="form-group">
-                     <label>Exterior Color</label>
-                     <input type="text" className="input-field" placeholder="e.g. Obsidian Black" value={exteriorColor} onChange={(e) => setExteriorColor(e.target.value)} />
-                   </div>
-                   <div className="form-group span-2">
-                     <label>Initial Mileage</label>
-                     <input type="number" className="input-field w-100" placeholder="0" value={initialMileage} onChange={(e) => setInitialMileage(e.target.value)} />
-                   </div>
-                 </div>
-                 
-                 <div className="flex-row gap-md mt-sm">
-                   <div className="form-group flex-1">
-                     <label className="flex-row align-center gap-xs"><User size={14}/> Passenger Capacity</label>
-                     <div className="counter-control mt-xs">
-                       <button className="counter-btn" onClick={() => setVehiclePassengers(Math.max(1, vehiclePassengers - 1))}>-</button>
-                       <span className="counter-value">{vehiclePassengers}</span>
-                       <button className="counter-btn" onClick={() => setVehiclePassengers(vehiclePassengers + 1)}>+</button>
-                     </div>
-                   </div>
-                   <div className="form-group flex-1" style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '16px' }}>
-                     <label className="flex-row align-center gap-xs"><FileText size={14} /> Luggage Capacity</label>
-                     <div className="counter-control mt-xs">
-                       <button className="counter-btn" onClick={() => setVehicleBags(Math.max(0, vehicleBags - 1))}>-</button>
-                       <span className="counter-value">{vehicleBags}</span>
-                       <button className="counter-btn" onClick={() => setVehicleBags(vehicleBags + 1)}>+</button>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-
-             </div>
-
-             {/* RIGHT COLUMN */}
-             <div className="flex-col gap-lg" style={{ height: "100%" }}>
-               
-               {/* 4. Compliance */}
-               <div className="flex-col" style={{ flex: 1 }}>
-                 <div className="flex-row space-between align-center mb-sm">
-                   <h3 className="text-xs text-muted font-bold tracking-wider m-0">4. COMPLIANCE</h3>
-                   <span className="text-xs text-red font-bold flex-row align-center gap-xs"><AlertCircle size={14}/> ACTION REQUIRED</span>
-                 </div>
-                 
-                 <div className="flex-col gap-md" style={{ flex: 1 }}>
-                   {/* MOT Card */}
-                   <div className="compliance-card flex-col justify-center" style={{ flex: 1, backgroundColor: 'var(--color-obsidian)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 'var(--border-radius-md)', padding: 'var(--spacing-lg)' }}>
-                     <div className="flex-row space-between align-center mb-md">
-                       <div className="flex-row align-center gap-sm">
-                         <Award size={18} color="var(--color-gold)"/>
-                         <span className="text-white font-bold">MOT Certification</span>
-                       </div>
-                       <button className="text-gold font-bold text-xs flex-row align-center gap-xs" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><Upload size={14}/> UPLOAD</button>
-                     </div>
-                     <div className="form-grid" style={{ gap: '16px' }}>
-                       <div className="form-group">
-                         <label style={{ fontSize: '10px' }}>ISSUED</label>
-                         <input type="date" className="input-field p-sm text-sm" style={{ colorScheme: 'dark' }} />
-                       </div>
-                       <div className="form-group">
-                         <label style={{ fontSize: '10px' }}>EXPIRY</label>
-                         <input type="date" className="input-field p-sm text-sm" style={{ colorScheme: 'dark' }} />
-                       </div>
-                     </div>
-                   </div>
-
-                   {/* PCO Card */}
-                   <div className="compliance-card flex-col justify-center" style={{ flex: 1, backgroundColor: 'var(--color-obsidian)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 'var(--border-radius-md)', padding: 'var(--spacing-lg)' }}>
-                     <div className="flex-row space-between align-center mb-md">
-                       <div className="flex-row align-center gap-sm">
-                         <Award size={18} color="var(--color-gold)"/>
-                         <span className="text-white font-bold">PCO / Compliance License</span>
-                       </div>
-                       <button className="text-gold font-bold text-xs flex-row align-center gap-xs" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><Upload size={14}/> UPLOAD</button>
-                     </div>
-                     <div className="form-grid" style={{ gap: '16px' }}>
-                       <div className="form-group">
-                         <label style={{ fontSize: '10px' }}>ISSUED</label>
-                         <input type="date" className="input-field p-sm text-sm" style={{ colorScheme: 'dark' }} />
-                       </div>
-                       <div className="form-group">
-                         <label style={{ fontSize: '10px' }}>EXPIRY</label>
-                         <input type="date" className="input-field p-sm text-sm" style={{ colorScheme: 'dark' }} />
-                       </div>
-                     </div>
-                   </div>
-
-                   {/* Insurance Card */}
-                   <div className="compliance-card flex-col justify-center" style={{ flex: 1, backgroundColor: 'var(--color-obsidian)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 'var(--border-radius-md)', padding: 'var(--spacing-lg)' }}>
-                     <div className="flex-row space-between align-center mb-md">
-                       <div className="flex-row align-center gap-sm">
-                         <Shield size={18} color="var(--color-gold)"/>
-                         <span className="text-white font-bold">Insurance Policy</span>
-                       </div>
-                       <button className="text-gold font-bold text-xs flex-row align-center gap-xs" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><Upload size={14}/> UPLOAD</button>
-                     </div>
-                     <div className="form-grid" style={{ gap: '16px' }}>
-                       <div className="form-group">
-                         <label style={{ fontSize: '10px' }}>ISSUED</label>
-                         <input type="date" className="input-field p-sm text-sm" style={{ colorScheme: 'dark' }} />
-                       </div>
-                       <div className="form-group">
-                         <label style={{ fontSize: '10px' }}>EXPIRY</label>
-                         <input type="date" className="input-field p-sm text-sm" style={{ colorScheme: 'dark' }} />
-                       </div>
-                     </div>
-                   </div>
-
-                 </div>
-               </div>
-
-               {/* 5. Financial Data */}
-               <div className="flex-col mt-md">
-                 <h3 className="text-xs text-muted font-bold tracking-wider mb-sm">5. FINANCIAL DATA</h3>
-                 <div className="form-grid" style={{ gridAutoRows: 'min-content' }}>
-                   <div className="form-group">
-                     <label>Monthly Installment</label>
-                     <div style={{ position: 'relative' }}>
-                       <span style={{ position: 'absolute', left: 10, top: 10, color: '#888' }}>£</span>
-                       <input type="number" className="input-field w-100" style={{ paddingLeft: '24px' }} placeholder="0.00" value={monthlyInstallment} onChange={(e) => setMonthlyInstallment(e.target.value)} />
-                     </div>
-                   </div>
-                   <div className="form-group">
-                     <label>Outstanding Balance</label>
-                     <div style={{ position: 'relative' }}>
-                       <span style={{ position: 'absolute', left: 10, top: 10, color: '#888' }}>£</span>
-                       <input type="number" className="input-field w-100" style={{ paddingLeft: '24px' }} placeholder="0.00" value={outstandingBalance} onChange={(e) => setOutstandingBalance(e.target.value)} />
-                     </div>
-                   </div>
-                   <div className="form-group span-2">
-                     <label>Asset Valuation</label>
-                     <div style={{ position: 'relative' }}>
-                       <span style={{ position: 'absolute', left: 10, top: 10, color: '#888' }}>£</span>
-                       <input type="number" className="input-field w-100" style={{ paddingLeft: '24px' }} placeholder="0.00" value={assetValuation} onChange={(e) => setAssetValuation(e.target.value)} />
-                     </div>
-                   </div>
-                   <div className="form-group">
-                     <label>Lease Start Date</label>
-                     <input type="date" className="input-field w-100" style={{ colorScheme: 'dark' }} value={leaseStartDate} onChange={(e) => setLeaseStartDate(e.target.value)} />
-                   </div>
-                   <div className="form-group">
-                     <label>Lease End Date</label>
-                     <input type="date" className="input-field w-100" style={{ colorScheme: 'dark' }} value={leaseEndDate} onChange={(e) => setLeaseEndDate(e.target.value)} />
-                   </div>
-                   <div className="form-group span-2">
-                     <label>Total Lease Term (Months)</label>
-                     <input type="number" className="input-field w-100" placeholder="e.g. 36" value={totalLeaseTerm} onChange={(e) => setTotalLeaseTerm(e.target.value)} />
-                   </div>
-                 </div>
-               </div>
-
-             </div>
-
-           </div>
-         </div>
-
-         {/* Sticky Footer */}
-         <div className="p-xl border-top-subtle flex-row space-between align-center" style={{ position: 'sticky', bottom: 0, backgroundColor: 'var(--color-surface)', zIndex: 10, borderBottomLeftRadius: 'var(--border-radius-md)', borderBottomRightRadius: 'var(--border-radius-md)' }}>
-            <div className="flex-row align-center gap-sm text-muted text-xs font-bold tracking-wider">
-              <ShieldCheck size={16} color="var(--color-gold)" />
-              VERIFIED BY VELO AI SECURITY PROTOCOL
-            </div>
-            <div className="flex-row gap-md">
-              <button className="p-md rounded border-subtle text-white font-bold" style={{ backgroundColor: 'rgba(255,255,255,0.05)', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)' }}>SAVE DRAFT</button>
-              <button className="btn-primary font-bold" onClick={handleSubmit}>
-                {isEditMode ? 'UPDATE ASSET RECORD' : 'REGISTER ASSET TO VAULT'}
-              </button>
-            </div>
-         </div>
-       </div>
+        {/* Persistent Footer + mandatory verified footer */}
+        <div className="u-modal-footer" style={{ justifyContent: 'space-between' }}>
+          <button className="ob-btn-draft" onClick={onClose}>CANCEL</button>
+          <button className="ob-btn-complete" onClick={handleSubmit} disabled={saving}>
+            {saving ? 'SAVING…' : isEditMode ? 'UPDATE VEHICLE' : 'REGISTER VEHICLE'}
+          </button>
+        </div>
+        <div className="security-footer">Verified by Velo AI Security Protocol</div>
+      </div>
     </div>
   );
+};
+
+const lbl = { fontSize: 10, color: '#888', letterSpacing: '0.08em', alignSelf: 'center' };
+const inp = {
+  backgroundColor: '#0B0B0C', border: '1px solid #2a2a2c', borderRadius: 6, color: '#fff',
+  padding: '8px 10px', fontSize: 13, width: '100%', boxSizing: 'border-box',
 };
 
 export default AddVehicleModal;

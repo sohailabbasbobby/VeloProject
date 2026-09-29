@@ -9,17 +9,21 @@ services:
     container_name: velo_postgres_prod
     restart: always
     environment:
-      # Securely mapped from high-level runtime secrets
       POSTGRES_DB: ${DB_NAME:-velo_network}
       POSTGRES_USER: ${DB_USER:-velo_admin}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_placeholder_password}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required in production}
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-velo_admin} -d ${DB_NAME:-velo_network}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
-      # Persistent volume mapping to protect cryptographic and geographic records
+      # Persistent volume mapping to protect financial and geospatial records
       - velo_db_data:/var/lib/postgresql/data
-      # Map schema initializers
-      - ./backend-core/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Schema initializer applied on first boot (§7.6)
+      - ./backend-core/db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     networks:
       - velo_secure_net
 
@@ -37,21 +41,65 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=8000
-      # Master Database Connection String
-      - DATABASE_URL=postgres://${DB_USER:-velo_admin}:${DB_PASSWORD:-secure_placeholder_password}@db:5432/${DB_NAME:-velo_network}
-      # High-Level Runtime Variables and Security Keys
-      - JWT_SECRET=${JWT_SECRET:-super_secret_jwt_placeholder}
-      - X_ADMIN_KEY=${X_ADMIN_KEY:-master_admin_placeholder_key}
+      - DATABASE_URL=postgres://${DB_USER:-velo_admin}:${DB_PASSWORD:?DB_PASSWORD is required}@db:5432/${DB_NAME:-velo_network}
+      - DB_POOL_MAX=${DB_POOL_MAX:-20}
+      # Third-party credentials (§7.5) — all required for full functionality
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PROXY_SERVICE_SID=${TWILIO_PROXY_SERVICE_SID}
+      - TWILIO_FROM_NUMBER=${TWILIO_FROM_NUMBER}
+      - FIREBASE_SERVICE_ACCOUNT_B64=${FIREBASE_SERVICE_ACCOUNT_B64}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ADMIN_KEY=${ADMIN_KEY:?ADMIN_KEY is required in production}
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - velo_secure_net
+
+  # ---------------------------------------------------------
+  # TENANT BACK-OFFICE ERP (desktop-only)
+  # ---------------------------------------------------------
+  tenant-erp:
+    build:
+      context: ./tenant-dashboard-erp
+      dockerfile: Dockerfile
+    container_name: velod_erp_prod
+    restart: always
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_BASE=http://backend-core:8000
+    depends_on:
+      - backend-core
+    networks:
+      - velo_secure_net
+
+  # ---------------------------------------------------------
+  # PLATFORM-OWNER BACKOFFICE (desktop-only)
+  # ---------------------------------------------------------
+  backoffice:
+    build:
+      context: ./backoffice-dashboard
+      dockerfile: Dockerfile
+    container_name: velo_backoffice_prod
+    restart: always
+    ports:
+      - "5174:80"
+    environment:
+      - VITE_API_BASE=http://backend-core:8000
+    depends_on:
+      - backend-core
     networks:
       - velo_secure_net
 
 networks:
-  # Isolated virtual network for inter-container secure communication
   velo_secure_net:
     driver: bridge
 
 volumes:
-  # Persistent volume definition for the PostGIS data layer
   velo_db_data:
