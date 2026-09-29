@@ -2,7 +2,7 @@
  * VELO DRIVER APP — Root Entry Point (LIVE-WIRED, §5)
  *
  * App Stages:
- *  LOGIN            → Real Firebase authentication
+ *  LOGIN            → Self-hosted authentication (password / OTP / Google / Apple)
  *  STAGE1           → Pre-Shift Compliance Gatekeeper (writes gatekeeper_checks via API)
  *  STAGE2_IDLE      → Online & listening; polls live trip offers
  *  STAGE2_TAKEOVER  → Incoming dispatch(es) incl. multi-tenant Schedule Conflict modal
@@ -10,7 +10,8 @@
  *  STAGE4           → Post-trip summary + rating
  *  LANDSCAPE_PAGING → Fullscreen Digital Paging Board
  *
- * All state is driven by backend-core over HTTP with a Firebase ID token attached.
+ * All state is driven by backend-core over HTTP with OUR OWN access token attached
+ * (transparent refresh rotation on 401 — see src/api/client.ts).
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -28,7 +29,7 @@ import { PostTripScreen } from './src/screens/PostTripScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { AnimatedStatusDot } from './src/components/AnimatedStatusDot';
 import { BottomStatusSheet } from './src/components/BottomStatusSheet';
-import { watchAuth } from './src/api/auth';
+import { restoreSession, signOut, onSessionExpired } from './src/api/auth';
 import * as Api from './src/api/client';
 
 type AppStage = 'STAGE1' | 'STAGE2_IDLE' | 'STAGE2_TAKEOVER' | 'STAGE3' | 'STAGE4_POST_TRIP' | 'LANDSCAPE_PAGING';
@@ -58,11 +59,21 @@ export default function App() {
   const [isAuthed, setIsAuthed] = useState(false);
 
   useEffect(() => {
-    const unsub = watchAuth((user) => {
-      setIsAuthed(!!user);
-      setAuthReady(true);
+    // Self-hosted session restore: a persisted token pair means signed-in.
+    restoreSession()
+      .then((session) => {
+        setIsAuthed(Boolean(session));
+        setAuthReady(true);
+      })
+      .catch(() => {
+        setIsAuthed(false);
+        setAuthReady(true);
+      });
+
+    // Fatal 401 (refresh failed) bounces back to login.
+    return onSessionExpired(() => {
+      setIsAuthed(false);
     });
-    return unsub;
   }, []);
 
   // ── Navigation ──────────────────────────────────────────────────────────────

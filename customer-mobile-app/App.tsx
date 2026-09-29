@@ -1,9 +1,10 @@
 /**
  * VELO CUSTOMER APP — Root Entry Point (LIVE, §6)
  *
- * Real Firebase Auth (native SDK, no emulators, no mock API keys). The personal
- * booking experience is served by HomeScreen, which talks to backend-core over
- * HTTP with the Firebase ID token attached (src/api/client.ts).
+ * Self-hosted authentication (no Firebase): password / OTP / Google / Apple all
+ * end in OUR session tokens persisted on-device. The personal booking
+ * experience is served by HomeScreen, which talks to backend-core over HTTP
+ * with our access token attached (src/api/client.ts).
  */
 
 import React, { useEffect, useState } from 'react';
@@ -12,18 +13,25 @@ import { ActivityIndicator, SafeAreaView, StatusBar, StyleSheet, Text, Touchable
 import { HomeScreen } from './src/screens/HomeScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import './src/i18n';
-import { watchAuth, signOut } from './src/api/auth';
+import { restoreSession, signOut, onSessionExpired, type CurrentUser } from './src/api/auth';
 
 const App = () => {
   const [authReady, setAuthReady] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<CurrentUser | null>(null);
 
   useEffect(() => {
-    const unsubscribe = watchAuth((currentUser) => {
-      setUser(currentUser);
-      setAuthReady(true);
-    });
-    return unsubscribe;
+    restoreSession()
+      .then((session) => {
+        setUser(session);
+        setAuthReady(true);
+      })
+      .catch(() => {
+        setUser(null);
+        setAuthReady(true);
+      });
+
+    // Fatal 401 (refresh failed) bounces back to login.
+    return onSessionExpired(() => setUser(null));
   }, []);
 
   if (!authReady) {
@@ -47,8 +55,8 @@ const App = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0B0B0C" />
       <View style={styles.sessionBar}>
-        <Text style={styles.sessionEmail}>{user.email}</Text>
-        <TouchableOpacity onPress={() => signOut()}>
+        <Text style={styles.sessionEmail}>{user.displayName || user.email || 'Velo Client'}</Text>
+        <TouchableOpacity onPress={() => { signOut().then(() => setUser(null)); }}>
           <Text style={styles.signOut}>SIGN OUT</Text>
         </TouchableOpacity>
       </View>
@@ -64,11 +72,10 @@ const styles = StyleSheet.create({
   centered: { justifyContent: 'center', alignItems: 'center' },
   sessionBar: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#131315',
-    borderBottomWidth: 1, borderBottomColor: '#222',
+    paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#111111',
   },
-  sessionEmail: { color: '#8A8A8E', fontSize: 11 },
-  signOut: { color: '#D4AF37', fontSize: 11, fontWeight: '800', letterSpacing: 1 },
+  sessionEmail: { color: '#8A8A8E', fontSize: 12 },
+  signOut: { color: '#D4AF37', fontSize: 11, letterSpacing: 1.5, fontWeight: '700' },
 });
 
 export default App;

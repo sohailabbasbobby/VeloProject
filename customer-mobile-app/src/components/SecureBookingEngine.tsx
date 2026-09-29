@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { fetchSavedAddresses } from '../api/client';
+import { searchPlaces, resolvePlace, type PlaceSuggestion } from '../api/places';
 
 export const SecureBookingEngine = ({ stops, setStops, instructions, setInstructions, pickupTimeType, setPickupTimeType, scheduledTime, setScheduledTime, onQuoteRequest, bookingDetails, onOpenVehicleSelection }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -26,8 +27,42 @@ export const SecureBookingEngine = ({ stops, setStops, instructions, setInstruct
     lng: s.lng,
   }));
 
+  // ---- Google Places (New) autocomplete via our backend proxy (fail-open) ----
+  const [placesSuggestions, setPlacesSuggestions] = useState<PlaceSuggestion[]>([]);
+  const searchSeq = useRef(0);
+
+  const runPlacesSearch = (text: string) => {
+    const seq = ++searchSeq.current;
+    searchPlaces(text).then((results) => {
+      if (seq !== searchSeq.current) return; // stale response
+      setPlacesSuggestions(results);
+    });
+  };
+
+  const applyPlaceSelection = (stopId, place: PlaceSuggestion) => {
+    // Resolve lat/lng from the backend; when it fails (fail-open) keep manual entry.
+    resolvePlace(place.placeId).then((details) => {
+      setStops(stops.map(s => s.id === stopId
+        ? {
+            ...s,
+            address: details?.formattedAddress || place.description,
+            latitude: details?.lat ?? s.latitude,
+            longitude: details?.lng ?? s.longitude,
+          }
+        : s));
+      setActiveInputId(null);
+      setShowSavedOnly(false);
+    });
+  };
+
+
   const updateStop = (id, text) => {
     setStops(stops.map(s => s.id === id ? { ...s, address: text } : s));
+    if (text.trim().length >= 2) {
+      runPlacesSearch(text);
+    } else {
+      setPlacesSuggestions([]);
+    }
   };
 
   const addStop = () => {
@@ -123,6 +158,21 @@ export const SecureBookingEngine = ({ stops, setStops, instructions, setInstruct
                       }}
                     />
                   </View>
+                  {/* Google Places suggestions (via our backend proxy, fail-open) */}
+                  {activeInputId === stop.id && !showSavedOnly && placesSuggestions.length > 0 && (
+                    <View style={{ backgroundColor: '#141416', borderRadius: 8, borderWidth: 1, borderColor: '#D4AF37', marginTop: -8, marginBottom: 10, overflow: 'hidden', position: 'absolute', top: 50, left: 0, right: 0, zIndex: 110 }}>
+                      {placesSuggestions.map((place) => (
+                        <TouchableOpacity
+                          key={place.placeId}
+                          style={{ padding: 12, borderBottomWidth: 1, borderColor: '#3A3A3C' }}
+                          onPress={() => applyPlaceSelection(stop.id, place)}
+                        >
+                          <Text style={{ color: '#FFFFFF', fontSize: 14 }} numberOfLines={1}>{place.primaryText}</Text>
+                          {place.secondaryText ? <Text style={{ color: '#8A8A8E', fontSize: 12 }} numberOfLines={1}>{place.secondaryText}</Text> : null}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
                   {/* Autocomplete Dropdown */}
                   {activeInputId === stop.id && suggestions.length > 0 && (
                     <View style={{ backgroundColor: '#1C1C1E', borderRadius: 8, borderWidth: 1, borderColor: '#3A3A3C', marginTop: -8, marginBottom: 10, overflow: 'hidden', position: 'absolute', top: 50, left: 0, right: 0, zIndex: 100 }}>

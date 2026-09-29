@@ -1,62 +1,154 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { getAccessToken } from '../api/auth';
+import { API_BASE, fetchMyTrips } from '../api/client';
+
+/**
+ * MESSAGING VAULT — live chat over OUR OWN realtime gateway (self-hosted swap).
+ * History loads from backend-core's PostgreSQL `messages` table; sends and
+ * incoming frames flow through ws://…/ws/chat with our access token. When
+ * there is no live trip the channel to the assigned chauffeur is shown as
+ * unavailable rather than a fabricated conversation.
+ */
+interface ChatMessage {
+    id: string;
+    sender_type: string;
+    body: string;
+    created_at: string;
+}
+
+const threadKeyForTrip = (tripId: string): string => `trip-${tripId}`;
 
 export const MessagingVaultScreen = ({ onClose }: { onClose?: () => void }) => {
   void onClose;
-  const { t, i18n } = useTranslation();
-  const currentLang = i18n.language || 'en';
-  
-  const messages = [
-    {
-      id: '1',
-      sender: 'driver',
-      timestamp: '19:42',
-      originalLanguage: 'es',
-      content: {
-        original: 'Buenas noches. Estoy esperando afuera del edificio de la terminal cerca de la salida 4.',
-        en: 'Good evening. I am waiting outside the terminal building near exit 4.',
-        ar: 'مساء الخير. أنا أنتظر خارج مبنى الركاب بالقرب من المخرج 4.',
-        es: 'Buenas noches. Estoy esperando afuera del edificio de la terminal cerca de la salida 4.'
-      }
-    },
-    {
-      id: '2',
-      sender: 'customer',
-      timestamp: '19:44',
-      originalLanguage: 'en',
-      content: {
-        original: "Perfect, I'm just walking out now. See you in 2 mins.",
-        en: "Perfect, I'm just walking out now. See you in 2 mins.",
-        ar: "ممتاز، أنا أخرج الآن. أراك خلال دقيقتين.",
-        es: "Perfecto, estoy saliendo ahora mismo. Nos vemos en 2 minutos."
-      }
-    }
-  ];
+  const { t } = useTranslation();
 
-  const renderMessage = (msg) => {
-    const isCustomer = msg.sender === 'customer';
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [liveError, setLiveError] = useState<string | null>(null);
+  const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
+
+  const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; state: string } | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
+  const scrollViewRef = useRef<ScrollView | null>(null);
+
+  const wsUrlRef = useRef<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const token = await getAccessToken();
+      if (token) wsUrlRef.current = `${API_BASE.replace(/^http/, 'ws')}/ws/chat?token=${encodeURIComponent(token)}`;
+    })();
+    return () => { cancelled = true; void cancelled; };
+  }, []);
+
+  // Load the passenger's active trip → its thread.
+  useEffect(() => {
+    fetchMyTrips()
+      .then((rows: any[]) => {
+        const active = (rows || []).find((r) => !['COMPLETED', 'CANCELLED'].includes(r.state));
+        setActiveTrip(active ? { id: active.id, pickup_address: active.pickup_address, state: active.state } : null);
+      })
+      .catch((err) => setLiveError(err?.message || 'Unable to load trips.'))
+      .finally(() => undefined);
+  }, []);
+
+  // History + realtime subscription for the active thread.
+  useEffect(() => {
+    if (!activeTrip) {
+      setLoading(false);
+      return;
+    }
+    const threadKey = threadKeyForTrip(activeTrip.id);
+    let alive = true;
+
+    const loadHistory = async () => {
+      try {
+        const token = await getAccessToken();
+        const res = await fetch(`${API_BASE}/api/trips/messages?threadType=CLIENT_ENGAGEMENT&threadKey=${encodeURIComponent(threadKey)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json?.success) throw new Error(json?.error || `API error ${res.status}`);
+        if (alive) setMessages((json.data || []).slice().reverse());
+        if (alive) setLiveError(null);
+      } catch (err: any) {
+        if (alive) setLiveError(err?.message || 'Unable to load messages.');
+      } finally {
+        if (alive) setLoading(false);
+      }
+    };
+    loadHistory();
+
+    // Realtime: join the trip thread over our own gateway.
+    const connect = async () => {
+      const url = wsUrlRef.current;
+      if (!url) return;
+      try {
+        const ws = new WebSocket(url);
+        socketRef.current = ws;
+        ws.onmessage = (event) => {
+          try {
+            const frame = JSON.parse(String(event.data));
+            if (frame.type === 'MESSAGE' && frame.message?.thread_key === threadKey) {
+              setMessages((prev) => (prev.some((m) => m.id === frame.message.id) ? prev : [...prev, frame.message]));
+            }
+          } catch {
+            // ignore malformed frames — the REST history remains the source of truth
+          }
+        };
+        ws.onopen = () => {
+          ws.send(JSON.stringify({ type: 'JOIN', threadKey }));
+        };
+        ws.onerror = () => undefined; // fail soft: history still works over REST
+      } catch {
+        // WebSocket unavailable (e.g. older dev host) — REST polling covers reads.
+      }
+    };
+    connect();
+
+    return () => {
+      alive = false;
+      socketRef.current?.close();
+      socketRef.current = null;
+    };
+  }, [activeTrip]);
+
+  const send = useCallback(async () => {
+    const body = draft.trim();
+    if (!body || !activeTrip || sending) return;
+    setSending(true);
+    try {
+      const token = await getAccessToken();
+      const res = await fetch(`${API_BASE}/api/trips/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ threadType: 'CLIENT_ENGAGEMENT', threadKey: threadKeyForTrip(activeTrip.id), body }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.success) throw new Error(json?.error || `API error ${res.status}`);
+      setMessages((prev) => (prev.some((m) => m.id === json.data.id) ? prev : [...prev, json.data]));
+      setDraft('');
+      // The realtime gateway also broadcasts our own message; dedupe above covers it.
+    } catch (err: any) {
+      setLiveError(err?.message || 'Message failed to send.');
+    } finally {
+      setSending(false);
+    }
+  }, [draft, activeTrip, sending]);
+
+  const renderMessage = (msg: ChatMessage) => {
+    const isCustomer = msg.sender_type === 'CLIENT' || msg.sender_type === 'PASSENGER';
     const bubbleStyle = isCustomer ? styles.messageBubbleCustomer : styles.messageBubbleDriver;
     const textStyle = isCustomer ? styles.messageTextCustomer : styles.messageTextDriver;
-    const translatedText = msg.content[currentLang] || msg.content.original;
-    const showTranslation = msg.originalLanguage !== currentLang && translatedText !== msg.content.original;
+    const timestamp = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     return (
       <View key={msg.id} style={bubbleStyle}>
-        {showTranslation && (
-          <Text style={[textStyle, { fontStyle: 'italic', opacity: 0.8, fontSize: 13, marginBottom: 4 }]}>
-            {msg.content.original}
-          </Text>
-        )}
-        <Text style={textStyle}>
-          {translatedText}
-        </Text>
-        {showTranslation && (
-          <Text style={{ color: isCustomer ? 'rgba(0,0,0,0.5)' : '#D4AF37', fontSize: 9, marginTop: 4, fontWeight: 'bold' }}>
-            TRANSLATED BY AI
-          </Text>
-        )}
-        <Text style={[styles.timestamp, { color: isCustomer ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)' }]}>{msg.timestamp}</Text>
+        <Text style={textStyle}>{msg.body}</Text>
+        <Text style={[styles.timestamp, { color: isCustomer ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)' }]}>{timestamp}</Text>
       </View>
     );
   };
@@ -64,33 +156,54 @@ export const MessagingVaultScreen = ({ onClose }: { onClose?: () => void }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>{t('messaging.title', 'MESSAGING VAULT')}</Text>
-      
-      <View style={styles.driverProfileCard}>
-        <View style={styles.driverAvatar}>
-          <Text style={styles.avatarText}>M</Text>
-        </View>
-        <View style={styles.driverInfo}>
-          <Text style={styles.driverName}>Michael (Driver)</Text>
-          <Text style={styles.vehicleInfo}>Mercedes S-Class - LK26 XTZ</Text>
-          <Text style={styles.statusText}>Arriving in 4 mins</Text>
-        </View>
-        <TouchableOpacity style={styles.callBtn}>
-          <Text style={styles.callIcon}>📞</Text>
-        </TouchableOpacity>
-      </View>
 
-      <ScrollView style={styles.chatContainer} showsVerticalScrollIndicator={false}>
-        {messages.map(renderMessage)}
-      </ScrollView>
+      {activeTrip ? (
+        <View style={styles.driverProfileCard}>
+          <View style={styles.driverAvatar}>
+            <Text style={styles.avatarText}>V</Text>
+          </View>
+          <View style={styles.driverInfo}>
+            <Text style={styles.driverName}>Velo Chauffeur</Text>
+            <Text style={styles.vehicleInfo}>{activeTrip.pickup_address || 'Your transfer'}</Text>
+            <Text style={styles.statusText}>{activeTrip.state.replace(/_/g, ' ')}</Text>
+          </View>
+        </View>
+      ) : (
+        <View style={styles.driverProfileCard}>
+          <View style={styles.driverInfo}>
+            <Text style={styles.driverName}>No active transfer</Text>
+            <Text style={styles.statusText}>Your chauffeur channel opens when a trip is live.</Text>
+          </View>
+        </View>
+      )}
+
+      {liveError ? (
+        <Text style={styles.liveError}>{liveError}</Text>
+      ) : null}
+
+      {loading ? (
+        <ActivityIndicator color="#D4AF37" style={{ marginTop: 24 }} />
+      ) : (
+        <ScrollView style={styles.chatContainer} showsVerticalScrollIndicator={false} ref={scrollViewRef}
+          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}>
+          {messages.map(renderMessage)}
+          {!loading && messages.length === 0 && activeTrip && (
+            <Text style={styles.emptyText}>No messages yet. Say hello — your chauffeur sees this thread live.</Text>
+          )}
+        </ScrollView>
+      )}
 
       <View style={styles.inputArea}>
-        <TextInput 
-          style={styles.chatInput} 
-          placeholder="Secure Message..." 
-          placeholderTextColor="#8A8A8E" 
+        <TextInput
+          style={styles.chatInput}
+          placeholder={activeTrip ? 'Secure Message...' : 'No active transfer channel'}
+          placeholderTextColor="#8A8A8E"
+          value={draft}
+          editable={Boolean(activeTrip)}
+          onChangeText={setDraft}
         />
-        <TouchableOpacity style={styles.sendBtn}>
-          <Text style={styles.sendIcon}>➤</Text>
+        <TouchableOpacity style={[styles.sendBtn, (!activeTrip || sending) && { opacity: 0.4 }]} onPress={send} disabled={!activeTrip || sending}>
+          {sending ? <ActivityIndicator size="small" color="#0B0B0C" /> : <Text style={styles.sendIcon}>➤</Text>}
         </TouchableOpacity>
       </View>
     </View>
@@ -109,6 +222,17 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     letterSpacing: 2,
     marginBottom: 20,
+  },
+  liveError: {
+    color: '#ff6b6b',
+    fontSize: 11,
+    marginBottom: 8,
+  },
+  emptyText: {
+    color: '#555',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 24,
   },
   driverProfileCard: {
     flexDirection: 'row',
@@ -139,8 +263,8 @@ const styles = StyleSheet.create({
   },
   driverName: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: '700',
   },
   vehicleInfo: {
     color: '#8A8A8E',
@@ -148,88 +272,75 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   statusText: {
-    color: '#34C759',
-    fontSize: 12,
-    fontWeight: '800',
+    color: '#D4AF37',
+    fontSize: 11,
     marginTop: 4,
-  },
-  callBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#1C1C1E',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#2A2A2D',
-  },
-  callIcon: {
-    fontSize: 18,
   },
   chatContainer: {
     flex: 1,
-    marginBottom: 20,
-  },
-  messageBubbleDriver: {
-    backgroundColor: '#1C1C1E',
-    padding: 15,
-    borderRadius: 16,
-    borderBottomLeftRadius: 0,
-    alignSelf: 'flex-start',
-    maxWidth: '80%',
-    marginBottom: 15,
   },
   messageBubbleCustomer: {
-    backgroundColor: '#D4AF37',
-    padding: 15,
-    borderRadius: 16,
-    borderBottomRightRadius: 0,
     alignSelf: 'flex-end',
+    backgroundColor: '#D4AF37',
+    borderRadius: 14,
+    borderBottomRightRadius: 4,
+    padding: 10,
+    marginVertical: 4,
     maxWidth: '80%',
-    marginBottom: 15,
+  },
+  messageBubbleDriver: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#1C1C1E',
+    borderRadius: 14,
+    borderBottomLeftRadius: 4,
+    padding: 10,
+    marginVertical: 4,
+    maxWidth: '80%',
   },
   messageTextCustomer: {
-    color: '#000000',
-    fontSize: 15,
-    lineHeight: 22,
+    color: '#0B0B0C',
+    fontSize: 14,
   },
   messageTextDriver: {
     color: '#FFFFFF',
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
   },
   timestamp: {
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: 10,
+    fontSize: 9,
+    marginTop: 4,
     alignSelf: 'flex-end',
-    marginTop: 5,
   },
   inputArea: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#131315',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#2A2A2D',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
   },
   chatInput: {
     flex: 1,
-    backgroundColor: '#131315',
-    borderWidth: 1,
-    borderColor: '#2A2A2D',
-    borderRadius: 24,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 14,
+    paddingVertical: 8,
   },
   sendBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: '#D4AF37',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 10,
   },
   sendIcon: {
-    color: '#000000',
-    fontSize: 20,
-  }
+    color: '#0B0B0C',
+    fontSize: 15,
+    fontWeight: '900',
+  },
 });

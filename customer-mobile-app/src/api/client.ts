@@ -1,14 +1,30 @@
 /**
  * VELO CUSTOMER APP — LIVE API CLIENT (§6)
- * Every request carries the Firebase ID token. No mock pricing, no local-only state:
- * quotes come from the backend floor engine, bookings write to PostgreSQL.
+ * Every request carries OUR OWN access token (self-hosted auth). On 401 the
+ * client transparently rotates the refresh token once and retries. No mock
+ * pricing, no local-only state: quotes come from the backend floor engine,
+ * bookings write to PostgreSQL.
  */
-import { getAuth } from '@react-native-firebase/auth';
+import { getAccessToken, refreshSession, clearSession } from './auth';
 
 export const API_BASE = 'http://10.0.2.2:8000'; // Android emulator host loopback; override in production builds
 
-const request = async (path: string, options: any = {}) => {
-  const token = await getAuth().currentUser?.getIdToken();
+/** App.tsx subscribes to this to bounce back to the login screen on fatal 401s. */
+export const onSessionExpired = (cb: () => void): (() => void) => {
+  const listener = () => cb();
+  const anyGlobal = globalThis as any;
+  if (!anyGlobal.__veloAuthListeners) anyGlobal.__veloAuthListeners = new Set<() => void>();
+  anyGlobal.__veloAuthListeners.add(listener);
+  return () => { anyGlobal.__veloAuthListeners.delete(listener); };
+};
+
+const emitSessionExpired = (): void => {
+  const anyGlobal = globalThis as any;
+  (anyGlobal.__veloAuthListeners as Set<() => void> | undefined)?.forEach((cb) => cb());
+};
+
+const request = async (path: string, options: any = {}, retry = true): Promise<any> => {
+  const token = await getAccessToken();
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
@@ -17,6 +33,17 @@ const request = async (path: string, options: any = {}) => {
       ...(options.headers || {}),
     },
   });
+
+  if (res.status === 401 && retry) {
+    const newToken = await refreshSession();
+    if (newToken) {
+      return request(path, options, false);
+    }
+    await clearSession();
+    emitSessionExpired();
+    throw new Error('Session expired. Please sign in again.');
+  }
+
   let payload: any = null;
   try {
     payload = await res.json();
@@ -40,7 +67,7 @@ export const api = {
 export const fetchMyProfile = async () => {
   const drivers = await api.get('/api/onboarding/drivers').catch(() => null);
   void drivers;
-  // The authenticated private client resolves via the Firebase uid mapping
+  // The authenticated private client resolves via the self-hosted session claims
   return api.get('/api/trips/private-clients');
 };
 
