@@ -50,13 +50,21 @@ const timeToFree = (trip) => {
   return trip.booking_type === 'ASAP' ? 'ASAP' : '—';
 };
 
-const CommandCenter = ({ onNavigate }) => {
+const CommandCenter = ({ onNavigate, pendingSubView, onConsumePendingSubView }) => {
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [activeFilter, setActiveFilter] = useState('ACTIVE');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [mapFocusedTrip, setMapFocusedTrip] = useState(null);
   const [activeSubView, setActiveSubView] = useState('operations');
+
+  // Consume a pending sub-view intent from App (cross-component navigation, e.g. CorporateRoster → Corporate Accounts)
+  React.useEffect(() => {
+    if (pendingSubView) {
+      setActiveSubView(pendingSubView);
+      if (onConsumePendingSubView) onConsumePendingSubView();
+    }
+  }, [pendingSubView, onConsumePendingSubView]);
 
   const { openDriverProfile, openClientProfile, openVehicleProfile } = useEntityLinker();
 

@@ -1,7 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { RoleContext } from '../App';
 import { Search, RefreshCw } from 'lucide-react';
 import './MainHub.css';
+import { fetchCommandMetrics, fetchTrips, usePolling } from '../utils/api';
+import EntityLink from './EntityLink';
 
 const ArcMeter = ({ percentage, value, label1, val1, label2, val2 }) => {
   const radius = 40;
@@ -44,6 +46,17 @@ const ArcMeter = ({ percentage, value, label1, val1, label2, val2 }) => {
 const MainHub = ({ onOpenDispatch, isAutopilotActive }) => {
   const { role } = useContext(RoleContext);
   const [searchTerm, setSearchTerm] = useState('');
+  const loadMetrics = useCallback(() => fetchCommandMetrics(), []);
+  const { data: metrics, error, loading } = usePolling(loadMetrics, 20000);
+  const loadTrips = useCallback(() => fetchTrips(), []);
+  const { data: liveTrips } = usePolling(loadTrips, 20000);
+
+  const filteredTrips = (liveTrips || []).filter(t =>
+    !searchTerm ||
+    (t.task_id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (t.passenger_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (t.pickup_address || '').toLowerCase().includes(searchTerm.toLowerCase())
+  ).slice(0, 8);
 
   return (
     <div className="command-center">
@@ -58,42 +71,48 @@ const MainHub = ({ onOpenDispatch, isAutopilotActive }) => {
         </div>
       </div>
 
-      {/* Live Status Meters */}
+      {/* Live Status Meters — real counts from /api/fm/command-metrics */}
       <div className="cc-metrics-row">
-        <div className="surface-panel cc-metric-card">
-          <div className="metric-header space-between">
-            <h4>DRIVERS IN SERVICE</h4>
-            <span className="text-gold font-bold text-lg">84%</span>
-          </div>
-          <ArcMeter percentage={84} value="42" label1="Active" val1="38" label2="Waiting" val2="4" />
-        </div>
-        
-        <div className="surface-panel cc-metric-card">
-          <div className="metric-header space-between">
-            <h4>VEHICLE OCCUPANCY</h4>
-            <span className="text-gold font-bold text-lg">62%</span>
-          </div>
-          <ArcMeter percentage={62} value="31" label1="Occupied" val1="19" label2="Available" val2="12" />
-        </div>
+        {error && <div className="surface-panel p-md" style={{ color: 'var(--color-danger)' }}>Live link error: {error.message}</div>}
+        {loading && !metrics && <div className="surface-panel p-md text-muted">Loading live fleet metrics…</div>}
+        {metrics && (
+          <>
+            <div className="surface-panel cc-metric-card">
+              <div className="metric-header space-between">
+                <h4>DRIVERS IN SERVICE</h4>
+                <span className="text-gold font-bold text-lg">{metrics.driversInServicePct}%</span>
+              </div>
+              <ArcMeter percentage={metrics.driversInServicePct} value={String(metrics.drivers.total)} label1="Active" val1={String(metrics.drivers.active)} label2="On Trip" val2={String(metrics.drivers.onTrip)} />
+            </div>
+            
+            <div className="surface-panel cc-metric-card">
+              <div className="metric-header space-between">
+                <h4>VEHICLE OCCUPANCY</h4>
+                <span className="text-gold font-bold text-lg">{metrics.vehicleOccupancyPct}%</span>
+              </div>
+              <ArcMeter percentage={metrics.vehicleOccupancyPct} value={String(metrics.vehicles.total)} label1="Occupied" val1={String(metrics.vehicles.occupied)} label2="Available" val2={String(metrics.vehicles.available)} />
+            </div>
 
-        <div className="surface-panel cc-metric-card">
-          <div className="metric-header space-between">
-            <h4>TRIP VELOCITY</h4>
-            <span className="text-gold font-bold text-lg">Peak</span>
-          </div>
-          <div className="velocity-stats mt-4">
-            <div className="vel-row">
-              <span>En-route</span>
-              <strong>148 trips/hr</strong>
+            <div className="surface-panel cc-metric-card">
+              <div className="metric-header space-between">
+                <h4>TRIP VELOCITY</h4>
+                <span className="text-gold font-bold text-lg">{metrics.trips.enRoute > 10 ? 'Peak' : metrics.trips.enRoute > 0 ? 'Active' : 'Idle'}</span>
+              </div>
+              <div className="velocity-stats mt-4">
+                <div className="vel-row">
+                  <span>En-route</span>
+                  <strong>{metrics.trips.enRoute} trips</strong>
+                </div>
+                <div className="vel-bar"><div className="vel-fill" style={{ width: `${Math.min(100, metrics.trips.enRoute * 5)}%` }}></div></div>
+                <div className="vel-row mt-4">
+                  <span>Upcoming</span>
+                  <strong>{metrics.trips.upcoming} bookings</strong>
+                </div>
+                <div className="vel-bar"><div className="vel-fill" style={{ width: `${Math.min(100, metrics.trips.upcoming * 5)}%` }}></div></div>
+              </div>
             </div>
-            <div className="vel-bar"><div className="vel-fill" style={{width: '70%'}}></div></div>
-            <div className="vel-row mt-4">
-              <span>Upcoming</span>
-              <strong>212 bookings</strong>
-            </div>
-            <div className="vel-bar"><div className="vel-fill" style={{width: '90%'}}></div></div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       <div className="cc-autopilot-banner surface-panel flex-row space-between align-center">
@@ -102,7 +121,7 @@ const MainHub = ({ onOpenDispatch, isAutopilotActive }) => {
             <RefreshCw size={28} color="var(--color-gold)" />
           </div>
           <div>
-            <h3 className="text-white mb-2">Fleet Autopilot Active</h3>
+            <h3 className="text-white mb-2">Fleet Autopilot {isAutopilotActive ? 'Active' : 'Standby'}</h3>
             <p className="text-muted" style={{ maxWidth: '600px', lineHeight: 1.5 }}>
               Velo AI is currently handling all standard dispatches based on client priority and vehicle proximity. Manual intervention will pause specific routes.
             </p>
@@ -110,7 +129,7 @@ const MainHub = ({ onOpenDispatch, isAutopilotActive }) => {
         </div>
         <div className="ap-toggle-box flex-row align-center gap-md">
           <span className="text-gold font-bold" style={{ letterSpacing: '1px' }}>SYSTEM ENGAGED</span>
-          <div className="mock-toggle active">
+          <div className={`mock-toggle ${isAutopilotActive ? 'active' : ''}`}>
             <div className="toggle-knob"></div>
           </div>
         </div>
@@ -141,58 +160,31 @@ const MainHub = ({ onOpenDispatch, isAutopilotActive }) => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>
-                <div className="text-white font-bold">Alexander Van der Bellen</div>
-                <div className="text-muted text-sm">#VELO-9921-A</div>
-              </td>
-              <td>
-                <div className="text-white">Rolls-Royce Phantom</div>
-                <div className="text-muted text-sm">Midnight Silver</div>
-              </td>
-              <td className="text-white">Mayfair → Heathrow T5</td>
-              <td><span className="status-badge bg-gold-dim text-gold">EN-ROUTE</span></td>
-              <td className="text-right"><button className="btn-outline-gold" onClick={onOpenDispatch}>Manual Assign</button></td>
-            </tr>
-            <tr>
-              <td>
-                <div className="text-white font-bold">Sofia Loren (Concierge)</div>
-                <div className="text-muted text-sm">#VELO-9942-X</div>
-              </td>
-              <td>
-                <div className="text-white">Bentley Mulsanne</div>
-                <div className="text-muted text-sm">Onyx Black</div>
-              </td>
-              <td className="text-white">The Ritz → Knightsbridge</td>
-              <td><span className="status-badge bg-gray-dim text-muted">QUEUED</span></td>
-              <td className="text-right"><button className="btn-outline-gold" onClick={onOpenDispatch}>Manual Assign</button></td>
-            </tr>
-            <tr>
-              <td>
-                <div className="text-white font-bold">H.E. Sheikh Khalifa</div>
-                <div className="text-muted text-sm">#VELO-9950-B</div>
-              </td>
-              <td>
-                <div className="text-white">Mercedes-Maybach S680</div>
-                <div className="text-muted text-sm">Two-tone Obsidian</div>
-              </td>
-              <td className="text-white">Northolt Jet Centre → Park Lane</td>
-              <td><span className="status-badge bg-gold-dim text-gold">ARRIVING</span></td>
-              <td className="text-right"><button className="btn-outline-gold" onClick={onOpenDispatch}>Manual Assign</button></td>
-            </tr>
-            <tr>
-              <td>
-                <div className="text-white font-bold">Julianne Moore</div>
-                <div className="text-muted text-sm">#VELO-9961-C</div>
-              </td>
-              <td>
-                <div className="text-white">Range Rover SV Autobiography</div>
-                <div className="text-muted text-sm">Eiger Grey</div>
-              </td>
-              <td className="text-white">Savoy Hotel → Soho House</td>
-              <td><span className="status-badge bg-gray-dim text-muted">PENDING</span></td>
-              <td className="text-right"><button className="btn-outline-gold" onClick={onOpenDispatch}>Manual Assign</button></td>
-            </tr>
+            {filteredTrips.map(t => (
+              <tr key={t.id}>
+                <td>
+                  <div className="text-white font-bold">
+                    {t.passenger_name ? <EntityLink type="Client" value={t.passenger_name} /> : '—'}
+                  </div>
+                  <div className="text-muted text-sm">{t.task_id}</div>
+                </td>
+                <td>
+                  <div className="text-white">{(t.requested_tier || 'EXECUTIVE').replace(/_/g, ' ')}</div>
+                  <div className="text-muted text-sm">{t.channel || 'DIRECT'}</div>
+                </td>
+                <td className="text-white">{t.pickup_address} → {t.dropoff_address}</td>
+                <td><span className={`status-badge ${t.state === 'COMPLETED' ? 'bg-gray-dim text-muted' : 'bg-gold-dim text-gold'}`}>{(t.state || '').replace(/_/g, '-')}</span></td>
+                <td className="text-right"><button className="btn-outline-gold" onClick={onOpenDispatch}>Manual Assign</button></td>
+              </tr>
+            ))}
+            {!liveTrips && (
+              <tr><td colSpan="5" className="text-center text-muted p-xl">Loading live bookings…</td></tr>
+            )}
+            {liveTrips && filteredTrips.length === 0 && (
+              <tr><td colSpan="5" className="text-center text-muted p-xl">
+                No bookings match. Create a dispatch to see live jobs here.
+              </td></tr>
+            )}
           </tbody>
         </table>
       </div>

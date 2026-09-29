@@ -1,18 +1,60 @@
-import React, { useState } from 'react';
-import { Bot, Send, Activity, Search, ShieldAlert, UserCheck, Car, CalendarClock, X, Sparkles } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Bot, Send, Activity, ShieldAlert, UserCheck, Car, CalendarClock, X, Sparkles, Bell } from 'lucide-react';
 import './GeminiAIOperator.css';
+import { fetchNotifications, fetchCommandMetrics, aiOperatorCommand, usePolling } from '../utils/api';
+
+/**
+ * VELO AI OPERATOR — fully live (final-mile pass).
+ *  - Event stream: real in-app notifications (job offers, compliance warnings,
+ *    payout confirmations) polled from backend-core, with live command metrics.
+ *  - Command input: calls the real /api/fm/ai/command endpoint which builds a
+ *    live context packet and answers via the LLM when OPENAI_API_KEY is set.
+ *    Without a key it returns an honest "AI features need a provider key"
+ *    state plus the live snapshot — never a fabricated answer.
+ */
+const iconFor = (title = '') => {
+    const t = title.toLowerCase();
+    if (t.includes('conflict') || t.includes('blocked') || t.includes('expired')) return <ShieldAlert size={14} color="var(--color-danger)" />;
+    if (t.includes('payout') || t.includes('driver')) return <UserCheck size={14} color="var(--color-gold)" />;
+    if (t.includes('vehicle') || t.includes('defect')) return <Car size={14} color="var(--color-muted)" />;
+    if (t.includes('shift') || t.includes('roster')) return <CalendarClock size={14} color="var(--color-muted)" />;
+    return <Activity size={14} color="var(--color-emerald)" />;
+};
 
 const GeminiAIOperator = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [reply, setReply] = useState(null);
+  const [replyMode, setReplyMode] = useState(null); // 'LIVE' | 'UNCONFIGURED' | null
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
 
-  const events = [
-    { id: 1, time: '14:32', type: 'system', icon: <Activity size={14} color="var(--color-emerald)"/>, text: 'Autopilot reassigned V-003 to Sector A' },
-    { id: 2, time: '14:15', type: 'alert', icon: <ShieldAlert size={14} color="var(--color-danger)"/>, text: 'V-001 approaching MOT expiration window' },
-    { id: 3, time: '13:50', type: 'user', icon: <UserCheck size={14} color="var(--color-gold)"/>, text: 'Admin approved new driver: Marcus T.' },
-    { id: 4, time: '13:10', type: 'vehicle', icon: <Car size={14} color="var(--color-muted)"/>, text: 'V-004 marked as Deployed (Shift Start)' },
-    { id: 5, time: '11:45', type: 'schedule', icon: <CalendarClock size={14} color="var(--color-muted)"/>, text: 'Shift roster generated for tomorrow' }
-  ];
+  const loadNotifications = useCallback(() => fetchNotifications(false), []);
+  const { data: notifications } = usePolling(loadNotifications, 15000);
+  const loadMetrics = useCallback(() => fetchCommandMetrics(), []);
+  const { data: metrics } = usePolling(loadMetrics, 20000);
+
+  const events = (notifications || []).slice(0, 8);
+  const sendRef = useRef(null);
+
+  const sendCommand = async () => {
+    const cmd = query.trim();
+    if (!cmd || busy) return;
+    setBusy(true);
+    setError(null);
+    setReply(null);
+    try {
+      const res = await aiOperatorCommand(cmd);
+      setReply(res.reply);
+      setReplyMode(res.mode);
+      setQuery('');
+    } catch (err) {
+      setError(err.message || 'Command failed.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  sendRef.current = sendCommand;
 
   return (
     <>
@@ -33,7 +75,7 @@ const GeminiAIOperator = () => {
             </div>
             <div className="ai-title-stack">
               <h3>Velo AI Operator</h3>
-              <span>Powered by Gemini</span>
+              <span>{replyMode === 'LIVE' ? 'Live LLM connected' : 'Live operational feed'}</span>
             </div>
           </div>
           <button className="btn-icon" onClick={() => setIsOpen(false)}>
@@ -41,17 +83,24 @@ const GeminiAIOperator = () => {
           </button>
         </div>
 
+        {/* Live Insights — real command metrics from backend */}
         <div className="ai-insights mb-lg">
           <h4 className="insights-title">LIVE INSIGHTS</h4>
-          <div className="insight-item">
-            Wait times in Mayfair are increasing by 12%. Recommend diverting 3 available vehicles.
-          </div>
-          <div className="insight-item">
-            Staff shift change in 15 mins. Autopilot transition scheduled.
-          </div>
+          {metrics ? (
+            <>
+              <div className="insight-item">
+                {metrics.trips.enRoute} active trips · {metrics.trips.upcoming} pending · {metrics.drivers.active}/{metrics.drivers.total} drivers in service · {metrics.vehicles.occupied}/{metrics.vehicles.total} vehicles occupied.
+              </div>
+              <div className="insight-item">
+                Platform fees MTD: £{Number(metrics.platformFeesMtd).toLocaleString('en-GB', { minimumFractionDigits: 2 })}.
+              </div>
+            </>
+          ) : (
+            <div className="insight-item">Loading live operational metrics…</div>
+          )}
         </div>
 
-        {/* AI Command Input */}
+        {/* AI Command Input — real backend call */}
         <div className="ai-command-container mb-xl">
           <div className="ai-command-input-wrapper flex-row align-center">
             <input 
@@ -59,33 +108,53 @@ const GeminiAIOperator = () => {
               placeholder="Ask AI or type command..." 
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') sendRef.current && sendRef.current(); }}
               className="ai-command-input flex-1"
             />
-            <button className="btn-ai-send">
+            <button className="btn-ai-send" onClick={sendCommand} disabled={busy || !query.trim()} style={{ opacity: busy || !query.trim() ? 0.5 : 1 }}>
               <Send size={16} color={query.length > 0 ? 'var(--color-gold)' : 'var(--color-muted)'} />
             </button>
           </div>
+          {busy && <div className="text-muted" style={{ fontSize: 11, marginTop: 8 }}>Consulting live operational context…</div>}
+          {error && <div style={{ color: 'var(--color-danger)', fontSize: 11, marginTop: 8 }}>{error}</div>}
+          {reply && (
+            <div className="insight-item" style={{ marginTop: 10, borderLeft: '3px solid var(--color-gold)' }}>
+              <div className="text-white text-sm">{reply}</div>
+              {replyMode === 'UNCONFIGURED' && (
+                <div className="text-muted" style={{ fontSize: 10, marginTop: 6 }}>
+                  AI provider key not configured — showing live snapshot only. No fabricated answer.
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Searchable Audit Ledger */}
+        {/* Live Event Stream & Audit */}
         <div className="audit-ledger-container flex-col flex-1" style={{ overflow: 'hidden' }}>
           <div className="flex-row space-between align-center mb-md">
             <h4 className="insights-title m-0">EVENT STREAM & AUDIT</h4>
-            <button className="btn-icon"><Search size={14} className="text-muted hover-gold" /></button>
+            <span className="flex-row align-center gap-xs text-muted" style={{ fontSize: 10 }}>
+              <Bell size={12} /> {events.length} recent
+            </span>
           </div>
           
           <div className="audit-ledger-list flex-1">
             {events.map(event => (
               <div key={event.id} className="audit-event-item flex-row gap-sm align-start p-sm border-bottom-subtle">
                 <div className="audit-event-icon mt-xs">
-                  {event.icon}
+                  {iconFor(event.title)}
                 </div>
                 <div className="flex-col gap-xs">
-                  <span className="text-white text-sm">{event.text}</span>
-                  <span className="text-muted" style={{ fontSize: '10px' }}>{event.time}</span>
+                  <span className="text-white text-sm">{event.title}{event.body ? ` — ${event.body}` : ''}</span>
+                  <span className="text-muted" style={{ fontSize: '10px' }}>
+                    {event.sent_at ? new Date(event.sent_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : ''}
+                  </span>
                 </div>
               </div>
             ))}
+            {events.length === 0 && (
+              <div className="p-md text-muted text-sm">No live events yet. Dispatches, compliance warnings and payouts will appear here as they happen.</div>
+            )}
           </div>
         </div>
       </aside>

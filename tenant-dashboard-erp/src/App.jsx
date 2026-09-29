@@ -1,8 +1,7 @@
-import React, { useState, createContext } from 'react';
+import React, { useState, useEffect, createContext } from 'react';
 import CommandCenter from './components/CommandCenter';
 import MainHub from './components/MainHub';
 import B2BPool from './components/B2BPool';
-import StaffRoster from './components/StaffRoster';
 import CommHub from './components/CommHub';
 import DispatchModal from './components/DispatchModal';
 import FleetVault from './components/FleetVault';
@@ -32,6 +31,24 @@ function App() {
   const [isDispatchModalOpen, setDispatchModalOpen] = useState(false);
   const [isAutopilotActive, setIsAutopilotActive] = useState(false);
   const [resetKey, setResetKey] = useState(0);
+  const [pendingSubView, setPendingSubView] = useState(null);
+
+  // Cross-component navigation (e.g. CorporateRoster "Add Employee" → Corporate Accounts)
+  useEffect(() => {
+    const onVeloNavigate = (e) => {
+      const tab = e.detail && e.detail.tab;
+      if (!tab) return;
+      if (tab === 'accounts') {
+        // 'accounts' is a sub-view inside CommandCenter, not a top-level tab
+        setActiveTab('command_center');
+        setPendingSubView('accounts');
+      } else {
+        setActiveTab(tab);
+      }
+    };
+    window.addEventListener('velo:navigate', onVeloNavigate);
+    return () => window.removeEventListener('velo:navigate', onVeloNavigate);
+  }, []);
 
   const handleHomeClick = () => {
     setActiveTab('command_center');
@@ -58,7 +75,13 @@ function App() {
           <main className="erp-main-content">
             <div className="erp-canvas">
               {/* Internal Routes */}
-              {activeTab === 'command_center' && <CommandCenter key={resetKey} />}
+              {activeTab === 'command_center' && (
+                <CommandCenter
+                  key={resetKey}
+                  pendingSubView={pendingSubView}
+                  onConsumePendingSubView={() => setPendingSubView(null)}
+                />
+              )}
               {activeTab === 'overview' && <MainHub onOpenDispatch={() => setDispatchModalOpen(true)} isAutopilotActive={isAutopilotActive} />}
               {activeTab === 'b2b' && <B2BPool />}
               {activeTab === 'tax_profile' && <TenantTaxProfilePanel />}

@@ -1,13 +1,110 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { Landmark, Wallet, Users, RefreshCw, Play } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Landmark, Wallet, Users, RefreshCw, Play, CreditCard, ExternalLink, CheckCircle2, AlertTriangle } from 'lucide-react';
 import './CommandCenter.css';
 import {
   fetchMasterLedger, fetchVatReport, fetchPayouts, generatePendingPayouts,
   massExecutePayouts, fetchPayrollPreview, usePolling,
+  fetchStripeConnectStatus, startStripeConnectOnboarding, refreshStripeConnectStatus,
 } from '../utils/api';
 import { useEntityLinker } from '../contexts/EntityLinkerContext';
 
 const gbp = (n) => `£${Number(n || 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+/**
+ * STRIPE CONNECT ONBOARDING (final-mile §3) — the tenant-facing flow to link the
+ * tenant's Stripe account for payouts. States are always honest: unconfigured,
+ * not connected, connected (payouts enabled/disabled). Never a fake "connected".
+ */
+const StripeConnectCard = () => {
+  const [status, setStatus] = useState(null);
+  const [statusError, setStatusError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState(null);
+
+  const loadStatus = useCallback(() => {
+    fetchStripeConnectStatus()
+      .then((s) => { setStatus(s); setStatusError(null); })
+      .catch((e) => setStatusError(e.message));
+  }, []);
+  useEffect(() => { loadStatus(); }, [loadStatus]);
+
+  const startOnboarding = async () => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const origin = window.location.origin;
+      const res = await startStripeConnectOnboarding({ refreshUrl: `${origin}/stripe/refresh`, returnUrl: `${origin}/stripe/return` });
+      setMessage('Redirecting you to Stripe to complete onboarding…');
+      window.location.href = res.onboardingUrl;
+    } catch (err) {
+      setMessage(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const refreshStatus = async () => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const res = await refreshStripeConnectStatus();
+      setMessage(`Stripe status refreshed: payouts ${res.payoutsEnabled ? 'ENABLED' : 'still disabled'}.`);
+      loadStatus();
+    } catch (err) {
+      setMessage(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="sm-metric-row" style={{ display: 'block', padding: 16, border: '1px solid rgba(212,175,55,0.35)', borderRadius: 10, marginBottom: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+        <CreditCard size={16} className="text-gold" />
+        <strong className="text-white" style={{ letterSpacing: 1 }}>PAYOUT BANKING — STRIPE CONNECT</strong>
+      </div>
+
+      {!status && !statusError && <div style={{ color: '#888', fontSize: 12 }}>Checking Stripe connection…</div>}
+      {statusError && (
+        <div style={{ color: '#ff6b6b', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <AlertTriangle size={13} /> Live link error: {statusError}
+        </div>
+      )}
+
+      {status && !status.configured && (
+        <div>
+          <div style={{ color: '#ffb454', fontSize: 12, marginBottom: 8 }}>
+            Stripe isn't configured yet on the platform (no STRIPE_SECRET_KEY). Connect onboarding opens the moment the platform keys are provisioned.
+          </div>
+        </div>
+      )}
+
+      {status && status.configured && !status.connected && (
+        <div>
+          <div style={{ color: '#888', fontSize: 12, marginBottom: 10 }}>
+            Link your company's Stripe account to receive wholesale fare payouts directly from escrow.
+          </div>
+          <button className="ob-btn-complete" onClick={startOnboarding} disabled={busy}>
+            <ExternalLink size={13} /> CONNECT YOUR STRIPE ACCOUNT
+          </button>
+        </div>
+      )}
+
+      {status && status.configured && status.connected && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <span style={{ color: status.payoutsEnabled ? '#30d158' : '#ffb454', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+            {status.payoutsEnabled ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
+            {status.payoutsEnabled ? 'PAYOUTS ENABLED' : 'CONNECTED — ONBOARDING INCOMPLETE'}
+          </span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#888' }}>{status.stripeAccountId}</span>
+          <button className="ob-btn-outline" onClick={refreshStatus} disabled={busy}><RefreshCw size={12} /> REFRESH STATUS</button>
+        </div>
+      )}
+
+      {message && <div style={{ color: '#888', fontSize: 12, marginTop: 10 }}>{message}</div>}
+    </div>
+  );
+};
 
 const TABS = [
   { id: 'ledger', label: 'MASTER LEDGER', icon: <Landmark size={13} /> },
@@ -47,7 +144,10 @@ const FinancialDashboard = () => {
         <MasterLedgerTab ledger={ledger} vat={vat} openDriverProfile={openDriverProfile} />
       )}
       {activeTab === 'payouts' && (
-        <PayoutHubTab payouts={payouts} refreshPayouts={refreshPayouts} openDriverProfile={openDriverProfile} />
+        <>
+          <StripeConnectCard />
+          <PayoutHubTab payouts={payouts} refreshPayouts={refreshPayouts} openDriverProfile={openDriverProfile} />
+        </>
       )}
       {activeTab === 'payroll' && <PayrollBaselineTab openDriverProfile={openDriverProfile} />}
 

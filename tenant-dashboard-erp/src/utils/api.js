@@ -134,6 +134,22 @@ export const uploadFileBytes = async (base64, mime, category = 'documents') =>
 export const fetchNotifications = (unreadOnly) => api.get(`/api/notifications${unreadOnly ? '?unreadOnly=true' : ''}`);
 export const dispatchNotification = (body) => api.post('/api/notifications/dispatch', body);
 
+// ------------------------------------------------------------------ Final-mile (audit, live metrics, AI operator, Stripe Connect)
+export const fetchAuditLogs = (params) => {
+    const qs = new URLSearchParams();
+    if (params && params.severity) qs.set('severity', params.severity);
+    if (params && params.search) qs.set('search', params.search);
+    return api.get(`/api/fm/audit-logs${qs.toString() ? `?${qs.toString()}` : ''}`);
+};
+export const fetchCommandMetrics = () => api.get('/api/fm/command-metrics');
+export const aiOperatorCommand = (command) => api.post('/api/fm/ai/command', { command });
+export const fetchStripeConnectStatus = () => api.get('/api/fm/stripe/connect/status');
+export const startStripeConnectOnboarding = (body) => api.post('/api/fm/stripe/connect/onboard', body);
+export const refreshStripeConnectStatus = () => api.post('/api/fm/stripe/connect/refresh');
+export const fetchVehicleIssues = (vehicleId) => api.get(`/api/fm/issues${vehicleId ? `?vehicleId=${encodeURIComponent(vehicleId)}` : ''}`);
+export const resolveVehicleIssue = (issueId) => api.post(`/api/fm/issues/${issueId}/resolve`);
+export const fetchCorporateUsers = () => api.get('/api/fm/corporate-users');
+
 // ------------------------------------------------------------------ React hook: polling loader
 import { useEffect, useRef, useState } from 'react';
 export const usePolling = (fetcher, intervalMs = 15000) => {
